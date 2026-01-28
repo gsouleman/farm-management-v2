@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import api from '../services/api';
-import FieldMap from '../components/fields/FieldMap';
-import CropForm from '../components/crops/CropForm';
-import ActivityForm from '../components/activities/ActivityForm';
+import api from '../../services/api';
+import FieldMap from './FieldMap';
+import CropForm from '../crops/CropForm';
+import ActivityForm from '../activities/ActivityForm';
 
 const FieldDetails = ({ field, onBack }) => {
     const [crops, setCrops] = useState([]);

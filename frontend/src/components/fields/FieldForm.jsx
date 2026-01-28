@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import useFarmStore from '../../store/farmStore';
-import FieldMap from '../fields/FieldMap';
+import FieldMap from './FieldMap';
 
 const FieldForm = ({ onComplete }) => {
     const { currentFarm, createField } = useFarmStore();
