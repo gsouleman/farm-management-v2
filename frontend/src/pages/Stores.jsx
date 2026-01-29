@@ -15,7 +15,7 @@ const Stores = () => {
 
     if (!currentFarm) return <div style={{ padding: '24px' }}>Please select a farm.</div>;
 
-    const inventoryByCategory = inputs.reduce((acc, item) => {
+    const inventoryByCategory = (inputs || []).reduce((acc, item) => {
         acc[item.category] = (acc[item.category] || 0) + 1;
         return acc;
     }, {});

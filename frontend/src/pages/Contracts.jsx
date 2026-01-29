@@ -29,9 +29,9 @@ const Contracts = () => {
     if (!currentFarm) return <div style={{ padding: '24px' }}>Please select a farm.</div>;
 
     const stats = [
-        { label: 'Active Sales', value: contracts.filter(c => c.contract_type === 'sales' && c.status === 'active').length, color: 'var(--success)' },
-        { label: 'Pending Purchases', value: contracts.filter(c => c.contract_type === 'purchase' && c.status === 'draft').length, color: 'var(--warning)' },
-        { label: 'Total Value', value: `${contracts.reduce((sum, c) => sum + parseFloat(c.total_value || 0), 0).toLocaleString()} XAF`, color: 'var(--primary)' }
+        { label: 'Active Sales', value: (contracts || []).filter(c => c.contract_type === 'sales' && c.status === 'active').length, color: 'var(--success)' },
+        { label: 'Pending Purchases', value: (contracts || []).filter(c => c.contract_type === 'purchase' && c.status === 'draft').length, color: 'var(--warning)' },
+        { label: 'Total Value', value: `${(contracts || []).reduce((sum, c) => sum + parseFloat(c.total_value || 0), 0).toLocaleString()} XAF`, color: 'var(--primary)' }
     ];
 
     return (
