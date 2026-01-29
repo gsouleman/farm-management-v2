@@ -68,7 +68,6 @@ const Dashboard = () => {
         { label: 'TOTAL REVENUE', value: `${totalRevenue.toLocaleString()} Xaf`, icon: '💰', color: '#4caf50' },
         { label: 'TOTAL EXPENSES', value: `${totalExpenses.toLocaleString()} Xaf`, icon: '📉', color: '#cc0000' },
         { label: 'NET CASH FLOW', value: `${netCashFlow.toLocaleString()} Xaf`, icon: '⚖️', color: netCashFlow >= 0 ? '#4caf50' : '#cc0000' },
-        { label: 'LAND UTILIZATION', value: `${landUtilization}%`, icon: '📊', color: '#2196f3' },
         { label: 'TOTAL AREA', value: `${currentFarm?.total_area || '0.00'} ha`, icon: '📏' },
         {
             label: 'PLANTED AREA',
