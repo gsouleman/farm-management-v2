@@ -96,7 +96,7 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
                                 polyline: false,
                                 polygon: {
                                     allowIntersection: false,
-                                    showArea: true,
+                                    showArea: false, // Set to false to avoid ReferenceError: type is not defined
                                     metric: true,
                                     shapeOptions: {
                                         color: 'var(--primary)'
