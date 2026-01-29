@@ -50,6 +50,15 @@ const useCropStore = create((set, get) => ({
         }
     },
 
+    fetchCropProductionCost: async (id) => {
+        try {
+            const response = await api.get(`/reports/production-cost/${id}`);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
     createCrop: async (fieldId, cropData) => {
         try {
             const response = await api.post(`/fields/${fieldId}/crops`, cropData);

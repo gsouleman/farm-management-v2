@@ -13,6 +13,7 @@ const CropForm = ({ fieldId, onComplete }) => {
         row_spacing: '',
         season: '',
         year: new Date().getFullYear(),
+        estimated_cost: '',
         status: 'planted',
         notes: ''
     });
@@ -140,6 +141,16 @@ const CropForm = ({ fieldId, onComplete }) => {
                         <option value="growing">Actively Growing</option>
                         <option value="harvested">Harvested / Completed</option>
                     </select>
+                </div>
+
+                <div style={{ marginBottom: '16px' }}>
+                    <label>Budgeted Production Cost (Estimated XAF)</label>
+                    <input
+                        type="number"
+                        placeholder="e.g. 500000"
+                        value={formData.estimated_cost}
+                        onChange={(e) => setFormData({ ...formData, estimated_cost: e.target.value })}
+                    />
                 </div>
 
                 <div style={{ marginBottom: '24px' }}>

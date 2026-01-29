@@ -32,6 +32,10 @@ module.exports = (sequelize) => {
             type: DataTypes.INTEGER,
             allowNull: false
         },
+        estimated_cost: {
+            type: DataTypes.DECIMAL(10, 2),
+            defaultValue: 0
+        },
         notes: DataTypes.TEXT
     }, {
         tableName: 'crops',

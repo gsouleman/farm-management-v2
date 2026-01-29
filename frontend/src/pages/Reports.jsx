@@ -69,6 +69,8 @@ const Reports = () => {
                 />
             </div>
 
+            <ProductionCostPreview farmId={currentFarm?.id} />
+
             <div className="card" style={{ marginTop: '40px', textAlign: 'center', padding: '40px', backgroundColor: '#f8f9fa' }}>
                 <h3 style={{ marginBottom: '16px' }}>Advanced Geospatial & Data Export</h3>
                 <div className="flex j-center gap-16 wrap">
@@ -79,6 +81,75 @@ const Reports = () => {
                         {loading ? 'Processing...' : 'Generate Live Report'}
                     </button>
                 </div>
+            </div>
+        </div>
+    );
+};
+
+const ProductionCostPreview = ({ farmId }) => {
+    const [data, setData] = React.useState([]);
+    const [loading, setLoading] = React.useState(false);
+
+    React.useEffect(() => {
+        if (farmId) {
+            setLoading(true);
+            api.get('/reports/crop-budget', { params: { farmId } })
+                .then(res => setData(res.data))
+                .catch(err => console.error(err))
+                .finally(() => setLoading(false));
+        }
+    }, [farmId]);
+
+    if (!farmId) return null;
+
+    return (
+        <div className="card" style={{ marginTop: '40px' }}>
+            <div className="card-header">
+                <h3 style={{ margin: 0, fontSize: '18px' }}>Production Cost Analysis (Estimated vs Actual)</h3>
+            </div>
+            <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                        <tr style={{ textAlign: 'left', borderBottom: '2px solid var(--border)', fontSize: '12px', color: 'var(--text-muted)' }}>
+                            <th style={{ padding: '16px' }}>Crop</th>
+                            <th style={{ padding: '16px' }}>Field</th>
+                            <th style={{ padding: '16px' }}>Estimated (XAF)</th>
+                            <th style={{ padding: '16px' }}>Actual (XAF)</th>
+                            <th style={{ padding: '16px' }}>Variance</th>
+                            <th style={{ padding: '16px' }}>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {loading ? (
+                            <tr><td colSpan="6" style={{ textAlign: 'center', padding: '24px' }}>Loading analysis...</td></tr>
+                        ) : data.map((item, idx) => (
+                            <tr key={idx} style={{ borderBottom: '1px solid var(--border)', fontSize: '14px' }}>
+                                <td style={{ padding: '16px', fontWeight: 'bold' }}>{item.crop}</td>
+                                <td style={{ padding: '16px' }}>{item.field}</td>
+                                <td style={{ padding: '16px' }}>{item.estimatedCosts.toLocaleString()}</td>
+                                <td style={{ padding: '16px' }}>{item.actualCosts.toLocaleString()}</td>
+                                <td style={{ padding: '16px', color: item.variance < 0 ? '#dc3545' : '#28a745' }}>
+                                    {item.variance.toLocaleString()}
+                                </td>
+                                <td style={{ padding: '16px' }}>
+                                    <span style={{
+                                        padding: '4px 8px',
+                                        borderRadius: '4px',
+                                        fontSize: '11px',
+                                        fontWeight: 'bold',
+                                        backgroundColor: item.variance < 0 ? '#f8d7da' : '#d4edda',
+                                        color: item.variance < 0 ? '#721c24' : '#155724'
+                                    }}>
+                                        {item.variance < 0 ? 'OVER BUDGET' : 'ON TRACK'}
+                                    </span>
+                                </td>
+                            </tr>
+                        ))}
+                        {data.length === 0 && !loading && (
+                            <tr><td colSpan="6" style={{ textAlign: 'center', padding: '24px', color: 'var(--text-muted)' }}>No crop data available for analysis.</td></tr>
+                        )}
+                    </tbody>
+                </table>
             </div>
         </div>
     );

@@ -9,6 +9,7 @@ const Crops = () => {
     const [view, setView] = useState('list'); // list, add, details
     const [selectedCrop, setSelectedCrop] = useState(null);
     const [timeline, setTimeline] = useState([]);
+    const [costData, setCostData] = useState(null);
     const [timelineLoading, setTimelineLoading] = useState(false);
 
     useEffect(() => {
@@ -22,10 +23,14 @@ const Crops = () => {
         setView('details');
         setTimelineLoading(true);
         try {
-            const data = await fetchCropTimeline(crop.id);
-            setTimeline(data);
+            const [timelineData, costResult] = await Promise.all([
+                fetchCropTimeline(crop.id),
+                useCropStore.getState().fetchCropProductionCost(crop.id)
+            ]);
+            setTimeline(timelineData);
+            setCostData(costResult);
         } catch (error) {
-            console.error('Failed to fetch timeline', error);
+            console.error('Failed to fetch data', error);
         } finally {
             setTimelineLoading(false);
         }
@@ -72,6 +77,36 @@ const Crops = () => {
                             <InfoItem label="Area" value={`${selectedCrop.planted_area} ha`} />
                             <InfoItem label="Field" value={selectedCrop.Field?.name || 'Unknown'} />
                         </div>
+
+                        {costData && (
+                            <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--border)' }}>
+                                <h4 style={{ fontSize: '12px', color: 'var(--primary)', marginBottom: '16px' }}>PRODUCTION COST SUMMARY</h4>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                    <div className="flex j-between">
+                                        <span style={{ fontSize: '13px' }}>Budgeted</span>
+                                        <span style={{ fontWeight: 'bold' }}>{costData.estimatedCost.toLocaleString()} XAF</span>
+                                    </div>
+                                    <div className="flex j-between">
+                                        <span style={{ fontSize: '13px' }}>Actual Total</span>
+                                        <span style={{ fontWeight: 'bold', color: costData.variance < 0 ? '#dc3545' : '#28a745' }}>
+                                            {costData.totalActualCost.toLocaleString()} XAF
+                                        </span>
+                                    </div>
+                                    <div style={{ height: '8px', backgroundColor: '#e9ecef', borderRadius: '4px', overflow: 'hidden', marginTop: '4px' }}>
+                                        <div style={{
+                                            height: '100%',
+                                            width: `${Math.min(100, (costData.totalActualCost / (costData.estimatedCost || 1)) * 100)}%`,
+                                            backgroundColor: costData.variance < 0 ? '#dc3545' : 'var(--primary)'
+                                        }} />
+                                    </div>
+                                    <div className="flex j-between" style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                                        <span>Labor: {costData.actualLaborCost.toLocaleString()}</span>
+                                        <span>Inputs: {costData.actualInputCost.toLocaleString()}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--border)' }}>
                             <label style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Notes</label>
                             <p style={{ marginTop: '8px', fontSize: '14px', lineHeight: '1.6' }}>{selectedCrop.notes || 'No notes provided.'}</p>

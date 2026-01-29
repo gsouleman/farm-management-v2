@@ -8,5 +8,6 @@ router.use(auth); // All reporting routes require authentication
 router.get('/farm-summary', reportController.getFarmSummary);
 router.get('/crop-budget', reportController.getCropBudget);
 router.get('/activity-log', reportController.getActivityLog);
+router.get('/production-cost/:id', reportController.getCropProductionCost);
 
 module.exports = router;

@@ -45,16 +45,33 @@ exports.getCropBudget = async (req, res) => {
             ]
         });
 
-        // Mock budget calculation for now
-        const report = crops.map(crop => ({
-            crop: crop.crop_name,
-            field: crop.Field.name,
-            estimatedRevenue: Math.random() * 500000,
-            estimatedCosts: Math.random() * 200000,
-            netMargin: 0 // Will be calculated below
-        })).map(item => ({
-            ...item,
-            netMargin: item.estimatedRevenue - item.estimatedCosts
+        const report = await Promise.all(crops.map(async (crop) => {
+            const activities = await Activity.findAll({
+                where: { crop_id: crop.id },
+                include: [{ model: Input }]
+            });
+
+            let actualLaborCost = 0;
+            let actualInputCost = 0;
+
+            activities.forEach(activity => {
+                actualLaborCost += parseFloat(activity.labor_cost || 0);
+                activity.Inputs.forEach(input => {
+                    actualInputCost += parseFloat(input.ActivityInput.cost || 0);
+                });
+            });
+
+            const totalActualCost = actualLaborCost + actualInputCost;
+            const estimatedCost = parseFloat(crop.estimated_cost || 0);
+
+            return {
+                crop: crop.crop_type,
+                field: crop.Field.name,
+                estimatedCosts: estimatedCost,
+                actualCosts: totalActualCost,
+                variance: estimatedCost - totalActualCost,
+                netMargin: 0 // In a real scenario, this would involve Harvest revenue
+            };
         }));
 
         res.json(report);
@@ -80,5 +97,53 @@ exports.getActivityLog = async (req, res) => {
         res.json(activities);
     } catch (error) {
         res.status(500).json({ message: 'Error exporting activity log' });
+    }
+};
+
+exports.getCropProductionCost = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const crop = await Crop.findByPk(id, {
+            include: [
+                {
+                    model: Activity,
+                    include: [{ model: Input }]
+                }
+            ]
+        });
+
+        if (!crop) return res.status(404).json({ message: 'Crop not found' });
+
+        let actualLaborCost = 0;
+        let actualInputCost = 0;
+
+        crop.Activities.forEach(activity => {
+            actualLaborCost += parseFloat(activity.labor_cost || 0);
+
+            // We need to get the cost from ActivityInput, but since we included Input 
+            // via the belongsToMany association, Sequelize might put the join table data 
+            // in activity.Inputs[i].ActivityInput
+            activity.Inputs.forEach(input => {
+                actualInputCost += parseFloat(input.ActivityInput.cost || 0);
+            });
+        });
+
+        const totalActualCost = actualLaborCost + actualInputCost;
+
+        res.json({
+            cropId: crop.id,
+            cropType: crop.crop_type,
+            estimatedCost: parseFloat(crop.estimated_cost || 0),
+            actualLaborCost,
+            actualInputCost,
+            totalActualCost,
+            variance: parseFloat(crop.estimated_cost || 0) - totalActualCost,
+            variancePercentage: crop.estimated_cost > 0
+                ? ((parseFloat(crop.estimated_cost) - totalActualCost) / parseFloat(crop.estimated_cost) * 100).toFixed(2)
+                : 0
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error calculating production cost' });
     }
 };
