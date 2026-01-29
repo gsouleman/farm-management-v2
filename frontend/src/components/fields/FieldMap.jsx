@@ -181,18 +181,39 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
 
                     {/* Manual Entry Highlight */}
                     {manualCoordinates?.length > 0 && (
-                        <Polygon
-                            positions={manualCoordinates.map(coord => [coord[1], coord[0]])}
-                            pathOptions={{ color: '#f44336', weight: 2, dashArray: '5, 5' }}
-                        />
+                        <>
+                            {manualCoordinates.map((coord, idx) => (
+                                <L.CircleMarker
+                                    key={`manual-point-${idx}`}
+                                    center={[coord[1], coord[0]]}
+                                    pathOptions={{ color: '#f44336', fillColor: '#f44336', fillOpacity: 1 }}
+                                    radius={4}
+                                />
+                            ))}
+                            {manualCoordinates.length === 2 && (
+                                <L.Polyline
+                                    positions={manualCoordinates.map(coord => [coord[1], coord[0]])}
+                                    pathOptions={{ color: '#f44336', weight: 2, dashArray: '5, 5' }}
+                                />
+                            )}
+                            {manualCoordinates.length >= 3 && (
+                                <Polygon
+                                    positions={manualCoordinates.map(coord => [coord[1], coord[0]])}
+                                    pathOptions={{ color: '#f44336', weight: 2, dashArray: '5, 5', fillOpacity: 0.2 }}
+                                />
+                            )}
+                        </>
                     )}
                 </FeatureGroup>
 
                 {(() => {
+                    // Priority: Manual coordinates currently being entered
+                    if (manualCoordinates?.length > 0) {
+                        return <ZoomToData bounds={manualCoordinates.map(coord => [coord[1], coord[0]])} />;
+                    }
                     const allB = [
                         ...fieldPolygons.flatMap(p => p.positions),
-                        ...(farmPolygon || []),
-                        ...(manualCoordinates?.map(coord => [coord[1], coord[0]]) || [])
+                        ...(farmPolygon || [])
                     ];
                     return allB.length > 0 ? <ZoomToData bounds={allB} /> : null;
                 })()}

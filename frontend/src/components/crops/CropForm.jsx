@@ -49,21 +49,27 @@ const CropForm = ({ fieldId, onComplete }) => {
                 return null;
             }).filter(c => c !== null);
 
-            if (coords.length >= 3) {
-                const polygon = turf.polygon([coords]);
-                const area = turf.area(polygon) / 10000;
-                const perimeter = turf.length(polygon, { units: 'meters' });
+            let area = '';
+            let perimeter = '';
 
-                setFormData(prev => ({
-                    ...prev,
-                    boundary_coordinates: coords,
-                    planted_area: area.toFixed(2),
-                    perimeter: perimeter.toFixed(2),
-                    boundary_manual: text
-                }));
-            } else {
-                setFormData(prev => ({ ...prev, boundary_manual: text }));
+            if (coords.length >= 3) {
+                try {
+                    const polygon = turf.polygon([coords]);
+                    area = (turf.area(polygon) / 10000).toFixed(2);
+                    perimeter = turf.length(polygon, { units: 'meters' }).toFixed(2);
+                } catch (e) {
+                    // Could be an invalid polygon during typing (e.g. self-intersecting)
+                    console.log('Partial/Invalid polygon');
+                }
             }
+
+            setFormData(prev => ({
+                ...prev,
+                boundary_coordinates: coords,
+                planted_area: area || prev.planted_area,
+                perimeter: perimeter || prev.perimeter,
+                boundary_manual: text
+            }));
         } catch (err) {
             setFormData(prev => ({ ...prev, boundary_manual: text }));
         }
