@@ -27,6 +27,12 @@ router.get('/:farmId/activities', activityController.getFarmActivities);
 const harvestController = require('../controllers/harvestController');
 router.get('/:farmId/harvests', harvestController.getFarmHarvests);
 
+// Weather sub-routes
+const weatherController = require('../controllers/weatherController');
+router.get('/:farmId/weather', weatherController.getCurrentWeather);
+router.get('/:farmId/weather/forecast', weatherController.getForecast);
+router.get('/:farmId/weather/history', weatherController.getWeatherHistory);
+
 // Crop sub-routes
 const cropController = require('../controllers/cropController');
 router.get('/:farmId/crops', cropController.getFarmCrops);
