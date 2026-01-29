@@ -41,13 +41,70 @@ const CropForm = ({ fieldId, onComplete }) => {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '16px' }}>
                     <div>
                         <label>Crop Type</label>
-                        <input
-                            type="text"
-                            placeholder="e.g. Corn"
+                        <select
                             value={formData.crop_type}
                             onChange={(e) => setFormData({ ...formData, crop_type: e.target.value })}
                             required
-                        />
+                        >
+                            <option value="">-- Select Crop --</option>
+                            <optgroup label="Cereals & Grains">
+                                <option value="corn">Corn / Maize</option>
+                                <option value="wheat">Wheat</option>
+                                <option value="rice">Rice</option>
+                                <option value="barley">Barley</option>
+                                <option value="sorghum">Sorghum</option>
+                                <option value="millet">Millet</option>
+                                <option value="oats">Oats</option>
+                                <option value="rye">Rye</option>
+                            </optgroup>
+                            <optgroup label="Oilseeds">
+                                <option value="soybeans">Soybeans</option>
+                                <option value="sunflower">Sunflower</option>
+                                <option value="canola">Canola / Rapeseed</option>
+                                <option value="peanut">Peanut / Groundnut</option>
+                                <option value="flax">Flax</option>
+                            </optgroup>
+                            <optgroup label="Vegetables">
+                                <option value="tomato">Tomato</option>
+                                <option value="potato">Potato</option>
+                                <option value="onion">Onion</option>
+                                <option value="cabbage">Cabbage</option>
+                                <option value="carrot">Carrot</option>
+                                <option value="lettuce">Lettuce</option>
+                                <option value="pepper">Pepper (Bell/Chili)</option>
+                                <option value="garlic">Garlic</option>
+                            </optgroup>
+                            <optgroup label="Fruits & Berries">
+                                <option value="apple">Apple</option>
+                                <option value="grape">Grape / Vineyard</option>
+                                <option value="citrus">Citrus (Orange/Lemon)</option>
+                                <option value="banana">Banana</option>
+                                <option value="mango">Mango</option>
+                                <option value="strawberry">Strawberry</option>
+                                <option value="pineapple">Pineapple</option>
+                            </optgroup>
+                            <optgroup label="Legumes & Pulses">
+                                <option value="beans">Beans (Dry/Green)</option>
+                                <option value="lentils">Lentils</option>
+                                <option value="chickpeas">Chickpeas</option>
+                                <option value="peas">Peas</option>
+                            </optgroup>
+                            <optgroup label="Industrial & Fiber">
+                                <option value="cotton">Cotton</option>
+                                <option value="sugar_cane">Sugar Cane</option>
+                                <option value="sugar_beet">Sugar Beet</option>
+                                <option value="hemp">Hemp</option>
+                                <option value="tobacco">Tobacco</option>
+                                <option value="cocoa">Cocoa / Cacao</option>
+                                <option value="coffee">Coffee</option>
+                            </optgroup>
+                            <optgroup label="Forage & Cover">
+                                <option value="alfalfa">Alfalfa</option>
+                                <option value="clover">Clover</option>
+                                <option value="ryegrass">Ryegrass</option>
+                            </optgroup>
+                            <option value="other">Other / Custom</option>
+                        </select>
                     </div>
                     <div>
                         <label>Variety / Hybrid</label>
