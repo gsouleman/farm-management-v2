@@ -30,14 +30,29 @@ exports.createField = async (req, res) => {
         const farm = await Farm.findOne({ where: { id: farm_id, owner_id: req.user.id } });
         if (!farm) return res.status(403).json({ message: 'Unauthorized farm access' });
 
-        // Create polygon geometry
-        // boundary_coordinates should be [[lng, lat], [lng, lat], ...]
+        // Normalize coordinates and ensure closed polygon ring
+        let normalizedCoords = (boundary_coordinates || []).map(coord => {
+            if (Array.isArray(coord)) return coord;
+            if (coord && typeof coord === 'object' && coord.lat !== undefined) {
+                return [parseFloat(coord.lng), parseFloat(coord.lat)];
+            }
+            return coord;
+        });
+
+        if (normalizedCoords.length > 0) {
+            const first = normalizedCoords[0];
+            const last = normalizedCoords[normalizedCoords.length - 1];
+            if (first[0] !== last[0] || first[1] !== last[1]) {
+                normalizedCoords.push(first);
+            }
+        }
+
         const boundary = {
             type: 'Polygon',
-            coordinates: [boundary_coordinates]
+            coordinates: [normalizedCoords]
         };
 
-        // Create field (PostGIS will handle area calculation if triggered, or we can use a query)
+        // Create field
         const field = await Field.create({
             farm_id,
             name,
@@ -47,17 +62,21 @@ exports.createField = async (req, res) => {
             notes
         });
 
-        // Optionally calculate area using PostGIS and update
-        const [result] = await sequelize.query(
-            `SELECT ST_Area(ST_GeogFromGeoJSON(:boundary)) / 10000 AS area_hectares`,
-            {
-                replacements: { boundary: JSON.stringify(boundary) },
-                type: sequelize.QueryTypes.SELECT
-            }
-        );
+        // Calculate area using PostGIS
+        try {
+            const [result] = await sequelize.query(
+                `SELECT ST_Area(ST_GeogFromGeoJSON(:boundary)) / 10000 AS area_hectares`,
+                {
+                    replacements: { boundary: JSON.stringify(boundary) },
+                    type: sequelize.QueryTypes.SELECT
+                }
+            );
 
-        if (result && result.area_hectares) {
-            await field.update({ area: result.area_hectares });
+            if (result && result.area_hectares) {
+                await field.update({ area: result.area_hectares });
+            }
+        } catch (areaError) {
+            console.error('Area calculation failed:', areaError);
         }
 
         res.status(201).json(field);
@@ -75,20 +94,40 @@ exports.updateField = async (req, res) => {
         const { name, boundary_coordinates, soil_type, field_number, notes, irrigation, drainage, slope } = req.body;
 
         if (boundary_coordinates) {
+            let normalizedCoords = boundary_coordinates.map(coord => {
+                if (Array.isArray(coord)) return coord;
+                if (coord && typeof coord === 'object' && coord.lat !== undefined) {
+                    return [parseFloat(coord.lng), parseFloat(coord.lat)];
+                }
+                return coord;
+            });
+
+            if (normalizedCoords.length > 0) {
+                const first = normalizedCoords[0];
+                const last = normalizedCoords[normalizedCoords.length - 1];
+                if (first[0] !== last[0] || first[1] !== last[1]) {
+                    normalizedCoords.push(first);
+                }
+            }
+
             field.boundary = {
                 type: 'Polygon',
-                coordinates: [boundary_coordinates]
+                coordinates: [normalizedCoords]
             };
 
-            const [result] = await sequelize.query(
-                `SELECT ST_Area(ST_GeogFromGeoJSON(:boundary)) / 10000 AS area_hectares`,
-                {
-                    replacements: { boundary: JSON.stringify(field.boundary) },
-                    type: sequelize.QueryTypes.SELECT
+            try {
+                const [result] = await sequelize.query(
+                    `SELECT ST_Area(ST_GeogFromGeoJSON(:boundary)) / 10000 AS area_hectares`,
+                    {
+                        replacements: { boundary: JSON.stringify(field.boundary) },
+                        type: sequelize.QueryTypes.SELECT
+                    }
+                );
+                if (result && result.area_hectares) {
+                    field.area = result.area_hectares;
                 }
-            );
-            if (result && result.area_hectares) {
-                field.area = result.area_hectares;
+            } catch (areaError) {
+                console.error('Area calculation failed:', areaError);
             }
         }
 
