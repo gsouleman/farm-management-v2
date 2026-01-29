@@ -108,6 +108,7 @@ const Dashboard = () => {
                             <h3 style={{ marginBottom: '20px', fontSize: '16px' }}>Quick Actions</h3>
                             <button className="primary" style={{ width: '100%', marginBottom: '12px' }} onClick={() => setView('add-farm')}>+ New Farm</button>
                             <button className="secondary" style={{ width: '100%', marginBottom: '12px' }}>Record Activity</button>
+                            <button className="outline" style={{ width: '100%', marginBottom: '12px' }} onClick={() => window.location.href = '/crops?view=add'}>Add Crop</button>
                             <button className="outline" style={{ width: '100%' }}>Check Weather</button>
                         </div>
 

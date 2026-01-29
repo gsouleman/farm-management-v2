@@ -7,6 +7,17 @@ const Crops = () => {
     const { currentFarm } = useFarmStore();
     const { crops, fetchCropsByFarm, loading, fetchCropTimeline, deleteCrop } = useCropStore();
     const [view, setView] = useState('list'); // list, add, details
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const viewParam = params.get('view');
+        if (viewParam) {
+            setView(viewParam);
+            // Clear the param after reading to prevent sticky view on refresh
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }, []);
+
     const [selectedCrop, setSelectedCrop] = useState(null);
     const [timeline, setTimeline] = useState([]);
     const [costData, setCostData] = useState(null);

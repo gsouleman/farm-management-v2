@@ -21,7 +21,10 @@ const Fields = () => {
                     <h1 style={{ fontSize: '24px', margin: 0 }}>Field Management</h1>
                     <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Overview and boundaries for all parcels in {currentFarm?.name}.</p>
                 </div>
-                <button className="primary" onClick={() => setView('add')}>+ Register New Field</button>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    <button className="outline" onClick={() => window.location.href = '/crops?view=add'}>+ Add Crop</button>
+                    <button className="primary" onClick={() => setView('add')}>+ Register New Field</button>
+                </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
