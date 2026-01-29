@@ -63,22 +63,20 @@ const Dashboard = () => {
         ? (totalPlantedArea / parseFloat(currentFarm.total_area) * 100).toFixed(1)
         : 0, [currentFarm, totalPlantedArea]);
 
-
     const stats = useMemo(() => [
-        { label: 'TOTAL REVENUE', value: `${totalRevenue.toLocaleString()} Xaf`, icon: '💰', color: '#4caf50' },
-        { label: 'TOTAL EXPENSES', value: `${totalExpenses.toLocaleString()} Xaf`, icon: '📉', color: '#cc0000' },
-        { label: 'NET CASH FLOW', value: `${netCashFlow.toLocaleString()} Xaf`, icon: '⚖️', color: netCashFlow >= 0 ? '#4caf50' : '#cc0000' },
-        { label: 'TOTAL AREA', value: `${currentFarm?.total_area || '0.00'} ha`, icon: '📏' },
+        { label: 'Revenue', value: `${(totalRevenue / 1000).toFixed(1)}k`, icon: '💰', color: '#4caf50' },
+        { label: 'Expenses', value: `${(totalExpenses / 1000).toFixed(1)}k`, icon: '📉', color: '#cc0000' },
+        { label: 'Cash Flow', value: `${(netCashFlow / 1000).toFixed(1)}k`, icon: '⚖️', color: netCashFlow >= 0 ? '#4caf50' : '#cc0000' },
+        { label: 'Total Area', value: `${currentFarm?.total_area || '0.0'} ha`, icon: '📏' },
         {
-            label: 'PLANTED AREA',
-            value: `${totalPlantedArea.toFixed(2)} ha`,
+            label: 'Planted',
+            value: `${totalPlantedArea.toFixed(1)} ha`,
             icon: '🌱',
             onClick: () => setView('crop-breakdown'),
             clickable: true
         },
-        { label: 'TOTAL FIELDS', value: fields.length, icon: '🗺️' },
-        { label: 'ACTIVE CROPS', value: crops.filter(c => c.status === 'planted').length, icon: '🚜' }
-    ], [totalRevenue, totalExpenses, netCashFlow, landUtilization, currentFarm, totalPlantedArea, fields.length, crops]);
+        { label: 'Fields', value: fields.length, icon: '🗺️' }
+    ], [totalRevenue, totalExpenses, netCashFlow, landUtilization, currentFarm, totalPlantedArea, fields.length]);
 
     const renderCropBreakdown = () => (
         <div className="animate-fade-in card">
@@ -124,100 +122,75 @@ const Dashboard = () => {
 
         return (
             <div className="animate-fade-in">
-                {/* Dashboard Intelligence Cards */}
+                {/* Intelligence KPI Bar - Condensed */}
                 <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-                    gap: '20px',
-                    marginBottom: '32px'
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '12px',
+                    marginBottom: '24px',
+                    backgroundColor: '#fff',
+                    padding: '12px',
+                    border: '1px solid var(--border)',
+                    boxShadow: 'var(--shadow-sm)'
                 }}>
                     {stats.map((stat, i) => (
                         <div
                             key={i}
-                            className={`card ${stat.clickable ? 'clickable-card' : ''}`}
                             onClick={stat.onClick}
                             style={{
-                                padding: '20px',
-                                borderLeft: stat.color ? `4px solid ${stat.color}` : '1px solid var(--border)',
+                                flex: '1 1 120px',
+                                padding: '8px 16px',
+                                borderRight: i < stats.length - 1 ? '1px solid var(--border)' : 'none',
                                 cursor: stat.clickable ? 'pointer' : 'default',
                                 transition: 'all 0.2s ease',
                                 display: 'flex',
                                 flexDirection: 'column',
-                                justifyContent: 'space-between',
-                                position: 'relative',
-                                overflow: 'hidden'
-                            }}
-                            onMouseOver={(e) => {
-                                if (stat.clickable) e.currentTarget.style.transform = 'translateY(-4px)';
-                                e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)';
-                            }}
-                            onMouseOut={(e) => {
-                                if (stat.clickable) e.currentTarget.style.transform = 'translateY(0)';
-                                e.currentTarget.style.boxShadow = 'none';
+                                gap: '2px'
                             }}
                         >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                                <span style={{
-                                    fontSize: '11px',
-                                    fontWeight: '800',
-                                    color: 'var(--text-muted)',
-                                    letterSpacing: '1px',
-                                    textTransform: 'uppercase'
-                                }}>
-                                    {stat.label}
-                                </span>
-                                <span style={{ fontSize: '20px', opacity: 0.8 }}>{stat.icon}</span>
+                            <span style={{ fontSize: '10px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                {stat.label}
+                            </span>
+                            <div style={{ fontSize: '18px', fontWeight: '800', color: stat.color || 'inherit', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span>{stat.value}</span>
+                                <span style={{ fontSize: '14px', opacity: 0.6 }}>{stat.icon}</span>
                             </div>
-                            <div style={{
-                                fontSize: '24px',
-                                fontWeight: '800',
-                                color: stat.color || 'inherit'
-                            }}>
-                                {stat.value}
-                            </div>
-                            {stat.clickable && (
-                                <div style={{
-                                    fontSize: '10px',
-                                    color: 'var(--primary)',
-                                    marginTop: '8px',
-                                    fontWeight: 'bold'
-                                }}>
-                                    VIEW BREAKDOWN →
-                                </div>
-                            )}
                         </div>
                     ))}
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(300px, 1fr)', gap: '24px' }}>
-                    {/* Left Panel: Map & Financial Trends */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                        <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
-                            <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <h3 style={{ margin: 0, fontSize: '16px' }}>Farm Visualizer</h3>
-                                <button className="outline" style={{ padding: '6px 12px', fontSize: '11px' }} onClick={() => setView('add-field')}>+ Boundary</button>
-                            </div>
-                            <div style={{ height: '400px' }}>
-                                <FieldMap
-                                    center={currentFarm?.coordinates?.coordinates ? [currentFarm.coordinates.coordinates[1], currentFarm.coordinates.coordinates[0]] : [37.7749, -122.4194]}
-                                    fields={fields}
-                                    crops={crops}
-                                    infrastructure={infrastructure}
-                                    farmBoundary={currentFarm?.boundary}
-                                    editable={false}
-                                />
-                            </div>
+                {/* Professional 3-Column Grid */}
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 300px 300px',
+                    gap: '20px',
+                    alignItems: 'start'
+                }}>
+                    {/* Left Column: Map Visualize (Primary Focus) */}
+                    <div className="card" style={{ padding: '0', overflow: 'hidden', height: '100%' }}>
+                        <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fafafa' }}>
+                            <h3 style={{ margin: 0, fontSize: '14px', fontWeight: '800', letterSpacing: '0.5px' }}>FARM VISUALIZER</h3>
+                            <button className="outline" style={{ padding: '4px 10px', fontSize: '10px', fontWeight: '800' }} onClick={() => setView('add-field')}>+ BOUNDARY</button>
                         </div>
-
+                        <div style={{ height: '450px' }}>
+                            <FieldMap
+                                center={currentFarm?.coordinates?.coordinates ? [currentFarm.coordinates.coordinates[1], currentFarm.coordinates.coordinates[0]] : [37.7749, -122.4194]}
+                                fields={fields}
+                                crops={crops}
+                                infrastructure={infrastructure}
+                                farmBoundary={currentFarm?.boundary}
+                                editable={false}
+                            />
+                        </div>
                     </div>
 
-                    {/* Right Panel: Utilization & Inventory */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                        <div className="card" style={{ textAlign: 'center' }}>
-                            <h3 style={{ fontSize: '14px', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '1px' }}>Land Utilization</h3>
-                            <div style={{ height: '200px', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
+                    {/* Middle Column: Utilization & Pro Insight */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                        <div className="card" style={{ textAlign: 'center', padding: '16px' }}>
+                            <h3 style={{ fontSize: '12px', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '800', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>Land Utilization</h3>
+                            <div style={{ height: '180px', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
                                 {landUtilization !== undefined ? (
-                                    <ResponsiveContainer width="100%" height={200}>
+                                    <ResponsiveContainer width="100%" height={180}>
                                         <PieChart>
                                             <Pie
                                                 data={[
@@ -226,8 +199,8 @@ const Dashboard = () => {
                                                 ]}
                                                 cx="50%"
                                                 cy="50%"
-                                                innerRadius={60}
-                                                outerRadius={80}
+                                                innerRadius={50}
+                                                outerRadius={70}
                                                 paddingAngle={5}
                                                 dataKey="value"
                                                 startAngle={180}
@@ -239,48 +212,53 @@ const Dashboard = () => {
                                         </PieChart>
                                     </ResponsiveContainer>
                                 ) : (
-                                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', minHeight: '150px' }}>Calculating...</div>
+                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Calculating...</div>
                                 )}
                                 <div style={{ position: 'absolute', top: '55%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-                                    <div style={{ fontSize: '28px', fontWeight: '800' }}>{landUtilization}%</div>
-                                    <div style={{ fontSize: '10px', color: '#888', fontWeight: 'bold' }}>ESTATE OCCUPIED</div>
+                                    <div style={{ fontSize: '24px', fontWeight: '900' }}>{landUtilization}%</div>
+                                    <div style={{ fontSize: '9px', color: '#888', fontWeight: 'bold' }}>OCCUPIED</div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="card">
-                            <h3 style={{ marginBottom: '20px', fontSize: '15px', fontWeight: '800' }}>Recent Operations</h3>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                <ActivityItem type="Seeding" date="Just now" field="Field A" />
-                                <ActivityItem type="Irrigation" date="2h ago" field="North Field" />
-                                <ActivityItem type="Harvesting" date="Yesterday" field="Field B" />
-                            </div>
-                        </div>
-
-                        <div className="card" style={{ backgroundColor: '#000', color: 'white' }}>
-                            <h3 style={{ color: '#cc0000', fontSize: '14px', marginBottom: '12px' }}>PRO INSIGHT</h3>
-                            <p style={{ fontSize: '12px', margin: 0, color: '#aaa', lineHeight: '1.5' }}>
-                                Your land utilization is at {landUtilization}%. Expanding cultivation to available fields could increase seasonal revenue by up to 15%.
+                        <div className="card" style={{ backgroundColor: '#000', color: 'white', padding: '16px', borderLeft: '4px solid #cc0000' }}>
+                            <h3 style={{ color: '#cc0000', fontSize: '12px', marginBottom: '10px', fontWeight: '900', letterSpacing: '1px' }}>PRO INSIGHT</h3>
+                            <p style={{ fontSize: '12px', margin: 0, color: '#bbb', lineHeight: '1.5', fontStyle: 'italic' }}>
+                                Land utilization is at {landUtilization}%. Consider expanding cultivation to optimize seasonal revenue targets.
                             </p>
+                        </div>
+                    </div>
+
+                    {/* Right Column: Recent Operations */}
+                    <div className="card" style={{ padding: '16px' }}>
+                        <h3 style={{ marginBottom: '16px', fontSize: '12px', fontWeight: '900', letterSpacing: '1px', textTransform: 'uppercase', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>Recent Operations</h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <ActivityItem type="Seeding" date="Just now" field="Field A" />
+                            <ActivityItem type="Irrigation" date="2h ago" field="North Field" />
+                            <ActivityItem type="Harvesting" date="Yesterday" field="Field B" />
+                            <ActivityItem type="Maintenance" date="Yesterday" field="Main Road" />
                         </div>
                     </div>
                 </div>
 
-                {/* Bottom Row: Full Width Inventory */}
-                <div className="card" style={{ marginTop: '24px' }}>
-                    <div className="card-header">
-                        <h3 style={{ margin: 0, fontSize: '16px' }}>Field Inventory & Soil Profile</h3>
-                        <button className="outline" style={{ fontSize: '11px' }} onClick={() => window.print()}>EXPORT DATA</button>
+                {/* Full Width Table Registry - High Density */}
+                <div className="card" style={{ marginTop: '24px', padding: '0' }}>
+                    <div style={{ padding: '12px 16px', borderBottom: '2px solid var(--primary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff' }}>
+                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: '900', letterSpacing: '0.5px' }}>FIELD REGISTRY & SOIL ANALYTICS</h3>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            <button className="outline" style={{ fontSize: '10px', fontWeight: '800', padding: '4px 10px' }}>FILTER</button>
+                            <button className="outline" style={{ fontSize: '10px', fontWeight: '800', padding: '4px 10px' }} onClick={() => window.print()}>EXPORT</button>
+                        </div>
                     </div>
                     <div style={{ overflowX: 'auto' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                             <thead>
-                                <tr style={{ textAlign: 'left', fontSize: '12px', color: 'var(--text-muted)', borderBottom: '2px solid var(--border)' }}>
-                                    <th style={{ padding: '12px 8px' }}>Field Name</th>
-                                    <th style={{ padding: '12px 8px' }}>Surface Area</th>
-                                    <th style={{ padding: '12px 8px' }}>Soil Class</th>
-                                    <th style={{ padding: '12px 8px' }}>Drainage</th>
-                                    <th style={{ padding: '12px 8px' }}>Actions</th>
+                                <tr style={{ textAlign: 'left', fontSize: '11px', color: '#888', borderBottom: '1px solid #eee', backgroundColor: '#fafafa' }}>
+                                    <th style={{ padding: '10px 16px' }}>FIELD IDENTIFIER</th>
+                                    <th style={{ padding: '10px 16px' }}>SURFACE AREA</th>
+                                    <th style={{ padding: '10px 16px' }}>SOIL CLASS</th>
+                                    <th style={{ padding: '10px 16px' }}>DRAINAGE</th>
+                                    <th style={{ padding: '10px 16px', textAlign: 'right' }}>ACTION</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -295,13 +273,13 @@ const Dashboard = () => {
                                         }
                                     }
                                     return (
-                                        <tr key={f.id} style={{ borderBottom: '1px solid var(--border)', fontSize: '14px' }}>
-                                            <td style={{ padding: '12px 8px', fontWeight: 'bold', color: 'var(--primary)' }}>{f.name}</td>
-                                            <td style={{ padding: '12px 8px', fontWeight: 'bold' }}>{fieldDisplayArea.toFixed(2)} ha</td>
-                                            <td style={{ padding: '12px 8px', textTransform: 'capitalize' }}>{f.soil_type || '—'}</td>
-                                            <td style={{ padding: '12px 8px' }}>{f.drainage || '—'}</td>
-                                            <td style={{ padding: '12px 8px' }}>
-                                                <button onClick={() => { setSelectedField(f); setView('field-details'); }} style={{ padding: '4px 12px', borderRadius: '2px', fontSize: '10px', backgroundColor: '#000', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>MANAGE</button>
+                                        <tr key={f.id} style={{ borderBottom: '1px solid #f5f5f5', fontSize: '13px' }}>
+                                            <td style={{ padding: '10px 16px', fontWeight: '800', color: 'var(--primary)' }}>{f.name.toUpperCase()}</td>
+                                            <td style={{ padding: '10px 16px', fontWeight: '600' }}>{fieldDisplayArea.toFixed(2)} ha</td>
+                                            <td style={{ padding: '10px 16px', textTransform: 'capitalize' }}>{f.soil_type || '—'}</td>
+                                            <td style={{ padding: '10px 16px' }}>{f.drainage || '—'}</td>
+                                            <td style={{ padding: '10px 16px', textAlign: 'right' }}>
+                                                <button onClick={() => { setSelectedField(f); setView('field-details'); }} style={{ padding: '3px 10px', borderRadius: '1px', fontSize: '10px', backgroundColor: '#000', color: 'white', border: 'none', cursor: 'pointer', fontWeight: '800' }}>MANAGE</button>
                                             </td>
                                         </tr>
                                     );
@@ -316,23 +294,29 @@ const Dashboard = () => {
     };
 
     return (
-        <div style={{ padding: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+        <div style={{ padding: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', borderBottom: '2px solid #000', paddingBottom: '16px' }}>
                 <div>
-                    <h1 style={{ fontSize: '24px', margin: 0 }}>{currentFarm?.name || 'Farm Overview'}</h1>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '14px', margin: 0 }}>Welcome back! Here's what's happening on your farm.</p>
+                    <h1 style={{ fontSize: '28px', fontWeight: '900', margin: 0, textTransform: 'uppercase', letterSpacing: '-1px' }}>
+                        {currentFarm?.name || 'CENTRAL STATION'}
+                    </h1>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '4px' }}>
+                        <span style={{ fontSize: '11px', color: '#cc0000', fontWeight: '900', letterSpacing: '1px' }}>● LIVE TELEMETRY</span>
+                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>SYSTEM STATUS: OPTIMAL</span>
+                    </div>
                 </div>
                 {view !== 'overview' && (
-                    <button onClick={() => setView('overview')} className="outline">← Back to Dashboard</button>
+                    <button onClick={() => setView('overview')} className="outline" style={{ fontWeight: '800', fontSize: '11px' }}>← RETURN TO CONTROL</button>
                 )}
             </div>
 
-            {loading && <div style={{ textAlign: 'center', padding: '40px' }}>Loading farm data...</div>}
+            {loading && <div style={{ textAlign: 'center', padding: '40px', fontSize: '14px', fontWeight: '700', color: '#888' }}>SYNCING STATION DATA...</div>}
 
             {!loading && renderContent()}
         </div>
     );
 };
+
 
 const ActivityItem = ({ type, date, field }) => (
     <div style={{ display: 'flex', gap: '12px', alignItems: 'start' }}>
