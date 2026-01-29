@@ -29,6 +29,8 @@ const Inventory = () => {
         </div>
     );
 
+    const filteredInputs = inputs.filter(i => filter === 'all' || i.input_type === filter);
+
     if (view === 'add') return <InputForm farmId={currentFarm.id} onComplete={() => setView('list')} />;
 
     return (

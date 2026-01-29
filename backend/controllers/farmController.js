@@ -26,12 +26,18 @@ exports.getFarmById = async (req, res) => {
 
 exports.createFarm = async (req, res) => {
     try {
-        const { name, address, city, state, country, latitude, longitude, total_area, area_unit, farm_type } = req.body;
+        const { name, address, city, state, country, latitude, longitude, total_area, area_unit, farm_type, boundary_coordinates } = req.body;
 
         // Create point geometry from coordinates
         const coordinates = latitude && longitude ? {
             type: 'Point',
             coordinates: [parseFloat(longitude), parseFloat(latitude)]
+        } : null;
+
+        // Create polygon geometry if boundary_coordinates provided
+        const boundary = boundary_coordinates && boundary_coordinates.length > 0 ? {
+            type: 'Polygon',
+            coordinates: [[...boundary_coordinates.map(p => [p.lng, p.lat]), [boundary_coordinates[0].lng, boundary_coordinates[0].lat]]]
         } : null;
 
         const farm = await Farm.create({
@@ -42,6 +48,7 @@ exports.createFarm = async (req, res) => {
             state,
             country,
             coordinates,
+            boundary,
             total_area,
             area_unit: area_unit || 'hectares',
             farm_type
@@ -61,7 +68,7 @@ exports.updateFarm = async (req, res) => {
         });
         if (!farm) return res.status(404).json({ message: 'Farm not found' });
 
-        const { name, address, city, state, country, latitude, longitude, total_area, area_unit, farm_type } = req.body;
+        const { name, address, city, state, country, latitude, longitude, total_area, area_unit, farm_type, boundary_coordinates } = req.body;
 
         if (latitude && longitude) {
             farm.coordinates = {
@@ -70,8 +77,17 @@ exports.updateFarm = async (req, res) => {
             };
         }
 
+        if (boundary_coordinates && boundary_coordinates.length > 0) {
+            farm.boundary = {
+                type: 'Polygon',
+                coordinates: [[...boundary_coordinates.map(p => [p.lng, p.lat]), [boundary_coordinates[0].lng, boundary_coordinates[0].lat]]]
+            };
+        }
+
         await farm.update({
-            name, address, city, state, country, total_area, area_unit, farm_type
+            name, address, city, state, country, total_area, area_unit, farm_type,
+            boundary: farm.boundary,
+            coordinates: farm.coordinates
         });
 
         res.json(farm);

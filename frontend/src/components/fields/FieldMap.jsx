@@ -24,7 +24,7 @@ const ZoomToData = ({ bounds }) => {
     return null;
 };
 
-const FieldMap = ({ center, fields, onBoundaryCreate, editable = true }) => {
+const FieldMap = ({ center, fields, farmBoundary, onBoundaryCreate, editable = true }) => {
     const mapRef = useRef();
 
     const handleCreated = (e) => {
@@ -48,10 +48,17 @@ const FieldMap = ({ center, fields, onBoundaryCreate, editable = true }) => {
     const fieldPolygons = fields?.map(field => ({
         id: field.id,
         name: field.name,
-        positions: field.boundary.coordinates[0].map(coord => [coord[1], coord[0]]) // [lat, lng]
+        positions: field.boundary?.coordinates?.[0]?.map(coord => [coord[1], coord[0]]) || [] // [lat, lng]
     })) || [];
 
-    const allBounds = fieldPolygons.flatMap(p => p.positions);
+    // Convert farm boundary if present
+    const farmPolygon = farmBoundary && farmBoundary.coordinates ?
+        farmBoundary.coordinates[0].map(coord => [coord[1], coord[0]]) : null;
+
+    const allBounds = [
+        ...fieldPolygons.flatMap(p => p.positions),
+        ...(farmPolygon || [])
+    ];
 
     return (
         <div className="glass-card" style={{ height: '500px', padding: '0', overflow: 'hidden' }}>
@@ -90,6 +97,19 @@ const FieldMap = ({ center, fields, onBoundaryCreate, editable = true }) => {
                                         color: 'var(--primary)'
                                     }
                                 }
+                            }}
+                        />
+                    )}
+
+                    {/* Farm Boundary Highlight */}
+                    {farmPolygon && (
+                        <Polygon
+                            positions={farmPolygon}
+                            pathOptions={{
+                                color: '#ff9800',
+                                weight: 3,
+                                dashArray: '10, 10',
+                                fillOpacity: 0.1
                             }}
                         />
                     )}

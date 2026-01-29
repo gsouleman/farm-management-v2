@@ -74,7 +74,8 @@ const FarmForm = ({ onComplete }) => {
             area_unit: 'hectares',
             latitude: points[0].lat.toString(),
             longitude: points[0].lng.toString(),
-            perimeter: (totalPerimeter / 1000).toFixed(2) // km
+            perimeter: (totalPerimeter / 1000).toFixed(2), // km
+            boundary_coordinates: points.map(p => ({ lat: p.lat, lng: p.lng }))
         }));
     };
 

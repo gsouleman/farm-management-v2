@@ -22,7 +22,7 @@ const Dashboard = () => {
 
     const stats = [
         { label: 'Total Fields', value: fields.length, icon: '🗺️' },
-        { label: 'Total Area', value: `${fields.reduce((acc, f) => acc + parseFloat(f.area || 0), 0).toFixed(2)} ha`, icon: '📏' },
+        { label: 'Total Area', value: `${currentFarm?.total_area || '0.00'} ha`, icon: '📏' },
         { label: 'Active Crops', value: '4', icon: '🌱' },
         { label: 'Tasks Today', value: '2', icon: '✅' }
     ];
@@ -61,6 +61,7 @@ const Dashboard = () => {
                                 <FieldMap
                                     center={currentFarm?.coordinates?.coordinates ? [currentFarm.coordinates.coordinates[1], currentFarm.coordinates.coordinates[0]] : [37.7749, -122.4194]}
                                     fields={fields}
+                                    farmBoundary={currentFarm?.boundary}
                                     editable={false}
                                 />
                             </div>

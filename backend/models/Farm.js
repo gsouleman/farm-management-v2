@@ -23,6 +23,9 @@ module.exports = (sequelize) => {
         coordinates: {
             type: DataTypes.GEOMETRY('POINT', 4326)
         },
+        boundary: {
+            type: DataTypes.GEOMETRY('POLYGON', 4326)
+        },
         total_area: DataTypes.DECIMAL(10, 2),
         area_unit: {
             type: DataTypes.STRING,
