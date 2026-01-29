@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import useCropStore from '../../store/cropStore';
 import useFarmStore from '../../store/farmStore';
+import useCropStore from '../../store/cropStore';
+import useInfrastructureStore from '../../store/infrastructureStore';
 import FieldMap from '../fields/FieldMap';
 import { CROP_CATEGORIES } from '../../constants/agriculturalData';
 import * as turf from '@turf/turf';
 
 const CropForm = ({ fieldId, onComplete }) => {
-    const { createCrop } = useCropStore();
+    const { createCrop, crops } = useCropStore();
     const { fields } = useFarmStore();
+    const { infrastructure } = useInfrastructureStore();
 
     // Find parent field for map context
     const parentField = fields.find(f => f.id === fieldId);
@@ -18,8 +20,7 @@ const CropForm = ({ fieldId, onComplete }) => {
         planting_date: new Date().toISOString().split('T')[0],
         expected_harvest_date: '',
         planted_area: '',
-        boundary_coordinates: [], // Captured from map
-        boundary_manual: '', // Textbox for manual entry
+        planted_area: '',
         perimeter: '',
         planting_rate: '',
         row_spacing: '',
@@ -37,43 +38,7 @@ const CropForm = ({ fieldId, onComplete }) => {
         .flat()
         .find(c => c.id === formData.crop_type)?.varieties || [];
 
-    const handleManualCoordsChange = (text) => {
-        try {
-            const lines = text.split('\n').filter(l => l.trim());
-            const coords = lines.map(line => {
-                const parts = line.split(/[,\s]+/).map(p => parseFloat(p.trim()));
-                if (parts.length >= 2) {
-                    // Expecting [lat, lng] from user but internal format is [lng, lat]
-                    return [parts[1], parts[0]];
-                }
-                return null;
-            }).filter(c => c !== null);
 
-            let area = '';
-            let perimeter = '';
-
-            if (coords.length >= 3) {
-                try {
-                    const polygon = turf.polygon([coords]);
-                    area = (turf.area(polygon) / 10000).toFixed(2);
-                    perimeter = turf.length(polygon, { units: 'meters' }).toFixed(2);
-                } catch (e) {
-                    // Could be an invalid polygon during typing (e.g. self-intersecting)
-                    console.log('Partial/Invalid polygon');
-                }
-            }
-
-            setFormData(prev => ({
-                ...prev,
-                boundary_coordinates: coords,
-                planted_area: area || prev.planted_area,
-                perimeter: perimeter || prev.perimeter,
-                boundary_manual: text
-            }));
-        } catch (err) {
-            setFormData(prev => ({ ...prev, boundary_manual: text }));
-        }
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -176,52 +141,21 @@ const CropForm = ({ fieldId, onComplete }) => {
                     </div>
                 </div>
 
-                {/* Land Allocation Map Section */}
                 <div className="card" style={{ backgroundColor: '#fcfcfc', marginBottom: '24px', border: '1px solid #e0e0e0', padding: '0', overflow: 'hidden' }}>
                     <div style={{ padding: '16px 20px', backgroundColor: '#f8f9fa', borderBottom: '1px solid #e0e0e0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <h4 style={{ margin: 0, fontSize: '13px', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Land Allocation Map</h4>
-                        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Draw on map OR enter coordinates below</span>
+                        <h4 style={{ margin: 0, fontSize: '13px', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Farm Visualizer</h4>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', height: '400px' }}>
-                        <div style={{ padding: '16px', backgroundColor: '#f1f5f9', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
-                            <label style={{ fontSize: '11px', fontWeight: 'bold', marginBottom: '8px' }}>BOUNDARY COORDINATES (LAT, LNG)</label>
-                            <textarea
-                                value={formData.boundary_manual}
-                                onChange={(e) => handleManualCoordsChange(e.target.value)}
-                                placeholder="4.05, 9.71&#10;4.06, 9.71&#10;4.06, 9.72&#10;4.05, 9.71"
-                                style={{ flex: 1, fontSize: '11px', fontFamily: 'monospace', padding: '10px', borderRadius: '4px', border: '1px solid #cbd5e0', resize: 'none' }}
-                            />
-                            <div style={{ marginTop: '12px', fontSize: '10px', color: '#64748b', lineHeight: '1.4' }}>
-                                Enter one GPS point per line.<br />Example: 4.05, 9.71
-                            </div>
-                        </div>
-                        <div style={{ height: '100%' }}>
-                            <FieldMap
-                                center={parentField?.boundary?.coordinates?.[0]?.[0] ? [parentField.boundary.coordinates[0][0][1], parentField.boundary.coordinates[0][0][0]] : null}
-                                farmBoundary={parentField?.boundary}
-                                manualCoordinates={formData.boundary_coordinates}
-                                editable={true}
-                                onBoundaryCreate={(data) => {
-                                    setFormData(prev => ({
-                                        ...prev,
-                                        boundary_coordinates: data.coordinates,
-                                        boundary_manual: data.coordinates.map(c => `${c[1]}, ${c[0]}`).join('\n'),
-                                        planted_area: data.area,
-                                        perimeter: data.perimeter
-                                    }));
-                                }}
-                            />
-                        </div>
+                    <div style={{ height: '400px' }}>
+                        <FieldMap
+                            center={parentField?.boundary?.coordinates?.[0]?.[0] ? [parentField.boundary.coordinates[0][0][1], parentField.boundary.coordinates[0][0][0]] : null}
+                            fields={fields}
+                            crops={crops}
+                            infrastructure={infrastructure}
+                            farmBoundary={parentField?.boundary}
+                            editable={false}
+                        />
                     </div>
-
-                    {(formData.boundary_coordinates.length > 0) && (
-                        <div style={{ padding: '12px 20px', backgroundColor: '#fffbe6', borderTop: '1px solid #ffe58f', fontSize: '12px', display: 'flex', gap: '30px' }}>
-                            <span><strong>Allocated Area:</strong> {formData.planted_area} ha</span>
-                            <span><strong>Perimeter:</strong> {formData.perimeter || 0} m</span>
-                            <span><strong>Geofence:</strong> {formData.boundary_coordinates.length} points</span>
-                        </div>
-                    )}
                 </div>
 
                 {/* Specifications Section */}
