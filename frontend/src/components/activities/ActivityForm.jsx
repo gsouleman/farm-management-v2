@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import useActivityStore from '../../store/activityStore';
 import useInventoryStore from '../../store/inventoryStore';
 import useFarmStore from '../../store/farmStore';
+import useCropStore from '../../store/cropStore';
 
 const ActivityForm = ({ fieldId, cropId, onComplete, initialData }) => {
     const { createActivity, updateActivity } = useActivityStore();
     const { inputs: inventory, fetchInputs } = useInventoryStore();
+    const { crops, fetchCropsByFarm } = useCropStore();
     const { currentFarm } = useFarmStore();
 
+    const [internalSelectedCropId, setInternalSelectedCropId] = useState('');
     const [formData, setFormData] = useState({
         activity_type: 'planting',
         activity_date: new Date().toISOString().split('T')[0],
@@ -35,19 +38,30 @@ const ActivityForm = ({ fieldId, cropId, onComplete, initialData }) => {
                 quantity_used: initialData.Inputs?.[0]?.ActivityInput?.quantity_used || '',
                 application_rate: initialData.Inputs?.[0]?.ActivityInput?.application_rate || ''
             });
+            if (initialData.crop_id) setInternalSelectedCropId(initialData.crop_id);
         }
     }, [initialData]);
 
     const [loading, setLoading] = useState(false);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (currentFarm) {
             fetchInputs(currentFarm.id);
+            if (!cropId) {
+                fetchCropsByFarm(currentFarm.id);
+            }
         }
-    }, [currentFarm, fetchInputs]);
+    }, [currentFarm, fetchInputs, fetchCropsByFarm, cropId]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const finalCropId = cropId || internalSelectedCropId;
+        if (!finalCropId) {
+            alert('Please select a crop for this activity.');
+            return;
+        }
+
         setLoading(true);
         try {
             const payload = { ...formData };
@@ -71,14 +85,18 @@ const ActivityForm = ({ fieldId, cropId, onComplete, initialData }) => {
                     field_id: fieldId || initialData.field_id
                 });
             } else {
-                await createActivity(cropId, {
+                // Find the field_id from the selected crop if not provided
+                const targetFieldId = fieldId || crops.find(c => c.id === finalCropId)?.field_id;
+
+                await createActivity(finalCropId, {
                     ...payload,
-                    field_id: fieldId
+                    field_id: targetFieldId
                 });
             }
             if (onComplete) onComplete();
         } catch (error) {
             console.error(error);
+            alert('Failed to log operation. Please ensure all required fields are filled.');
         } finally {
             setLoading(false);
         }
@@ -90,6 +108,26 @@ const ActivityForm = ({ fieldId, cropId, onComplete, initialData }) => {
                 <h3 style={{ margin: 0, fontSize: '18px' }}>Log Field Operation</h3>
             </div>
             <form onSubmit={handleSubmit}>
+                {!cropId && (
+                    <div style={{ marginBottom: '20px', padding: '16px', backgroundColor: '#e8f5e9', borderRadius: '8px', border: '1px solid #c8e6c9' }}>
+                        <label style={{ color: '#2e7d32', fontWeight: 'bold' }}>Target Crop / Cultivation</label>
+                        <div style={{ fontSize: '11px', color: '#666', marginBottom: '8px' }}>Since you are logging from the global operations page, please specify which crop this activity belongs to.</div>
+                        <select
+                            value={internalSelectedCropId}
+                            onChange={(e) => setInternalSelectedCropId(e.target.value)}
+                            required
+                            style={{ borderColor: '#2e7d32' }}
+                        >
+                            <option value="">-- Select Crop --</option>
+                            {crops.map(crop => (
+                                <option key={crop.id} value={crop.id}>
+                                    {crop.crop_type} ({crop.variety}) - {crop.Field?.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                )}
+
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                     <div>
                         <label>Activity Type</label>
