@@ -42,6 +42,14 @@ const teamController = require('../controllers/teamController');
 router.get('/:farmId/team', teamController.getFarmTeam);
 router.post('/:farmId/invite', teamController.inviteMember);
 
+// Input sub-routes
+const inputController = require('../controllers/inputController');
+router.get('/:farmId/inputs', inputController.getInputsByFarm);
+router.post('/:farmId/inputs', (req, res, next) => {
+    req.body.farm_id = req.params.farmId;
+    next();
+}, inputController.createInput);
+
 // Crop sub-routes
 const cropController = require('../controllers/cropController');
 router.get('/:farmId/crops', cropController.getFarmCrops);
