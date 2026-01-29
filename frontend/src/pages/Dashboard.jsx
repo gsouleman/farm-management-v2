@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useFarmStore from '../store/farmStore';
+import useCropStore from '../store/cropStore';
 import FieldMap from '../components/fields/FieldMap';
 import FarmForm from '../components/farms/FarmForm';
 import FieldForm from '../components/fields/FieldForm';
@@ -8,6 +9,7 @@ import FieldDetails from '../components/fields/FieldDetails';
 
 const Dashboard = () => {
     const { fetchFarms, currentFarm, fields, fetchFields, loading } = useFarmStore();
+    const { fetchFarmCrops, crops } = useCropStore();
     const [view, setView] = useState('overview'); // overview, add-farm, add-field, field-details
     const [selectedField, setSelectedField] = useState(null);
     const navigate = useNavigate();
@@ -19,8 +21,9 @@ const Dashboard = () => {
     useEffect(() => {
         if (currentFarm) {
             fetchFields(currentFarm.id);
+            fetchFarmCrops(currentFarm.id);
         }
-    }, [currentFarm, fetchFields]);
+    }, [currentFarm, fetchFields, fetchFarmCrops]);
 
     const stats = [
         { label: 'Total Fields', value: fields.length, icon: '🗺️' },
@@ -63,6 +66,7 @@ const Dashboard = () => {
                                 <FieldMap
                                     center={currentFarm?.coordinates?.coordinates ? [currentFarm.coordinates.coordinates[1], currentFarm.coordinates.coordinates[0]] : [37.7749, -122.4194]}
                                     fields={fields}
+                                    crops={crops}
                                     farmBoundary={currentFarm?.boundary}
                                     editable={false}
                                 />

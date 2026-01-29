@@ -11,12 +11,17 @@ const Crops = () => {
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const viewParam = params.get('view');
-        if (viewParam) {
-            setView(viewParam);
-            // Clear the param after reading to prevent sticky view on refresh
-            window.history.replaceState({}, document.title, window.location.pathname);
+        const idParam = params.get('id');
+
+        if (viewParam) setView(viewParam);
+
+        if (idParam && crops.length > 0) {
+            const crop = crops.find(c => c.id.toString() === idParam);
+            if (crop) {
+                handleViewDetails(crop);
+            }
         }
-    }, []);
+    }, [crops]); // Depends on crops loading
 
     const [selectedCrop, setSelectedCrop] = useState(null);
     const [timeline, setTimeline] = useState([]);

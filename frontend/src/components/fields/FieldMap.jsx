@@ -142,15 +142,57 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
                             }}
                         >
                             <Popup>
-                                <div style={{ fontSize: '12px', maxWidth: '200px' }}>
-                                    <strong>{crop.crop_type}</strong><br />
-                                    {crop.variety}<br />
-                                    Area: {crop.planted_area} ha<br />
-                                    <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid #eee' }} />
-                                    <strong>Boundary Points:</strong>
-                                    <pre style={{ fontSize: '10px', marginTop: '4px', whiteSpace: 'pre-wrap', maxHeight: '100px', overflowY: 'auto' }}>
-                                        {crop.boundary.coordinates[0].map(c => `${c[1].toFixed(5)}, ${c[0].toFixed(5)}`).join('\n')}
-                                    </pre>
+                                <div style={{ fontSize: '13px', minWidth: '220px', padding: '5px' }}>
+                                    <div style={{ borderBottom: '2px solid #ffc107', paddingBottom: '8px', marginBottom: '8px' }}>
+                                        <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1a365d' }}>{crop.crop_type}</div>
+                                        <div style={{ fontSize: '12px', color: '#718096' }}>{crop.variety}</div>
+                                    </div>
+
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', backgroundColor: '#fffbe6', padding: '8px', borderRadius: '4px' }}>
+                                        <span style={{ fontWeight: '600' }}>Surface Area:</span>
+                                        <span style={{ color: '#b7791f', fontWeight: 'bold' }}>{crop.planted_area} ha</span>
+                                    </div>
+
+                                    <div style={{ fontWeight: '600', fontSize: '11px', color: '#4a5568', textTransform: 'uppercase', marginBottom: '5px' }}>
+                                        Allocation Corners (lat, lng):
+                                    </div>
+                                    <div style={{
+                                        backgroundColor: '#f7fafc',
+                                        padding: '10px',
+                                        borderRadius: '4px',
+                                        fontSize: '10.5px',
+                                        maxHeight: '120px',
+                                        overflowY: 'auto',
+                                        fontFamily: 'monospace',
+                                        lineHeight: '1.4',
+                                        border: '1px solid #e2e8f0'
+                                    }}>
+                                        {crop.boundary.coordinates[0].map((c, i) => (
+                                            <div key={i} style={{ borderBottom: i < crop.boundary.coordinates[0].length - 1 ? '1px solid #edf2f7' : 'none', padding: '2px 0' }}>
+                                                <span style={{ color: '#718096', marginRight: '5px' }}>{i + 1}.</span>
+                                                {c[1].toFixed(6)}, {c[0].toFixed(6)}
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div style={{ marginTop: '12px', textAlign: 'center' }}>
+                                        <button
+                                            onClick={() => window.location.href = `/crops?view=details&id=${crop.id}`}
+                                            style={{
+                                                width: '100%',
+                                                padding: '6px',
+                                                backgroundColor: '#ffc107',
+                                                color: '#1a365d',
+                                                border: 'none',
+                                                borderRadius: '4px',
+                                                fontSize: '11px',
+                                                fontWeight: 'bold',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            View Full Timeline
+                                        </button>
+                                    </div>
                                 </div>
                             </Popup>
                         </Polygon>
@@ -169,15 +211,38 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
                             }}
                         >
                             <Popup>
-                                <div style={{ fontSize: '12px', maxWidth: '200px' }}>
-                                    <strong>{infra.name}</strong><br />
-                                    Type: {infra.type}<br />
-                                    Area: {infra.area_sqm} m²<br />
-                                    <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid #eee' }} />
-                                    <strong>Boundary Points:</strong>
-                                    <pre style={{ fontSize: '10px', marginTop: '4px', whiteSpace: 'pre-wrap', maxHeight: '100px', overflowY: 'auto' }}>
-                                        {infra.boundary.coordinates[0].map(c => `${c[1].toFixed(5)}, ${c[0].toFixed(5)}`).join('\n')}
-                                    </pre>
+                                <div style={{ fontSize: '13px', minWidth: '220px', padding: '5px' }}>
+                                    <div style={{ borderBottom: '2px solid #2196f3', paddingBottom: '8px', marginBottom: '8px' }}>
+                                        <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1a365d' }}>{infra.name}</div>
+                                        <div style={{ fontSize: '12px', color: '#718096' }}>{infra.type}</div>
+                                    </div>
+
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', backgroundColor: '#ebf8ff', padding: '8px', borderRadius: '4px' }}>
+                                        <span style={{ fontWeight: '600' }}>Surface Area:</span>
+                                        <span style={{ color: '#2b6cb0', fontWeight: 'bold' }}>{infra.area_sqm} m²</span>
+                                    </div>
+
+                                    <div style={{ fontWeight: '600', fontSize: '11px', color: '#4a5568', textTransform: 'uppercase', marginBottom: '5px' }}>
+                                        Infrastructure Corners (lat, lng):
+                                    </div>
+                                    <div style={{
+                                        backgroundColor: '#f7fafc',
+                                        padding: '10px',
+                                        borderRadius: '4px',
+                                        fontSize: '10.5px',
+                                        maxHeight: '120px',
+                                        overflowY: 'auto',
+                                        fontFamily: 'monospace',
+                                        lineHeight: '1.4',
+                                        border: '1px solid #e2e8f0'
+                                    }}>
+                                        {infra.boundary.coordinates[0].map((c, i) => (
+                                            <div key={i} style={{ borderBottom: i < infra.boundary.coordinates[0].length - 1 ? '1px solid #edf2f7' : 'none', padding: '2px 0' }}>
+                                                <span style={{ color: '#718096', marginRight: '5px' }}>{i + 1}.</span>
+                                                {c[1].toFixed(6)}, {c[0].toFixed(6)}
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </Popup>
                         </Polygon>
