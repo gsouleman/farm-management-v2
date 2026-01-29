@@ -225,7 +225,7 @@ const Dashboard = () => {
                             </div>
                             <div style={{ height: '300px', width: '100%', marginTop: '20px', position: 'relative' }}>
                                 {trendData && trendData.length > 0 ? (
-                                    <ResponsiveContainer width="100%" aspect={2.5} debounce={100}>
+                                    <ResponsiveContainer width="100%" height="100%" debounce={100}>
                                         <AreaChart data={trendData}>
                                             <defs>
                                                 <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
@@ -258,9 +258,9 @@ const Dashboard = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                         <div className="card" style={{ textAlign: 'center' }}>
                             <h3 style={{ fontSize: '14px', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '1px' }}>Land Utilization</h3>
-                            <div style={{ height: '200px', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
+                            <div style={{ height: '200px', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
                                 {landUtilization !== undefined ? (
-                                    <ResponsiveContainer width="100%" aspect={1.5} debounce={100}>
+                                    <ResponsiveContainer width="100%" height="100%" debounce={100}>
                                         <PieChart>
                                             <Pie
                                                 data={[
