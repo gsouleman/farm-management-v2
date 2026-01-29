@@ -25,7 +25,8 @@ api.interceptors.response.use(
     (error) => {
         if (error.response && error.response.status === 401) {
             localStorage.removeItem('token');
-            // Optional: Redirect to login or refresh token
+            // Force a page reload to clear state and redirect via App.jsx/ProtectedRoute
+            window.location.href = '/login';
         }
         return Promise.reject(error);
     }

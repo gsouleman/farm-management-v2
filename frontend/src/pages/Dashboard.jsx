@@ -224,26 +224,32 @@ const Dashboard = () => {
                                 <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>PROJECTED VS ACTUAL</div>
                             </div>
                             <div style={{ height: '300px', width: '100%', marginTop: '20px', position: 'relative' }}>
-                                <ResponsiveContainer width="100%" height="100%" minHeight={0} minWidth={0}>
-                                    <AreaChart data={trendData}>
-                                        <defs>
-                                            <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#4caf50" stopOpacity={0.1} />
-                                                <stop offset="95%" stopColor="#4caf50" stopOpacity={0} />
-                                            </linearGradient>
-                                            <linearGradient id="colorExp" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#cc0000" stopOpacity={0.1} />
-                                                <stop offset="95%" stopColor="#cc0000" stopOpacity={0} />
-                                            </linearGradient>
-                                        </defs>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
-                                        <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
-                                        <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `${v / 1000}k`} />
-                                        <Tooltip />
-                                        <Area type="monotone" dataKey="revenue" stroke="#4caf50" fillOpacity={1} fill="url(#colorRev)" strokeWidth={3} />
-                                        <Area type="monotone" dataKey="expenses" stroke="#cc0000" fillOpacity={1} fill="url(#colorExp)" strokeWidth={3} />
-                                    </AreaChart>
-                                </ResponsiveContainer>
+                                {trendData && trendData.length > 0 ? (
+                                    <ResponsiveContainer width="100%" height="100%" minHeight={0} minWidth={0} debounce={50}>
+                                        <AreaChart data={trendData}>
+                                            <defs>
+                                                <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="#4caf50" stopOpacity={0.1} />
+                                                    <stop offset="95%" stopColor="#4caf50" stopOpacity={0} />
+                                                </linearGradient>
+                                                <linearGradient id="colorExp" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="#cc0000" stopOpacity={0.1} />
+                                                    <stop offset="95%" stopColor="#cc0000" stopOpacity={0} />
+                                                </linearGradient>
+                                            </defs>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
+                                            <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                                            <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `${v / 1000}k`} />
+                                            <Tooltip />
+                                            <Area type="monotone" dataKey="revenue" stroke="#4caf50" fillOpacity={1} fill="url(#colorRev)" strokeWidth={3} />
+                                            <Area type="monotone" dataKey="expenses" stroke="#cc0000" fillOpacity={1} fill="url(#colorExp)" strokeWidth={3} />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                ) : (
+                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', color: 'var(--text-muted)', fontSize: '13px' }}>
+                                        No trend data available
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -253,27 +259,31 @@ const Dashboard = () => {
                         <div className="card" style={{ textAlign: 'center' }}>
                             <h3 style={{ fontSize: '14px', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '1px' }}>Land Utilization</h3>
                             <div style={{ height: '200px', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
-                                <ResponsiveContainer width="100%" height="100%" minHeight={0} minWidth={0}>
-                                    <PieChart>
-                                        <Pie
-                                            data={[
-                                                { name: 'Planted', value: parseFloat(landUtilization) },
-                                                { name: 'Available', value: 100 - parseFloat(landUtilization) }
-                                            ]}
-                                            cx="50%"
-                                            cy="50%"
-                                            innerRadius={60}
-                                            outerRadius={80}
-                                            paddingAngle={5}
-                                            dataKey="value"
-                                            startAngle={180}
-                                            endAngle={0}
-                                        >
-                                            <Cell fill="#cc0000" />
-                                            <Cell fill="#eee" />
-                                        </Pie>
-                                    </PieChart>
-                                </ResponsiveContainer>
+                                {landUtilization !== undefined ? (
+                                    <ResponsiveContainer width="100%" height="100%" minHeight={0} minWidth={0} debounce={50}>
+                                        <PieChart>
+                                            <Pie
+                                                data={[
+                                                    { name: 'Planted', value: parseFloat(landUtilization) || 0 },
+                                                    { name: 'Available', value: Math.max(0, 100 - (parseFloat(landUtilization) || 0)) }
+                                                ]}
+                                                cx="50%"
+                                                cy="50%"
+                                                innerRadius={60}
+                                                outerRadius={80}
+                                                paddingAngle={5}
+                                                dataKey="value"
+                                                startAngle={180}
+                                                endAngle={0}
+                                            >
+                                                <Cell fill="#cc0000" />
+                                                <Cell fill="#eee" />
+                                            </Pie>
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                ) : (
+                                    <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Calculating...</div>
+                                )}
                                 <div style={{ position: 'absolute', top: '55%', left: '50%', transform: 'translate(-50%, -50%)' }}>
                                     <div style={{ fontSize: '28px', fontWeight: '800' }}>{landUtilization}%</div>
                                     <div style={{ fontSize: '10px', color: '#888', fontWeight: 'bold' }}>ESTATE OCCUPIED</div>
