@@ -57,7 +57,13 @@ exports.getCropBudget = async (req, res) => {
             activities.forEach(activity => {
                 actualLaborCost += parseFloat(activity.labor_cost || 0);
                 activity.Inputs.forEach(input => {
-                    actualInputCost += parseFloat(input.ActivityInput.cost || 0);
+                    const storedCost = parseFloat(input.ActivityInput.cost || 0);
+                    if (storedCost === 0 && input.ActivityInput.quantity_used > 0) {
+                        // Fallback for legacy data
+                        actualInputCost += parseFloat(input.unit_cost || 0) * parseFloat(input.ActivityInput.quantity_used);
+                    } else {
+                        actualInputCost += storedCost;
+                    }
                 });
             });
 
@@ -66,7 +72,7 @@ exports.getCropBudget = async (req, res) => {
 
             return {
                 crop: crop.crop_type,
-                field: crop.Field.name,
+                field: crop.Field?.name || 'Unassigned',
                 estimatedCosts: estimatedCost,
                 actualCosts: totalActualCost,
                 variance: estimatedCost - totalActualCost,
@@ -76,6 +82,7 @@ exports.getCropBudget = async (req, res) => {
 
         res.json(report);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Error generating crop budget' });
     }
 };
@@ -124,7 +131,13 @@ exports.getCropProductionCost = async (req, res) => {
             // via the belongsToMany association, Sequelize might put the join table data 
             // in activity.Inputs[i].ActivityInput
             activity.Inputs.forEach(input => {
-                actualInputCost += parseFloat(input.ActivityInput.cost || 0);
+                const storedCost = parseFloat(input.ActivityInput.cost || 0);
+                if (storedCost === 0 && input.ActivityInput.quantity_used > 0) {
+                    // Fallback for legacy data
+                    actualInputCost += parseFloat(input.unit_cost || 0) * parseFloat(input.ActivityInput.quantity_used);
+                } else {
+                    actualInputCost += storedCost;
+                }
             });
         });
 
