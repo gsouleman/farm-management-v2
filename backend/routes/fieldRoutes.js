@@ -19,4 +19,19 @@ router.post('/:fieldId/crops', (req, res, next) => {
     next();
 }, cropController.createCrop);
 
+// Activity sub-routes
+const activityController = require('../controllers/activityController');
+router.get('/:fieldId/activities', async (req, res) => {
+    try {
+        const { Activity, Input } = require('../models');
+        const activities = await Activity.findAll({
+            where: { field_id: req.params.fieldId },
+            include: [Input]
+        });
+        res.json(activities);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching field activities' });
+    }
+});
+
 module.exports = router;

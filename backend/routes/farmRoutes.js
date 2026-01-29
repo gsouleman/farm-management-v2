@@ -19,6 +19,14 @@ router.post('/:farmId/fields', (req, res, next) => {
     next();
 }, fieldController.createField);
 
+// Activity sub-routes
+const activityController = require('../controllers/activityController');
+router.get('/:farmId/activities', activityController.getFarmActivities);
+
+// Harvest sub-routes
+const harvestController = require('../controllers/harvestController');
+router.get('/:farmId/harvests', harvestController.getFarmHarvests);
+
 // Crop sub-routes
 const cropController = require('../controllers/cropController');
 router.get('/:farmId/crops', cropController.getFarmCrops);
