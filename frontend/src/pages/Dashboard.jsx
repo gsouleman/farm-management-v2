@@ -27,8 +27,12 @@ const Dashboard = () => {
 
     const stats = [
         { label: 'Total Fields', value: fields.length, icon: '🗺️' },
-        { label: 'Total Area', value: `${currentFarm?.total_area || '0.00'} ha`, icon: '📏' },
-        { label: 'Active Crops', value: '4', icon: '🌱' },
+        {
+            label: 'Total Planted/Allocated',
+            value: `${fields.reduce((sum, f) => sum + parseFloat(f.area || 0), 0).toFixed(2)} ha`,
+            icon: '📏'
+        },
+        { label: 'Active Crops', value: crops.filter(c => c.status === 'planted').length, icon: '🌱' },
         { label: 'Tasks Today', value: '2', icon: '✅' }
     ];
 
@@ -75,32 +79,32 @@ const Dashboard = () => {
 
                         <div className="card">
                             <div className="card-header">
-                                <h3 style={{ margin: 0, fontSize: '16px' }}>All Fields</h3>
-                                <button className="outline" style={{ fontSize: '12px' }}>Export PDF</button>
+                                <h3 style={{ margin: 0, fontSize: '16px' }}>Field Inventory & Soil Profile</h3>
+                                <button className="outline" style={{ fontSize: '12px' }} onClick={() => window.print()}>Export Report</button>
                             </div>
                             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                 <thead>
                                     <tr style={{ textAlign: 'left', fontSize: '12px', color: 'var(--text-muted)', borderBottom: '2px solid var(--border)' }}>
-                                        <th style={{ padding: '12px 8px' }}>Name</th>
-                                        <th style={{ padding: '12px 8px' }}>Area (ha)</th>
-                                        <th style={{ padding: '12px 8px' }}>Soil Type</th>
+                                        <th style={{ padding: '12px 8px' }}>Field Name</th>
+                                        <th style={{ padding: '12px 8px' }}>Surface Area</th>
+                                        <th style={{ padding: '12px 8px' }}>Soil Class</th>
                                         <th style={{ padding: '12px 8px' }}>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {fields.map(f => (
                                         <tr key={f.id} style={{ borderBottom: '1px solid var(--border)', fontSize: '14px' }}>
-                                            <td style={{ padding: '12px 8px', fontWeight: '500' }}>{f.name}</td>
-                                            <td style={{ padding: '12px 8px' }}>{f.area}</td>
-                                            <td style={{ padding: '12px 8px' }}>{f.soil_type || '—'}</td>
+                                            <td style={{ padding: '12px 8px', fontWeight: 'bold', color: 'var(--primary)' }}>{f.name}</td>
+                                            <td style={{ padding: '12px 8px', fontWeight: 'bold' }}>{parseFloat(f.area || 0).toFixed(2)} ha</td>
+                                            <td style={{ padding: '12px 8px', textTransform: 'capitalize' }}>{f.soil_type || '—'}</td>
                                             <td style={{ padding: '12px 8px' }}>
-                                                <button onClick={() => { setSelectedField(f); setView('field-details'); }} style={{ padding: '4px 8px', fontSize: '11px', backgroundColor: 'var(--primary)', color: 'white' }}>Details</button>
+                                                <button onClick={() => { setSelectedField(f); setView('field-details'); }} style={{ padding: '4px 12px', borderRadius: '4px', fontSize: '11px', backgroundColor: 'var(--primary)', color: 'white', border: 'none', cursor: 'pointer' }}>Manage</button>
                                             </td>
                                         </tr>
                                     ))}
                                     {fields.length === 0 && (
                                         <tr>
-                                            <td colSpan="4" style={{ textAlign: 'center', padding: '24px', color: 'var(--text-muted)' }}>No fields recorded for this farm.</td>
+                                            <td colSpan="4" style={{ textAlign: 'center', padding: '24px', color: 'var(--text-muted)' }}>No fields recorded for this farm. Use '+ Boundary' to add one.</td>
                                         </tr>
                                     )}
                                 </tbody>
