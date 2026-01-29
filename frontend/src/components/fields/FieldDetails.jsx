@@ -40,7 +40,7 @@ const FieldDetails = ({ field, onBack }) => {
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             <DataRow label="Field Number" value={field.field_number || 'N/A'} />
-                            <DataRow label="Total Area" value={`${field.area} ha`} />
+                            <DataRow label="Total Area" value={`${parseFloat(field.area || 0).toFixed(2)} ha`} />
                             <DataRow label="Soil Type" value={field.soil_type || 'Unknown'} />
                             <DataRow label="Irrigation" value={field.irrigation ? 'Operational' : 'None'} />
                         </div>
@@ -124,7 +124,7 @@ const FieldDetails = ({ field, onBack }) => {
 const DataRow = ({ label, value }) => (
     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
         <span style={{ color: 'var(--text-muted)' }}>{label}</span>
-        <span style={{ fontWeight: '600' }}>{value}</span>
+        <span style={{ fontWeight: 'bold' }}>{value}</span>
     </div>
 );
 
