@@ -33,6 +33,10 @@ router.get('/:farmId/weather', weatherController.getCurrentWeather);
 router.get('/:farmId/weather/forecast', weatherController.getForecast);
 router.get('/:farmId/weather/history', weatherController.getWeatherHistory);
 
+// Document sub-routes
+const documentController = require('../controllers/documentController');
+router.get('/:farmId/documents', documentController.getFarmDocuments);
+
 // Crop sub-routes
 const cropController = require('../controllers/cropController');
 router.get('/:farmId/crops', cropController.getFarmCrops);

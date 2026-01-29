@@ -33,6 +33,11 @@ app.use('/api/reports', require('./routes/reportRoutes'));
 app.use('/api/exports', require('./routes/exportRoutes'));
 app.use('/api/harvests', require('./routes/harvestRoutes'));
 app.use('/api/weather', require('./routes/weatherRoutes'));
+app.use('/api/documents', require('./routes/documentRoutes'));
+
+// Static files for uploads
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Database sync and server start
 const startServer = async () => {
