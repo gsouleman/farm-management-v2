@@ -354,7 +354,7 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
                                         positions={manualCoordinates.map(coord => [coord[1], coord[0]])}
                                         pathOptions={{ color: style.color, weight: 2, dashArray: '5, 5' }}
                                     />
-                                ))}
+                                )}
                                 {manualCoordinates.length >= 3 && manualCoordinates.every(c => c && c.length >= 2) && (
                                     <Polygon
                                         positions={manualCoordinates.map(coord => [coord[1], coord[0]])}
