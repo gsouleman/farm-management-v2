@@ -85,7 +85,11 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
                             position="topright"
                             onCreated={handleCreated}
                             draw={{
-                                rectangle: false,
+                                rectangle: {
+                                    shapeOptions: {
+                                        color: 'var(--primary)'
+                                    }
+                                },
                                 circle: false,
                                 circlemarker: false,
                                 marker: false,
