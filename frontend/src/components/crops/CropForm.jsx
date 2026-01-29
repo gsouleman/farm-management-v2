@@ -11,10 +11,10 @@ const CropForm = ({ fieldId, onComplete }) => {
     const { fields } = useFarmStore();
     const { infrastructure } = useInfrastructureStore();
 
-    const [selectedFieldId, setSelectedFieldId] = useState(fieldId || '');
+    const [selectedFieldId, setSelectedFieldId] = useState(fieldId ? fieldId.toString() : '');
 
     // Find parent field for map context
-    const parentField = fields.find(f => String(f.id) === String(selectedFieldId));
+    const parentField = (fields || []).find(f => f?.id?.toString() === selectedFieldId);
 
     const [formData, setFormData] = useState({
         crop_type: '',
@@ -34,11 +34,13 @@ const CropForm = ({ fieldId, onComplete }) => {
     });
     const [loading, setLoading] = useState(false);
 
-    const cropCategories = CROP_CATEGORIES;
+    const cropCategories = CROP_CATEGORIES || {};
 
-    const currentCropVarieties = Object.values(cropCategories)
-        .flat()
-        .find(c => c.id === formData.crop_type)?.varieties || [];
+    const currentCropVarieties = (formData.crop_type && cropCategories)
+        ? Object.values(cropCategories)
+            .flat()
+            .find(c => c.id === formData.crop_type)?.varieties || []
+        : [];
 
 
 
