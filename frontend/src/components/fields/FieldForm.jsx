@@ -40,53 +40,67 @@ const FieldForm = ({ onComplete }) => {
     };
 
     return (
-        <div className="glass-card animate-fade-in" style={{ maxWidth: '900px', margin: '0 auto' }}>
-            <h3 style={{ marginBottom: '20px' }}>Add New Field Boundary</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) 2fr', gap: '30px' }}>
+        <div className="card animate-fade-in" style={{ maxWidth: '1000px', margin: '0 auto' }}>
+            <div className="card-header">
+                <h3 style={{ margin: 0, fontSize: '18px' }}>Define Field Boundary</h3>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '350px 1fr', gap: '30px' }}>
                 <form onSubmit={handleSubmit}>
                     <div style={{ marginBottom: '16px' }}>
-                        <label style={{ display: 'block', marginBottom: '8px' }}>Field Name</label>
+                        <label>Field Designation</label>
                         <input
                             type="text"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            placeholder="e.g. North Plateau"
                             required
-                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }}
                         />
                     </div>
                     <div style={{ marginBottom: '16px' }}>
-                        <label style={{ display: 'block', marginBottom: '8px' }}>Field Number</label>
+                        <label>Lot / Field Number</label>
                         <input
                             type="text"
                             value={formData.field_number}
                             onChange={(e) => setFormData({ ...formData, field_number: e.target.value })}
-                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }}
+                            placeholder="e.g. #42"
                         />
                     </div>
                     <div style={{ marginBottom: '16px' }}>
-                        <label style={{ display: 'block', marginBottom: '8px' }}>Soil Type</label>
+                        <label>Soil Classification</label>
                         <input
                             type="text"
                             value={formData.soil_type}
                             onChange={(e) => setFormData({ ...formData, soil_type: e.target.value })}
-                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }}
+                            placeholder="e.g. Silty Loam"
                         />
                     </div>
-                    <div style={{ marginBottom: '24px', padding: '12px', background: 'var(--background)', borderRadius: '8px' }}>
-                        <strong>Calculated Area:</strong> {calculatedArea} ha
+
+                    <div className="card" style={{ background: 'var(--bg-main)', borderStyle: 'dashed', textAlign: 'center', padding: '16px' }}>
+                        <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Surface Measurement</div>
+                        <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--primary)' }}>{calculatedArea} <span style={{ fontSize: '14px' }}>ha</span></div>
                     </div>
-                    <button type="submit" className="primary" style={{ width: '100%' }} disabled={loading}>
-                        {loading ? 'Saving...' : 'Save Field'}
-                    </button>
+
+                    <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+                        <button type="submit" className="primary" style={{ flex: 1 }} disabled={loading}>
+                            {loading ? 'Processing...' : 'Save Field'}
+                        </button>
+                        <button type="button" onClick={onComplete} className="outline" style={{ flex: 1 }}>Discard</button>
+                    </div>
                 </form>
 
                 <div>
-                    <label style={{ display: 'block', marginBottom: '8px' }}>Draw Boundary on Map</label>
-                    <FieldMap
-                        center={currentFarm?.coordinates?.coordinates ? [currentFarm.coordinates.coordinates[1], currentFarm.coordinates.coordinates[0]] : [37.7749, -122.4194]}
-                        onBoundaryCreate={handleBoundarySave}
-                        editable={true}
-                    />
+                    <div style={{ marginBottom: '12px', fontSize: '13px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ width: '8px', height: '8px', backgroundColor: 'var(--accent)', borderRadius: '50%' }}></span>
+                        Use the drawing tools on the map right to delineate the exact field perimeter.
+                    </div>
+                    <div style={{ height: '480px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                        <FieldMap
+                            center={currentFarm?.coordinates?.coordinates ? [currentFarm.coordinates.coordinates[1], currentFarm.coordinates.coordinates[0]] : [37.7749, -122.4194]}
+                            onBoundaryCreate={handleBoundarySave}
+                            editable={true}
+                        />
+                    </div>
                 </div>
             </div>
         </div>

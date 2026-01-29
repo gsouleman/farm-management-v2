@@ -1,17 +1,14 @@
 import React, { useState } from 'react';
 import useFarmStore from '../../store/farmStore';
-import api from '../../services/api';
 
 const CropForm = ({ fieldId, onComplete }) => {
+    const { createCrop } = useFarmStore();
     const [formData, setFormData] = useState({
         crop_type: '',
         variety: '',
         planting_date: new Date().toISOString().split('T')[0],
         expected_harvest_date: '',
-        planted_area: '',
-        season: '',
-        year: new Date().getFullYear(),
-        notes: ''
+        area_planted: 0
     });
     const [loading, setLoading] = useState(false);
 
@@ -19,7 +16,10 @@ const CropForm = ({ fieldId, onComplete }) => {
         e.preventDefault();
         setLoading(true);
         try {
-            await api.post('/crops', { ...formData, field_id: fieldId });
+            await createCrop({
+                ...formData,
+                field_id: fieldId
+            });
             if (onComplete) onComplete();
         } catch (error) {
             console.error(error);
@@ -29,80 +29,70 @@ const CropForm = ({ fieldId, onComplete }) => {
     };
 
     return (
-        <div className="glass-card animate-fade-in">
-            <h3 style={{ marginBottom: '20px' }}>Record New Crop</h3>
+        <div className="card animate-fade-in" style={{ maxWidth: '600px', margin: '0 auto' }}>
+            <div className="card-header">
+                <h3 style={{ margin: 0, fontSize: '18px' }}>Start New Cultivation</h3>
+            </div>
             <form onSubmit={handleSubmit}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                     <div>
-                        <label style={{ display: 'block', marginBottom: '8px' }}>Crop Type</label>
+                        <label>Crop Type</label>
                         <input
                             type="text"
                             placeholder="e.g. Corn, Wheat"
                             value={formData.crop_type}
                             onChange={(e) => setFormData({ ...formData, crop_type: e.target.value })}
                             required
-                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }}
                         />
                     </div>
                     <div>
-                        <label style={{ display: 'block', marginBottom: '8px' }}>Variety</label>
+                        <label>Variety / Hybrid</label>
                         <input
                             type="text"
+                            placeholder="e.g. DKC 62-08"
                             value={formData.variety}
                             onChange={(e) => setFormData({ ...formData, variety: e.target.value })}
-                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }}
                         />
                     </div>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                     <div>
-                        <label style={{ display: 'block', marginBottom: '8px' }}>Planting Date</label>
+                        <label>Planting Date</label>
                         <input
                             type="date"
                             value={formData.planting_date}
                             onChange={(e) => setFormData({ ...formData, planting_date: e.target.value })}
                             required
-                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }}
                         />
                     </div>
                     <div>
-                        <label style={{ display: 'block', marginBottom: '8px' }}>Expected Harvest</label>
+                        <label>Exp. Harvest Date</label>
                         <input
                             type="date"
                             value={formData.expected_harvest_date}
                             onChange={(e) => setFormData({ ...formData, expected_harvest_date: e.target.value })}
-                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }}
                         />
                     </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
-                    <div>
-                        <label style={{ display: 'block', marginBottom: '8px' }}>Planted Area (ha)</label>
-                        <input
-                            type="number"
-                            step="any"
-                            value={formData.planted_area}
-                            onChange={(e) => setFormData({ ...formData, planted_area: e.target.value })}
-                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }}
-                        />
-                    </div>
-                    <div>
-                        <label style={{ display: 'block', marginBottom: '8px' }}>Season</label>
-                        <input
-                            type="text"
-                            placeholder="e.g. Spring 2026"
-                            value={formData.season}
-                            onChange={(e) => setFormData({ ...formData, season: e.target.value })}
-                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }}
-                        />
-                    </div>
+                <div style={{ marginBottom: '24px' }}>
+                    <label>Planted Area (ha)</label>
+                    <input
+                        type="number"
+                        step="0.01"
+                        value={formData.area_planted}
+                        onChange={(e) => setFormData({ ...formData, area_planted: e.target.value })}
+                        required
+                    />
                 </div>
 
-                <button type="submit" className="primary" style={{ width: '100%' }} disabled={loading}>
-                    {loading ? 'Recording...' : 'Record Crop'}
-                </button>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    <button type="submit" className="primary" style={{ flex: 1 }} disabled={loading}>
+                        {loading ? 'Initiating...' : 'Establish Crop'}
+                    </button>
+                    <button type="button" onClick={onComplete} className="outline" style={{ flex: 1 }}>Cancel</button>
+                </div>
             </form>
         </div>
     );

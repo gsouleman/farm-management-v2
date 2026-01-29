@@ -5,6 +5,7 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 
 import Dashboard from './pages/Dashboard';
+import MainLayout from './components/MainLayout';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -30,7 +31,9 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/" element={
           <ProtectedRoute>
-            <Dashboard />
+            <MainLayout>
+              <Dashboard />
+            </MainLayout>
           </ProtectedRoute>
         } />
       </Routes>

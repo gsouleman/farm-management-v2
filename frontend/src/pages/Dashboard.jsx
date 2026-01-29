@@ -1,15 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import useFarmStore from '../store/farmStore';
 import FieldMap from '../components/fields/FieldMap';
-import Navbar from '../components/common/Navbar';
 import FarmForm from '../components/farms/FarmForm';
 import FieldForm from '../components/fields/FieldForm';
 import FieldDetails from '../components/fields/FieldDetails';
 
 const Dashboard = () => {
     const { fetchFarms, currentFarm, fields, fetchFields, loading } = useFarmStore();
-    const [view, setView] = React.useState('overview'); // overview, add-farm, add-field, field-details
-    const [selectedField, setSelectedField] = React.useState(null);
+    const [view, setView] = useState('overview'); // overview, add-farm, add-field, field-details
+    const [selectedField, setSelectedField] = useState(null);
 
     useEffect(() => {
         fetchFarms();
@@ -22,82 +21,136 @@ const Dashboard = () => {
     }, [currentFarm, fetchFields]);
 
     const stats = [
-        { label: 'Total Fields', value: fields.length },
-        { label: 'Total Area', value: `${fields.reduce((acc, f) => acc + parseFloat(f.area || 0), 0).toFixed(2)} ha` },
-        { label: 'Active Crops', value: '4' }, // Placeholder
-        { label: 'Recent Activities', value: '12' } // Placeholder
+        { label: 'Total Fields', value: fields.length, icon: '🗺️' },
+        { label: 'Total Area', value: `${fields.reduce((acc, f) => acc + parseFloat(f.area || 0), 0).toFixed(2)} ha`, icon: '📏' },
+        { label: 'Active Crops', value: '4', icon: '🌱' },
+        { label: 'Tasks Today', value: '2', icon: '✅' }
     ];
 
     const renderContent = () => {
-        switch (view) {
-            case 'add-farm':
-                return <FarmForm onComplete={() => { setView('overview'); fetchFarms(); }} />;
-            case 'add-field':
-                return <FieldForm onComplete={() => { setView('overview'); fetchFields(currentFarm.id); }} />;
-            case 'field-details':
-                return <FieldDetails field={selectedField} onBack={() => setView('overview')} />;
-            default:
-                return (
-                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '30px' }}>
-                        <div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                                <h3 style={{ margin: 0 }}>Farm Map Overview</h3>
-                                <div style={{ display: 'flex', gap: '8px' }}>
-                                    {fields.map(f => (
-                                        <button key={f.id} onClick={() => { setSelectedField(f); setView('field-details'); }} style={{ padding: '4px 12px', fontSize: '13px', background: 'white', border: '1px solid var(--border)', borderRadius: '20px' }}>
-                                            {f.name}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                            <FieldMap
-                                center={currentFarm?.coordinates?.coordinates ? [currentFarm.coordinates.coordinates[1], currentFarm.coordinates.coordinates[0]] : [37.7749, -122.4194]}
-                                fields={fields}
-                                editable={false}
-                            />
-                        </div>
+        if (view === 'add-farm') return <FarmForm onComplete={() => { setView('overview'); fetchFarms(); }} />;
+        if (view === 'add-field') return <FieldForm onComplete={() => { setView('overview'); fetchFields(currentFarm.id); }} />;
+        if (view === 'field-details') return <FieldDetails field={selectedField} onBack={() => setView('overview')} />;
 
-                        <div>
-                            <h3 style={{ marginBottom: '20px' }}>Quick Actions</h3>
-                            <div className="glass-card">
-                                <button className="primary" style={{ width: '100%', marginBottom: '12px' }} onClick={() => setView('add-farm')}>Add New Farm</button>
-                                <button className="primary" style={{ width: '100%', marginBottom: '12px', backgroundColor: 'var(--secondary)' }} onClick={() => setView('add-field')}>Add Field Boundary</button>
-                                <button className="primary" style={{ width: '100%', marginBottom: '12px', backgroundColor: 'var(--accent)' }}>Record Activity</button>
-                                <button className="primary" style={{ width: '100%', backgroundColor: 'var(--secondary)' }}>Generate Report</button>
-                            </div>
-
-                            <h3 style={{ margin: '30px 0 20px' }}>Recent Tasks</h3>
-                            <div className="glass-card">
-                                <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>No recent tasks found.</p>
-                            </div>
-                        </div>
-                    </div>
-                );
-        }
-    };
-
-    return (
-        <div className="animate-fade-in">
-            <Navbar />
-            <div className="container" style={{ paddingBottom: '40px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-                    <h2 style={{ margin: 0 }}>{view === 'overview' ? 'Farm Dashboard' : view.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ')}</h2>
-                    {view !== 'overview' && <button onClick={() => setView('overview')} style={{ background: 'none', color: 'var(--primary)', border: '1px solid var(--primary)', padding: '8px 16px' }}>Back to Dashboard</button>}
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '30px' }}>
+        return (
+            <div className="animate-fade-in">
+                {/* AgriXP Stat Snapshots */}
+                <div className="snapshot-grid">
                     {stats.map((stat, i) => (
-                        <div key={i} className="glass-card" style={{ textAlign: 'center' }}>
-                            <div style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '8px' }}>{stat.label}</div>
-                            <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--primary)' }}>{stat.value}</div>
+                        <div key={i} className="snapshot-card">
+                            <div className="flex j-between a-center">
+                                <span className="snapshot-label">{stat.label}</span>
+                                <span style={{ fontSize: '20px' }}>{stat.icon}</span>
+                            </div>
+                            <div className="snapshot-value">{stat.value}</div>
                         </div>
                     ))}
                 </div>
 
-                {renderContent()}
+                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(300px, 1fr)', gap: '24px' }}>
+                    {/* Map & Fields Panel */}
+                    <div>
+                        <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
+                            <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <h3 style={{ margin: 0, fontSize: '16px' }}>Farm Visualizer</h3>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button className="outline" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={() => setView('add-field')}>+ Boundary</button>
+                                </div>
+                            </div>
+                            <div style={{ height: '450px' }}>
+                                <FieldMap
+                                    center={currentFarm?.coordinates?.coordinates ? [currentFarm.coordinates.coordinates[1], currentFarm.coordinates.coordinates[0]] : [37.7749, -122.4194]}
+                                    fields={fields}
+                                    editable={false}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="card">
+                            <div className="card-header">
+                                <h3 style={{ margin: 0, fontSize: '16px' }}>All Fields</h3>
+                                <button className="outline" style={{ fontSize: '12px' }}>Export PDF</button>
+                            </div>
+                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                <thead>
+                                    <tr style={{ textAlign: 'left', fontSize: '12px', color: 'var(--text-muted)', borderBottom: '2px solid var(--border)' }}>
+                                        <th style={{ padding: '12px 8px' }}>Name</th>
+                                        <th style={{ padding: '12px 8px' }}>Area (ha)</th>
+                                        <th style={{ padding: '12px 8px' }}>Soil Type</th>
+                                        <th style={{ padding: '12px 8px' }}>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {fields.map(f => (
+                                        <tr key={f.id} style={{ borderBottom: '1px solid var(--border)', fontSize: '14px' }}>
+                                            <td style={{ padding: '12px 8px', fontWeight: '500' }}>{f.name}</td>
+                                            <td style={{ padding: '12px 8px' }}>{f.area}</td>
+                                            <td style={{ padding: '12px 8px' }}>{f.soil_type || '—'}</td>
+                                            <td style={{ padding: '12px 8px' }}>
+                                                <button onClick={() => { setSelectedField(f); setView('field-details'); }} style={{ padding: '4px 8px', fontSize: '11px', backgroundColor: 'var(--primary)', color: 'white' }}>Details</button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {fields.length === 0 && (
+                                        <tr>
+                                            <td colSpan="4" style={{ textAlign: 'center', padding: '24px', color: 'var(--text-muted)' }}>No fields recorded for this farm.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {/* Right Panel: Activities & Actions */}
+                    <div>
+                        <div className="card">
+                            <h3 style={{ marginBottom: '20px', fontSize: '16px' }}>Quick Actions</h3>
+                            <button className="primary" style={{ width: '100%', marginBottom: '12px' }} onClick={() => setView('add-farm')}>+ New Farm</button>
+                            <button className="secondary" style={{ width: '100%', marginBottom: '12px' }}>Record Activity</button>
+                            <button className="outline" style={{ width: '100%' }}>Check Weather</button>
+                        </div>
+
+                        <div className="card">
+                            <h3 style={{ marginBottom: '20px', fontSize: '16px' }}>Recent Activity</h3>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                <ActivityItem type="Seeding" date="Just now" field="Field A" />
+                                <ActivityItem type="Irrigation" date="2h ago" field="North Field" />
+                                <ActivityItem type="Scouting" date="Yesterday" field="Field B" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+        );
+    };
+
+    return (
+        <div style={{ padding: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+                <div>
+                    <h1 style={{ fontSize: '24px', margin: 0 }}>{currentFarm?.name || 'Farm Overview'}</h1>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '14px', margin: 0 }}>Welcome back! Here's what's happening on your farm.</p>
+                </div>
+                {view !== 'overview' && (
+                    <button onClick={() => setView('overview')} className="outline">← Back to Dashboard</button>
+                )}
+            </div>
+
+            {loading && <div style={{ textAlign: 'center', padding: '40px' }}>Loading farm data...</div>}
+
+            {!loading && renderContent()}
         </div>
     );
 };
+
+const ActivityItem = ({ type, date, field }) => (
+    <div style={{ display: 'flex', gap: '12px', alignItems: 'start' }}>
+        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--primary)', marginTop: '6px' }} />
+        <div>
+            <div style={{ fontSize: '14px', fontWeight: '600' }}>{type} on {field}</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{date}</div>
+        </div>
+    </div>
+);
 
 export default Dashboard;

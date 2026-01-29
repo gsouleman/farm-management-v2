@@ -9,11 +9,9 @@ const FarmForm = ({ onComplete }) => {
         city: '',
         state: '',
         country: '',
+        farm_type: 'crop_production',
         latitude: '',
-        longitude: '',
-        total_area: '',
-        area_unit: 'hectares',
-        farm_type: ''
+        longitude: ''
     });
     const [loading, setLoading] = useState(false);
 
@@ -31,69 +29,85 @@ const FarmForm = ({ onComplete }) => {
     };
 
     return (
-        <div className="glass-card animate-fade-in">
-            <h3 style={{ marginBottom: '20px' }}>Add New Farm</h3>
+        <div className="card animate-fade-in" style={{ maxWidth: '700px', margin: '0 auto' }}>
+            <div className="card-header">
+                <h3 style={{ margin: 0, fontSize: '18px' }}>Register New Agricultural Asset</h3>
+            </div>
             <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: '16px' }}>
-                    <label style={{ display: 'block', marginBottom: '8px' }}>Farm Name</label>
+                <div style={{ marginBottom: '20px' }}>
+                    <label>Enterprise Name</label>
                     <input
                         type="text"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        placeholder="e.g. Green Valley Estates"
                         required
-                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }}
                     />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
                     <div>
-                        <label style={{ display: 'block', marginBottom: '8px' }}>Latitude</label>
-                        <input
-                            type="number"
-                            step="any"
-                            value={formData.latitude}
-                            onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
-                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }}
-                        />
+                        <label>Operation Type</label>
+                        <select
+                            value={formData.farm_type}
+                            onChange={(e) => setFormData({ ...formData, farm_type: e.target.value })}
+                        >
+                            <option value="crop_production">Crop Production</option>
+                            <option value="livestock">Livestock / Animals</option>
+                            <option value="mixed">Mixed Farming</option>
+                            <option value="orchard">Orchard / Fruit</option>
+                        </select>
                     </div>
                     <div>
-                        <label style={{ display: 'block', marginBottom: '8px' }}>Longitude</label>
+                        <label>Country</label>
                         <input
-                            type="number"
-                            step="any"
-                            value={formData.longitude}
-                            onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
-                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }}
+                            type="text"
+                            value={formData.country}
+                            onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                            placeholder="e.g. Canada"
                         />
                     </div>
+                </div>
+
+                <div style={{ marginBottom: '20px' }}>
+                    <label>Primary Location Address</label>
+                    <input
+                        type="text"
+                        value={formData.address}
+                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                        placeholder="Street, Rural Route, or Lot #"
+                    />
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
                     <div>
-                        <label style={{ display: 'block', marginBottom: '8px' }}>Total Area</label>
+                        <label>Base Latitude</label>
                         <input
-                            type="number"
-                            value={formData.total_area}
-                            onChange={(e) => setFormData({ ...formData, total_area: e.target.value })}
-                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }}
+                            type="text"
+                            value={formData.latitude}
+                            onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
+                            placeholder="e.g. 45.4215"
+                            required
                         />
                     </div>
                     <div>
-                        <label style={{ display: 'block', marginBottom: '8px' }}>Unit</label>
-                        <select
-                            value={formData.area_unit}
-                            onChange={(e) => setFormData({ ...formData, area_unit: e.target.value })}
-                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }}
-                        >
-                            <option value="hectares">Hectares</option>
-                            <option value="acres">Acres</option>
-                        </select>
+                        <label>Base Longitude</label>
+                        <input
+                            type="text"
+                            value={formData.longitude}
+                            onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
+                            placeholder="e.g. -75.6972"
+                            required
+                        />
                     </div>
                 </div>
 
-                <button type="submit" className="primary" style={{ width: '100%' }} disabled={loading}>
-                    {loading ? 'Creating...' : 'Create Farm'}
-                </button>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    <button type="submit" className="primary" style={{ flex: 1 }} disabled={loading}>
+                        {loading ? 'Registering...' : 'Complete Registration'}
+                    </button>
+                    <button type="button" onClick={onComplete} className="outline" style={{ flex: 1 }}>Discard</button>
+                </div>
             </form>
         </div>
     );
