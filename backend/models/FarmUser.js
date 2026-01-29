@@ -33,5 +33,10 @@ module.exports = (sequelize) => {
         underscored: true
     });
 
+    FarmUser.associate = (models) => {
+        FarmUser.belongsTo(models.User, { foreignKey: 'user_id' });
+        FarmUser.belongsTo(models.Farm, { foreignKey: 'farm_id' });
+    };
+
     return FarmUser;
 };
