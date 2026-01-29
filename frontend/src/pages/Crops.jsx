@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import useFarmStore from '../store/farmStore';
 import useCropStore from '../store/cropStore';
+import useActivityStore from '../store/activityStore';
 import CropForm from '../components/crops/CropForm';
+import ActivityForm from '../components/activities/ActivityForm';
 
 const Crops = () => {
     const { currentFarm } = useFarmStore();
@@ -27,6 +29,11 @@ const Crops = () => {
     const [timeline, setTimeline] = useState([]);
     const [costData, setCostData] = useState(null);
     const [timelineLoading, setTimelineLoading] = useState(false);
+
+    // Activity Management State
+    const [activityFormVisible, setActivityFormVisible] = useState(false);
+    const [editingActivity, setEditingActivity] = useState(null);
+    const { deleteActivity } = useActivityStore();
 
     useEffect(() => {
         if (currentFarm) {
@@ -62,6 +69,34 @@ const Crops = () => {
     if (!currentFarm) return <div style={{ padding: '24px' }}>Please select a farm to view crops.</div>;
 
     if (view === 'add') return <CropForm onComplete={() => setView('list')} />;
+
+    const handleActivityComplete = () => {
+        setActivityFormVisible(false);
+        setEditingActivity(null);
+        if (selectedCrop) handleViewDetails(selectedCrop);
+    };
+
+    const handleDeleteActivity = async (id) => {
+        if (window.confirm('Delete this activity log?')) {
+            await deleteActivity(id);
+            if (selectedCrop) handleViewDetails(selectedCrop);
+        }
+    };
+
+    const handleEditActivity = async (activity) => {
+        // We need the full activity object from the backend as the timeline summarizes it
+        try {
+            const response = await useActivityStore.getState().fetchActivitiesByCrop(selectedCrop.id);
+            // Since the store might have multiple activities, we find the specific one
+            const fullActivity = useActivityStore.getState().activities.find(a => a.id === activity.id);
+            if (fullActivity) {
+                setEditingActivity(fullActivity);
+                setActivityFormVisible(true);
+            }
+        } catch (err) {
+            console.error('Failed to load activity details', err);
+        }
+    };
 
     if (view === 'details' && selectedCrop) {
         return (
@@ -129,7 +164,7 @@ const Crops = () => {
                         </div>
                         <button
                             className="outline"
-                            style={{ marginTop: '24px', width: '100%', color: '#dc3545', borderColor: '#dc3545' }}
+                            style={{ marginTop: '24px', width: '100%', color: '#dc3545', borderColor: '#dc3545', marginBottom: '12px' }}
                             onClick={() => handleDelete(selectedCrop.id)}
                         >
                             Delete Cultivation Record
@@ -137,8 +172,27 @@ const Crops = () => {
                     </div>
 
                     <div className="card" style={{ flex: '2 1 500px' }}>
-                        <h3 style={{ marginBottom: '24px' }}>Activity Timeline</h3>
-                        {timelineLoading ? (
+                        <div className="flex j-between a-center" style={{ marginBottom: '24px' }}>
+                            <h3 style={{ margin: 0 }}>Activity Timeline</h3>
+                            <button
+                                className="primary"
+                                style={{ padding: '6px 12px', fontSize: '13px' }}
+                                onClick={() => { setEditingActivity(null); setActivityFormVisible(true); }}
+                            >
+                                + Log Activity
+                            </button>
+                        </div>
+
+                        {activityFormVisible ? (
+                            <div style={{ marginBottom: '32px', border: '1px solid var(--primary-light)', borderRadius: '12px', padding: '4px' }}>
+                                <ActivityForm
+                                    cropId={selectedCrop.id}
+                                    fieldId={selectedCrop.field_id}
+                                    initialData={editingActivity}
+                                    onComplete={handleActivityComplete}
+                                />
+                            </div>
+                        ) : timelineLoading ? (
                             <p>Loading timeline...</p>
                         ) : (
                             <div className="timeline">
@@ -146,7 +200,7 @@ const Crops = () => {
                                     <div key={idx} className="timeline-item" style={{
                                         display: 'flex',
                                         gap: '16px',
-                                        marginBottom: '24px',
+                                        marginBottom: '32px',
                                         position: 'relative'
                                     }}>
                                         <div style={{
@@ -155,12 +209,47 @@ const Crops = () => {
                                             borderRadius: '50%',
                                             backgroundColor: item.type === 'activity' ? 'var(--primary)' : '#ff9800',
                                             marginTop: '6px',
-                                            zIndex: 2
+                                            zIndex: 2,
+                                            flexShrink: 0
                                         }} />
                                         <div style={{ flex: 1 }}>
-                                            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{new Date(item.date).toLocaleDateString()}</div>
-                                            <div style={{ fontWeight: 'bold', margin: '4px 0' }}>{item.title}</div>
-                                            <div style={{ fontSize: '14px' }}>{item.description}</div>
+                                            <div className="flex j-between a-start">
+                                                <div>
+                                                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '500' }}>
+                                                        {new Date(item.date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                                    </div>
+                                                    <div style={{ fontWeight: 'bold', margin: '4px 0', fontSize: '16px', textTransform: 'capitalize' }}>{item.title}</div>
+                                                </div>
+                                                {item.type === 'activity' && (
+                                                    <div className="flex gap-8">
+                                                        <button
+                                                            onClick={() => handleEditActivity(item)}
+                                                            style={{ border: 'none', background: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '12px' }}
+                                                        >Edit</button>
+                                                        <button
+                                                            onClick={() => handleDeleteActivity(item.id)}
+                                                            style={{ border: 'none', background: 'none', color: '#dc3545', cursor: 'pointer', fontSize: '12px' }}
+                                                        >Delete</button>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div style={{ fontSize: '14px', color: '#4a5568', lineHeights: '1.6', marginBottom: '8px' }}>{item.description}</div>
+
+                                            {item.meta && (
+                                                <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                                                    {item.meta.duration && (
+                                                        <span style={{ fontSize: '11px', backgroundColor: '#f1f5f9', padding: '2px 8px', borderRadius: '4px', color: '#475569' }}>
+                                                            ⏱️ {item.meta.duration}h
+                                                        </span>
+                                                    )}
+                                                    {item.meta.inputs && item.meta.inputs.length > 0 && (
+                                                        <span style={{ fontSize: '11px', backgroundColor: '#ecfdf5', padding: '2px 8px', borderRadius: '4px', color: '#065f46' }}>
+                                                            📦 {item.meta.inputs.join(', ')}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 ))}

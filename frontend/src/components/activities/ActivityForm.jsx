@@ -3,8 +3,8 @@ import useActivityStore from '../../store/activityStore';
 import useInventoryStore from '../../store/inventoryStore';
 import useFarmStore from '../../store/farmStore';
 
-const ActivityForm = ({ fieldId, cropId, onComplete }) => {
-    const { createActivity } = useActivityStore();
+const ActivityForm = ({ fieldId, cropId, onComplete, initialData }) => {
+    const { createActivity, updateActivity } = useActivityStore();
     const { inputs: inventory, fetchInputs } = useInventoryStore();
     const { currentFarm } = useFarmStore();
 
@@ -25,6 +25,19 @@ const ActivityForm = ({ fieldId, cropId, onComplete }) => {
         quantity_used: '',
         application_rate: ''
     });
+
+    useEffect(() => {
+        if (initialData) {
+            setFormData({
+                ...initialData,
+                activity_date: initialData.activity_date || new Date().toISOString().split('T')[0],
+                input_id: initialData.Inputs?.[0]?.id || '',
+                quantity_used: initialData.Inputs?.[0]?.ActivityInput?.quantity_used || '',
+                application_rate: initialData.Inputs?.[0]?.ActivityInput?.application_rate || ''
+            });
+        }
+    }, [initialData]);
+
     const [loading, setLoading] = useState(false);
 
     React.useEffect(() => {
@@ -52,10 +65,17 @@ const ActivityForm = ({ fieldId, cropId, onComplete }) => {
                 payload.inputs = [];
             }
 
-            await createActivity(cropId, {
-                ...payload,
-                field_id: fieldId
-            });
+            if (initialData?.id) {
+                await updateActivity(initialData.id, {
+                    ...payload,
+                    field_id: fieldId || initialData.field_id
+                });
+            } else {
+                await createActivity(cropId, {
+                    ...payload,
+                    field_id: fieldId
+                });
+            }
             if (onComplete) onComplete();
         } catch (error) {
             console.error(error);
