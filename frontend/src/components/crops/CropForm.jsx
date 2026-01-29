@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import useCropStore from '../../store/cropStore';
 import useFarmStore from '../../store/farmStore';
 import FieldMap from '../fields/FieldMap';
+import { CROP_CATEGORIES } from '../../constants/agriculturalData';
+import * as turf from '@turf/turf';
 
 const CropForm = ({ fieldId, onComplete }) => {
     const { createCrop } = useCropStore();
@@ -17,6 +19,8 @@ const CropForm = ({ fieldId, onComplete }) => {
         expected_harvest_date: '',
         planted_area: '',
         boundary_coordinates: [], // Captured from map
+        boundary_manual: '', // Textbox for manual entry
+        perimeter: '',
         planting_rate: '',
         row_spacing: '',
         season: '',
@@ -27,69 +31,43 @@ const CropForm = ({ fieldId, onComplete }) => {
     });
     const [loading, setLoading] = useState(false);
 
-    const cropCategories = {
-        "Cereals & Grains": [
-            { id: "corn_grain", label: "Corn (Grain)", varieties: ["Pioneer P1197", "DeKalb DKC62-08", "NK N68K", "Croplan 5678", "Channel 211-33"] },
-            { id: "corn_silage", label: "Corn (Silage)", varieties: ["Pioneer P0157", "DeKalb DKC55-53", "Preferred Silage Plus"] },
-            { id: "wheat_spring", label: "Wheat (Spring)", varieties: ["AAC Brandon", "AAC Viewfield", "AAC Starbuck", "SY Torach"] },
-            { id: "wheat_winter", label: "Wheat (Winter)", varieties: ["AAC Wildfire", "AAC Emerson", "SY Sunrise"] },
-            { id: "barley", label: "Barley", varieties: ["CDC Copeland", "AAC Synergy", "CDC Austenson", "KWS Fantex"] },
-            { id: "oats", label: "Oats", varieties: ["CS Camden", "CDC Arborg", "AAC Douglas"] },
-            { id: "sorghum", label: "Sorghum", varieties: ["Pioneer 84G62", "Dekalb DKS28-05", "Check-Mate"] },
-            { id: "rice", label: "Rice (Paddy)", varieties: ["IR64", "Basmati 370", "Jasmine 85"] }
-        ],
-        "Oilseeds": [
-            { id: "canola", label: "Canola / Rapeseed", varieties: ["InVigor L233P", "InVigor L340PC", "Nexera 1022 RR", "Pioneer 45H33"] },
-            { id: "soybeans", label: "Soybeans", varieties: ["Asgrow AG06X8", "Pioneer P007A32X", "NK S007-Y4", "ProYield 005"] },
-            { id: "sunflower", label: "Sunflower", varieties: ["P63ME70", "N4HM354", "Cobalt II"] },
-            { id: "flax", label: "Flax / Linseed", varieties: ["CDC Glas", "CDC Bethune"] }
-        ],
-        "Pulses & Legumes": [
-            { id: "peas_yellow", label: "Peas (Yellow)", varieties: ["AAC Carver", "CDC Amarillo", "CDC Spectrum"] },
-            { id: "lentils_red", label: "Lentils (Red)", varieties: ["CDC Maxim", "CDC Proclaim"] },
-            { id: "chickpeas", label: "Chickpeas (Kabuli)", varieties: ["CDC Leader", "CDC Frontier"] },
-            { id: "beans_dry", label: "Beans (Dry/Kidney)", varieties: ["CDC Blackstrap", "AAC Island", "Red Hawk"] },
-            { id: "peanuts", label: "Peanuts / Groundnut", varieties: ["Spanish White", "Virginia Jumbo"] }
-        ],
-        "Roots, Tubers & Bulbs": [
-            { id: "potatoes", label: "Potatoes (Table)", varieties: ["Russet Burbank", "Norland", "Yukon Gold", "Ken_nebec"] },
-            { id: "potatoes_seed", label: "Potatoes (Seed)", varieties: ["Elite 1", "Elite 2"] },
-            { id: "cassava", label: "Cassava / Mani_oc", varieties: ["TME 419", "TMS 30572"] },
-            { id: "sweet_potato", label: "Sweet Potato", varieties: ["Beauregard", "Covington"] },
-            { id: "onion", label: "Onion", varieties: ["Yellow Spanish", "Red Burgundy"] },
-            { id: "garlic", label: "Garlic", varieties: ["Music", "Silverwhite"] }
-        ],
-        "Fruits & Perennials": [
-            { id: "apple", label: "Apple Orchard", varieties: ["Gala", "Honeycrisp", "Fuji"] },
-            { id: "grape_wine", label: "Grape (Wine)", varieties: ["Cabernet Sauvignon", "Chardonnay", "Merlot"] },
-            { id: "citrus", label: "Citrus (Orange/Lemon)", varieties: ["Valencia", "Eureka"] },
-            { id: "banana", label: "Banana / Plantain", varieties: ["Cavendish", "Big Ebanga"] }
-        ],
-        "Specialty & Industrial": [
-            { id: "sugar_beets", label: "Sugar Beets", varieties: ["Betaseed", "Crystal", "Hilleshog"] },
-            { id: "sugar_cane", label: "Sugar Cane", varieties: ["CP 89-2143", "L 01-299"] },
-            { id: "cotton", label: "Cotton", varieties: ["Deltapine 164 B2XF", "Phytogen 400 W3FE", "Stoneville 4946"] },
-            { id: "tobacco", label: "Tobacco", varieties: ["Burley 21", "Virginia Gold"] },
-            { id: "hemp", label: "Hemp (Industrial)", varieties: ["Finola", "Katani"] }
-        ],
-        "Beverages & Spices": [
-            { id: "coffee", label: "Coffee (Arabica/Robusta)", varieties: ["SL28", "Catimor", "K7"] },
-            { id: "cocoa", label: "Cocoa / Cacao", varieties: ["Forastero", "Criollo", "Trinitario"] },
-            { id: "tea", label: "Tea", varieties: ["Assam", "Darjeeling"] },
-            { id: "ginger", label: "Ginger", varieties: ["Canton", "Queensland"] },
-            { id: "pepper_black", label: "Pepper (Black/White)", varieties: ["Lampong", "Sarawak"] }
-        ],
-        "Forage & Cover": [
-            { id: "alfalfa", label: "Alfalfa", varieties: ["Common Heritage", "AC Bluebird", "Magnum 7"] },
-            { id: "clover", label: "Clover (Red/White)", varieties: ["Red Clover", "White Clover"] },
-            { id: "timothy", label: "Timothy Grass", varieties: ["Climax", "Richmond"] },
-            { id: "cover_mix", label: "Cover Crop Mix", varieties: ["Radish/Rye Mix", "Oat/Pea Mix"] }
-        ]
-    };
+    const cropCategories = CROP_CATEGORIES;
 
     const currentCropVarieties = Object.values(cropCategories)
         .flat()
         .find(c => c.id === formData.crop_type)?.varieties || [];
+
+    const handleManualCoordsChange = (text) => {
+        try {
+            const lines = text.split('\n').filter(l => l.trim());
+            const coords = lines.map(line => {
+                const parts = line.split(/[,\s]+/).map(p => parseFloat(p.trim()));
+                if (parts.length >= 2) {
+                    // Expecting [lat, lng] from user but internal format is [lng, lat]
+                    return [parts[1], parts[0]];
+                }
+                return null;
+            }).filter(c => c !== null);
+
+            if (coords.length >= 3) {
+                const polygon = turf.polygon([coords]);
+                const area = turf.area(polygon) / 10000;
+                const perimeter = turf.length(polygon, { units: 'meters' });
+
+                setFormData(prev => ({
+                    ...prev,
+                    boundary_coordinates: coords,
+                    planted_area: area.toFixed(2),
+                    perimeter: perimeter.toFixed(2),
+                    boundary_manual: text
+                }));
+            } else {
+                setFormData(prev => ({ ...prev, boundary_manual: text }));
+            }
+        } catch (err) {
+            setFormData(prev => ({ ...prev, boundary_manual: text }));
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -105,11 +83,12 @@ const CropForm = ({ fieldId, onComplete }) => {
     };
 
     return (
-        <div className="card animate-fade-in" style={{ maxWidth: '800px', margin: '0 auto', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
+        <div className="card animate-fade-in" style={{ maxWidth: '850px', margin: '0 auto', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
             <div className="card-header" style={{ borderBottomColor: '#edf2f7', padding: '24px' }}>
                 <h3 style={{ margin: 0, fontSize: '20px', color: '#1a365d' }}>Establish New Cultivation Record</h3>
             </div>
             <form onSubmit={handleSubmit} style={{ padding: '24px' }}>
+                {/* Crop Selection Section */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '24px' }}>
                     <div>
                         <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Crop Type</label>
@@ -117,7 +96,7 @@ const CropForm = ({ fieldId, onComplete }) => {
                             value={formData.crop_type}
                             onChange={(e) => setFormData({ ...formData, crop_type: e.target.value, variety: '' })}
                             required
-                            style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                            style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
                         >
                             <option value="">-- Select Crop --</option>
                             {Object.entries(cropCategories).map(([category, items]) => (
@@ -138,7 +117,7 @@ const CropForm = ({ fieldId, onComplete }) => {
                             placeholder="Select or enter variety"
                             value={formData.variety}
                             onChange={(e) => setFormData({ ...formData, variety: e.target.value })}
-                            style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                            style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
                         />
                         <datalist id="variety-presets">
                             {currentCropVarieties.map(v => (
@@ -153,11 +132,12 @@ const CropForm = ({ fieldId, onComplete }) => {
                             value={formData.year}
                             onChange={(e) => setFormData({ ...formData, year: e.target.value })}
                             required
-                            style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                            style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
                         />
                     </div>
                 </div>
 
+                {/* Timing Section */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '24px' }}>
                     <div>
                         <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Season</label>
@@ -166,7 +146,7 @@ const CropForm = ({ fieldId, onComplete }) => {
                             placeholder="e.g. Spring 2026"
                             value={formData.season}
                             onChange={(e) => setFormData({ ...formData, season: e.target.value })}
-                            style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                            style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
                         />
                     </div>
                     <div>
@@ -176,7 +156,7 @@ const CropForm = ({ fieldId, onComplete }) => {
                             value={formData.planting_date}
                             onChange={(e) => setFormData({ ...formData, planting_date: e.target.value })}
                             required
-                            style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                            style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
                         />
                     </div>
                     <div>
@@ -185,69 +165,91 @@ const CropForm = ({ fieldId, onComplete }) => {
                             type="date"
                             value={formData.expected_harvest_date}
                             onChange={(e) => setFormData({ ...formData, expected_harvest_date: e.target.value })}
-                            style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                            style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
                         />
                     </div>
                 </div>
 
+                {/* Land Allocation Map Section */}
                 <div className="card" style={{ backgroundColor: '#fcfcfc', marginBottom: '24px', border: '1px solid #e0e0e0', padding: '0', overflow: 'hidden' }}>
                     <div style={{ padding: '16px 20px', backgroundColor: '#f8f9fa', borderBottom: '1px solid #e0e0e0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <h4 style={{ margin: 0, fontSize: '13px', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Land Allocation Map</h4>
-                        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Draw the planted area within the field boundary</span>
+                        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Draw on map OR enter coordinates below</span>
                     </div>
-                    <div style={{ height: '350px' }}>
-                        <FieldMap
-                            center={parentField?.boundary?.coordinates?.[0]?.[0] ? [parentField.boundary.coordinates[0][0][1], parentField.boundary.coordinates[0][0][0]] : null}
-                            farmBoundary={parentField?.boundary}
-                            editable={true}
-                            onBoundaryCreate={(data) => {
-                                setFormData({
-                                    ...formData,
-                                    boundary_coordinates: data.coordinates,
-                                    planted_area: data.area
-                                });
-                            }}
-                        />
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', height: '400px' }}>
+                        <div style={{ padding: '16px', backgroundColor: '#f1f5f9', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
+                            <label style={{ fontSize: '11px', fontWeight: 'bold', marginBottom: '8px' }}>BOUNDARY COORDINATES (LAT, LNG)</label>
+                            <textarea
+                                value={formData.boundary_manual}
+                                onChange={(e) => handleManualCoordsChange(e.target.value)}
+                                placeholder="4.05, 9.71&#10;4.06, 9.71&#10;4.06, 9.72&#10;4.05, 9.71"
+                                style={{ flex: 1, fontSize: '11px', fontFamily: 'monospace', padding: '10px', borderRadius: '4px', border: '1px solid #cbd5e0', resize: 'none' }}
+                            />
+                            <div style={{ marginTop: '12px', fontSize: '10px', color: '#64748b', lineHeight: '1.4' }}>
+                                Enter one GPS point per line.<br />Example: 4.05, 9.71
+                            </div>
+                        </div>
+                        <div style={{ height: '100%' }}>
+                            <FieldMap
+                                center={parentField?.boundary?.coordinates?.[0]?.[0] ? [parentField.boundary.coordinates[0][0][1], parentField.boundary.coordinates[0][0][0]] : null}
+                                farmBoundary={parentField?.boundary}
+                                manualCoordinates={formData.boundary_coordinates}
+                                editable={true}
+                                onBoundaryCreate={(data) => {
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        boundary_coordinates: data.coordinates,
+                                        boundary_manual: data.coordinates.map(c => `${c[1]}, ${c[0]}`).join('\n'),
+                                        planted_area: data.area,
+                                        perimeter: data.perimeter
+                                    }));
+                                }}
+                            />
+                        </div>
                     </div>
-                    {formData.boundary_coordinates.length > 0 && (
-                        <div style={{ padding: '12px 20px', backgroundColor: '#fffbe6', borderTop: '1px solid #ffe58f', fontSize: '12px', display: 'flex', gap: '20px' }}>
+
+                    {(formData.boundary_coordinates.length > 0) && (
+                        <div style={{ padding: '12px 20px', backgroundColor: '#fffbe6', borderTop: '1px solid #ffe58f', fontSize: '12px', display: 'flex', gap: '30px' }}>
                             <span><strong>Allocated Area:</strong> {formData.planted_area} ha</span>
-                            <span><strong>Geofence:</strong> {formData.boundary_coordinates.length} points captured</span>
+                            <span><strong>Perimeter:</strong> {formData.perimeter || 0} m</span>
+                            <span><strong>Geofence:</strong> {formData.boundary_coordinates.length} points</span>
                         </div>
                     )}
                 </div>
 
+                {/* Specifications Section */}
                 <div className="card" style={{ backgroundColor: '#f7fafc', marginBottom: '24px', border: '1px solid #edf2f7' }}>
                     <h4 style={{ fontSize: '11px', color: '#2b6cb0', marginBottom: '16px', letterSpacing: '0.05em', textTransform: 'uppercase', paddingBottom: '8px', borderBottom: '1px solid #e2e8f0' }}>PLANTING SPECIFICATIONS</h4>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
                         <div>
-                            <label style={{ fontSize: '12px', color: '#4a5568', marginBottom: '6px', display: 'block' }}>Area (ha/ac)</label>
+                            <label style={{ fontSize: '12px', color: '#4a5568', marginBottom: '6px', display: 'block' }}>Area (ha)</label>
                             <input
                                 type="number"
                                 step="0.01"
                                 value={formData.planted_area}
                                 onChange={(e) => setFormData({ ...formData, planted_area: e.target.value })}
-                                style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e0' }}
+                                style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e0', width: '100%' }}
                             />
                         </div>
                         <div>
-                            <label style={{ fontSize: '12px', color: '#4a5568', marginBottom: '6px', display: 'block' }}>Rate (seeds/area)</label>
+                            <label style={{ fontSize: '12px', color: '#4a5568', marginBottom: '6px', display: 'block' }}>Rate (seeds/ha)</label>
                             <input
                                 type="number"
                                 step="0.01"
                                 value={formData.planting_rate}
                                 onChange={(e) => setFormData({ ...formData, planting_rate: e.target.value })}
-                                style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e0' }}
+                                style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e0', width: '100%' }}
                             />
                         </div>
                         <div>
-                            <label style={{ fontSize: '12px', color: '#4a5568', marginBottom: '6px', display: 'block' }}>Spacing (cm/in)</label>
+                            <label style={{ fontSize: '12px', color: '#4a5568', marginBottom: '6px', display: 'block' }}>Spacing (cm)</label>
                             <input
                                 type="number"
                                 step="0.1"
                                 value={formData.row_spacing}
                                 onChange={(e) => setFormData({ ...formData, row_spacing: e.target.value })}
-                                style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e0' }}
+                                style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e0', width: '100%' }}
                             />
                         </div>
                     </div>
@@ -259,7 +261,7 @@ const CropForm = ({ fieldId, onComplete }) => {
                         <select
                             value={formData.status}
                             onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                            style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                            style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
                         >
                             <option value="planted">Recently Planted</option>
                             <option value="growing">Actively Growing</option>
@@ -273,7 +275,7 @@ const CropForm = ({ fieldId, onComplete }) => {
                             placeholder="e.g. 500000"
                             value={formData.estimated_cost}
                             onChange={(e) => setFormData({ ...formData, estimated_cost: e.target.value })}
-                            style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                            style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
                         />
                     </div>
                 </div>

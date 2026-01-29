@@ -3,6 +3,7 @@ import useFarmStore from '../store/farmStore';
 import useHarvestStore from '../store/harvestStore';
 import useCropStore from '../store/cropStore';
 import HarvestForm from '../components/harvests/HarvestForm';
+import { CROP_CATEGORIES } from '../constants/agriculturalData';
 
 const Harvests = () => {
     const { currentFarm } = useFarmStore();
@@ -27,15 +28,31 @@ const Harvests = () => {
                     <div className="card">
                         <h3 style={{ marginBottom: '20px' }}>Select Crop to Harvest</h3>
                         <div style={{ marginBottom: '24px' }}>
-                            <label>Planted Crops</label>
+                            <label style={{ fontSize: '13px', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>Planted Crops & Agricultural Catalog</label>
                             <select
                                 value={selectedCropId}
                                 onChange={(e) => setSelectedCropId(e.target.value)}
-                                style={{ width: '100%', padding: '12px' }}
+                                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e0' }}
                             >
-                                <option value="">-- Choose a crop --</option>
-                                {crops.map(crop => (
-                                    <option key={crop.id} value={crop.id}>{crop.crop_name} (Field: {crop.Field?.name})</option>
+                                <option value="">-- Choose a crop to harvest --</option>
+                                <optgroup label="✅ ACTIVE PLANTINGS">
+                                    {crops.map(crop => (
+                                        <option key={crop.id} value={crop.id}>
+                                            {crop.crop_type} - {crop.variety} (Field: {crop.Field?.name}) [PLANTED]
+                                        </option>
+                                    ))}
+                                </optgroup>
+                                {Object.entries(CROP_CATEGORIES).map(([category, items]) => (
+                                    <optgroup key={category} label={category}>
+                                        {items.map(item => {
+                                            const isPlanted = crops.some(c => c.crop_type === item.id);
+                                            return (
+                                                <option key={item.id} value={`TYPE:${item.id}`}>
+                                                    {item.label} {isPlanted ? ' (PLANTED)' : ''}
+                                                </option>
+                                            );
+                                        })}
+                                    </optgroup>
                                 ))}
                             </select>
                         </div>

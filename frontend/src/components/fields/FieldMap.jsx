@@ -24,7 +24,7 @@ const ZoomToData = ({ bounds }) => {
     return null;
 };
 
-const FieldMap = ({ center, fields, crops = [], farmBoundary, onBoundaryCreate, editable = true }) => {
+const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundary, manualCoordinates, onBoundaryCreate, editable = true }) => {
     const mapRef = useRef();
 
     const handleCreated = (e) => {
@@ -32,14 +32,16 @@ const FieldMap = ({ center, fields, crops = [], farmBoundary, onBoundaryCreate, 
         const geojson = layer.toGeoJSON();
         const coordinates = geojson.geometry.coordinates[0];
 
-        // Calculate area using turf
+        // Calculate area and perimeter using turf
         const polygon = turf.polygon([coordinates]);
         const area = turf.area(polygon) / 10000; // hectares
+        const perimeter = turf.length(polygon, { units: 'meters' });
 
         if (onBoundaryCreate) {
             onBoundaryCreate({
                 coordinates,
-                area: area.toFixed(2)
+                area: area.toFixed(2),
+                perimeter: perimeter.toFixed(2)
             });
         }
     };
@@ -136,17 +138,64 @@ const FieldMap = ({ center, fields, crops = [], farmBoundary, onBoundaryCreate, 
                             }}
                         >
                             <L.Popup>
-                                <div style={{ fontSize: '12px' }}>
+                                <div style={{ fontSize: '12px', maxWidth: '200px' }}>
                                     <strong>{crop.crop_type}</strong><br />
                                     {crop.variety}<br />
-                                    Area: {crop.planted_area} ha
+                                    Area: {crop.planted_area} ha<br />
+                                    <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid #eee' }} />
+                                    <strong>Boundary Points:</strong>
+                                    <pre style={{ fontSize: '10px', marginTop: '4px', whiteSpace: 'pre-wrap', maxHeight: '100px', overflowY: 'auto' }}>
+                                        {crop.boundary.coordinates[0].map(c => `${c[1].toFixed(5)}, ${c[0].toFixed(5)}`).join('\n')}
+                                    </pre>
                                 </div>
                             </L.Popup>
                         </Polygon>
                     ))}
+
+                    {/* Infrastructure Highlight */}
+                    {infrastructure?.filter(i => i.boundary).map(infra => (
+                        <Polygon
+                            key={infra.id}
+                            positions={infra.boundary.coordinates[0].map(coord => [coord[1], coord[0]])}
+                            pathOptions={{
+                                color: '#2196f3',
+                                fillColor: '#2196f3',
+                                fillOpacity: 0.5,
+                                weight: 2
+                            }}
+                        >
+                            <L.Popup>
+                                <div style={{ fontSize: '12px', maxWidth: '200px' }}>
+                                    <strong>{infra.name}</strong><br />
+                                    Type: {infra.type}<br />
+                                    Area: {infra.area_sqm} m²<br />
+                                    <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid #eee' }} />
+                                    <strong>Boundary Points:</strong>
+                                    <pre style={{ fontSize: '10px', marginTop: '4px', whiteSpace: 'pre-wrap', maxHeight: '100px', overflowY: 'auto' }}>
+                                        {infra.boundary.coordinates[0].map(c => `${c[1].toFixed(5)}, ${c[0].toFixed(5)}`).join('\n')}
+                                    </pre>
+                                </div>
+                            </L.Popup>
+                        </Polygon>
+                    ))}
+
+                    {/* Manual Entry Highlight */}
+                    {manualCoordinates?.length > 0 && (
+                        <Polygon
+                            positions={manualCoordinates.map(coord => [coord[1], coord[0]])}
+                            pathOptions={{ color: '#f44336', weight: 2, dashArray: '5, 5' }}
+                        />
+                    )}
                 </FeatureGroup>
 
-                {allBounds.length > 0 && <ZoomToData bounds={allBounds} />}
+                {(() => {
+                    const allB = [
+                        ...fieldPolygons.flatMap(p => p.positions),
+                        ...(farmPolygon || []),
+                        ...(manualCoordinates?.map(coord => [coord[1], coord[0]]) || [])
+                    ];
+                    return allB.length > 0 ? <ZoomToData bounds={allB} /> : null;
+                })()}
             </MapContainer>
         </div>
     );

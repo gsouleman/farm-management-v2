@@ -14,6 +14,7 @@ import Crops from './pages/Crops';
 import Planner from './pages/Planner';
 import WeatherCenter from './pages/WeatherCenter';
 import DocumentVault from './pages/DocumentVault';
+import Infrastructure from './pages/Infrastructure';
 import MainLayout from './components/MainLayout';
 
 // Protected Route Component
@@ -112,6 +113,13 @@ function App() {
           <ProtectedRoute>
             <MainLayout>
               <DocumentVault />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/infrastructure" element={
+          <ProtectedRoute>
+            <MainLayout>
+              <Infrastructure />
             </MainLayout>
           </ProtectedRoute>
         } />

@@ -63,6 +63,7 @@ const MainLayout = ({ children }) => {
                     <SidebarLink to="/crops" icon="🌱" label="Crops" />
                     <SidebarLink to="/planner" icon="📅" label="Crop Planner" />
                     <SidebarLink to="/fields" icon="🗺️" label="My Fields" />
+                    <SidebarLink to="/infrastructure" icon="🏗️" label="Infrastructure" />
                     <SidebarLink to="/activities" icon="🚜" label="Activities" />
                     <SidebarLink to="/inventory" icon="📦" label="Inventory" />
                     <SidebarLink to="/harvests" icon="🌾" label="Harvests" />

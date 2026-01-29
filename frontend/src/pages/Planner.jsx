@@ -4,18 +4,96 @@ import useFarmStore from '../store/farmStore';
 
 const Planner = () => {
     const { currentFarm } = useFarmStore();
-    const { scenarios, deleteScenario } = usePlannerStore();
+    const { scenarios, createScenario, deleteScenario } = usePlannerStore();
     const [view, setView] = useState('scenarios');
+    const [showModal, setShowModal] = useState(false);
+    const [newPlan, setNewPlan] = useState({
+        name: '',
+        year: new Date().getFullYear() + 1,
+        area: '',
+        estRevenue: '',
+        status: 'draft'
+    });
+
+    const handleCreatePlan = (e) => {
+        e.preventDefault();
+        createScenario(newPlan);
+        setShowModal(false);
+        setNewPlan({
+            name: '',
+            year: new Date().getFullYear() + 1,
+            area: '',
+            estRevenue: '',
+            status: 'draft'
+        });
+    };
 
     return (
         <div className="animate-fade-in" style={{ padding: '24px', backgroundColor: '#f0f4f8', minHeight: '100vh' }}>
+            {showModal && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center',
+                    alignItems: 'center', zIndex: 1000
+                }}>
+                    <div className="card" style={{ width: '400px', padding: '30px' }}>
+                        <h3 style={{ marginBottom: '20px' }}>Create New Plan</h3>
+                        <form onSubmit={handleCreatePlan}>
+                            <div style={{ marginBottom: '16px' }}>
+                                <label>Plan Name</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={newPlan.name}
+                                    placeholder="e.g. 2026 Optimized Rotation"
+                                    onChange={(e) => setNewPlan({ ...newPlan, name: e.target.value })}
+                                />
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                                <div>
+                                    <label>Crop Year</label>
+                                    <input
+                                        type="number"
+                                        required
+                                        value={newPlan.year}
+                                        onChange={(e) => setNewPlan({ ...newPlan, year: e.target.value })}
+                                    />
+                                </div>
+                                <div>
+                                    <label>Total Area (ha)</label>
+                                    <input
+                                        type="number"
+                                        required
+                                        value={newPlan.area}
+                                        onChange={(e) => setNewPlan({ ...newPlan, area: e.target.value })}
+                                    />
+                                </div>
+                            </div>
+                            <div style={{ marginBottom: '24px' }}>
+                                <label>Est. Revenue (XAF)</label>
+                                <input
+                                    type="number"
+                                    required
+                                    value={newPlan.estRevenue}
+                                    onChange={(e) => setNewPlan({ ...newPlan, estRevenue: e.target.value })}
+                                />
+                            </div>
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                <button type="submit" className="primary" style={{ flex: 1 }}>Save Plan</button>
+                                <button type="button" className="outline" style={{ flex: 1 }} onClick={() => setShowModal(false)}>Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             <div className="flex j-between a-center" style={{ marginBottom: '32px' }}>
                 <div>
                     <h1 style={{ fontSize: '28px', fontWeight: '800', margin: 0, color: '#1a365d' }}>Crop Rotation Planner</h1>
                     <p style={{ color: '#4a5568', fontSize: '15px' }}>Strategic planning for upcoming seasons at <strong>{currentFarm?.name}</strong></p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
-                    <button className="primary">+ Create Plan</button>
+                    <button className="primary" onClick={() => setShowModal(true)}>+ Create Plan</button>
                 </div>
             </div>
 
@@ -71,17 +149,20 @@ const Planner = () => {
                 ))}
 
                 {/* Blank creation card */}
-                <div style={{
-                    border: '2px dashed #cbd5e0',
-                    borderRadius: '20px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '40px',
-                    cursor: 'pointer',
-                    color: '#718096'
-                }}>
+                <div
+                    onClick={() => setShowModal(true)}
+                    style={{
+                        border: '2px dashed #cbd5e0',
+                        borderRadius: '20px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '40px',
+                        cursor: 'pointer',
+                        color: '#718096'
+                    }}
+                >
                     <div style={{ fontSize: '32px', marginBottom: '16px' }}>➕</div>
                     <div style={{ fontWeight: 'bold' }}>Create New Scenario</div>
                     <div style={{ fontSize: '12px' }}>Experiment with different crops</div>

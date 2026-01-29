@@ -25,7 +25,8 @@ const models = {
     Weather: require('./Weather')(sequelize),
     Document: require('./Document')(sequelize),
     ActivityInput: require('./ActivityInput')(sequelize),
-    FarmUser: require('./FarmUser')(sequelize)
+    FarmUser: require('./FarmUser')(sequelize),
+    Infrastructure: require('./Infrastructure')(sequelize)
 };
 
 // Set up associations
