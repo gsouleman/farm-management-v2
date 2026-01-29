@@ -30,32 +30,32 @@ const ZoomToData = ({ bounds }) => {
 };
 
 const CROP_STYLES = {
-    // Cereals
-    maize: { color: '#FFD700', font: "'Arial Black', Gadget, sans-serif" },
-    rice: { color: '#E0FFFF', font: "'Courier New', Courier, monospace" },
-    sorghum: { color: '#FFA500', font: "Impact, Charcoal, sans-serif" },
+    // Cereals - Vibrant & Strong
+    maize: { color: '#FFEA00', font: "'Arial Black', sans-serif" }, // Electric Yellow
+    rice: { color: '#00E5FF', font: "'Impact', sans-serif" }, // Aqua
+    sorghum: { color: '#FF3D00', font: "'Impact', sans-serif" }, // Red-Orange
 
-    // Roots
-    cassava: { color: '#D2B48C', font: "Georgia, serif" },
-    yam: { color: '#8B4513', font: "Georgia, serif" },
-    cocoyam: { color: '#BC8F8F', font: "Georgia, serif" },
+    // Roots - Earthy but distinctive
+    cassava: { color: '#C6FF00', font: "'Arial Black', sans-serif" }, // Lime Yellow
+    yam: { color: '#E040FB', font: "'Georgia', serif" }, // Bright Purple
+    cocoyam: { color: '#FF4081', font: "'Georgia', serif" }, // Pink-Red
 
-    // Cash Crops
-    cocoa: { color: '#8B4513', font: "'Palatino Linotype', 'Book Antiqua', Palatino, serif" },
-    coffee_robusta: { color: '#2E8B57', font: "'Times New Roman', Times, serif" },
-    coffee_arabica: { color: '#3CB371', font: "'Times New Roman', Times, serif" },
-    oil_palm: { color: '#556B2F', font: "'Bookman Old Style', serif" },
+    // Cash Crops - Elegant but high contrast
+    cocoa: { color: '#8D6E63', font: "'Verdana', sans-serif" }, // Lighter Brown
+    coffee_robusta: { color: '#00E676', font: "'Verdana', sans-serif" }, // Spring Green
+    coffee_arabica: { color: '#1DE9B6', font: "'Verdana', sans-serif" }, // Teal
+    oil_palm: { color: '#76FF03', font: "'Verdana', sans-serif" }, // Brightest Lime
 
-    // Fruits
-    plantain: { color: '#9ACD32', font: "Verdana, Geneva, sans-serif" },
-    banana: { color: '#FFF700', font: "Verdana, Geneva, sans-serif" },
-    avocado: { color: '#556B2F', font: "Tahoma, Geneva, sans-serif" },
-    pineapple: { color: '#FFEB3B', font: "'Trebuchet MS', sans-serif" },
+    // Fruits - Fruit colors
+    plantain: { color: '#FFEE58', font: "'Arial Black', sans-serif" }, // Banana Yellow
+    banana: { color: '#FFF176', font: "'Arial Black', sans-serif" },
+    avocado: { color: '#64DD17', font: "'Impact', sans-serif" }, // Deep Lime
+    pineapple: { color: '#FFAB00', font: "'Impact', sans-serif" }, // Amber
 
     // Vegetables
-    tomato: { color: '#FF6347', font: "'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif" },
-    pepper: { color: '#FF4500', font: "Monaco, 'Lucida Console', monospace" },
-    penja_pepper: { color: '#F5F5F5', font: "monospace" },
+    tomato: { color: '#FF1744', font: "'Arial Black', sans-serif" }, // Bright Red
+    pepper: { color: '#FF6D00', font: "'Arial Black', sans-serif" }, // Deep Orange
+    penja_pepper: { color: '#FFFFFF', font: "'Courier New', monospace" }, // Stark White
 
     default: { color: '#FFFFFF', font: "sans-serif" }
 };
@@ -79,7 +79,23 @@ const PolygonLabel = ({ coordinates, label, cropType, color: overrideColor }) =>
 
         const icon = L.divIcon({
             className: 'polygon-label',
-            html: `<div style="color: ${textColor}; font-family: ${fontFamily}; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.9); white-space: nowrap; pointer-events: none; font-size: 14px; transform: translate(-50%, -50%); text-transform: uppercase; letter-spacing: 1px;">${label}</div>`,
+            html: `<div style="
+                color: ${textColor}; 
+                font-family: ${fontFamily}; 
+                font-weight: 900; 
+                text-shadow: 
+                    -1.5px -1.5px 0 #000,  
+                     1.5px -1.5px 0 #000,
+                    -1.5px  1.5px 0 #000,
+                     1.5px  1.5px 0 #000,
+                     2px 2px 4px rgba(0,0,0,0.8);
+                white-space: nowrap; 
+                pointer-events: none; 
+                font-size: 16px; 
+                transform: translate(-50%, -50%); 
+                text-transform: uppercase; 
+                letter-spacing: 1.5px;
+            ">${label}</div>`,
             iconSize: [0, 0],
             iconAnchor: [0, 0]
         });
