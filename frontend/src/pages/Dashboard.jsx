@@ -63,16 +63,6 @@ const Dashboard = () => {
         ? (totalPlantedArea / parseFloat(currentFarm.total_area) * 100).toFixed(1)
         : 0, [currentFarm, totalPlantedArea]);
 
-    const trendData = useMemo(() => {
-        if (!currentFarm) return [];
-        return [
-            { name: 'Jan', revenue: 0, expenses: 1000 },
-            { name: 'Feb', revenue: 0, expenses: 5000 },
-            { name: 'Mar', revenue: 0, expenses: 12000 },
-            { name: 'Apr', revenue: 0, expenses: 15000 },
-            { name: 'Today', revenue: totalRevenue, expenses: totalExpenses }
-        ];
-    }, [currentFarm, totalRevenue, totalExpenses]);
 
     const stats = useMemo(() => [
         { label: 'TOTAL REVENUE', value: `${totalRevenue.toLocaleString()} Xaf`, icon: '💰', color: '#4caf50' },
@@ -220,41 +210,6 @@ const Dashboard = () => {
                             </div>
                         </div>
 
-                        {/* Cash Flow Trend Chart */}
-                        <div className="card">
-                            <div className="card-header">
-                                <h3 style={{ margin: 0, fontSize: '16px' }}>Cash Flow Trend</h3>
-                                <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>PROJECTED VS ACTUAL</div>
-                            </div>
-                            <div style={{ height: '300px', width: '100%', marginTop: '20px', position: 'relative' }}>
-                                {trendData && trendData.length > 0 ? (
-                                    <ResponsiveContainer width="100%" height={300}>
-                                        <AreaChart data={trendData}>
-                                            <defs>
-                                                <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="#4caf50" stopOpacity={0.1} />
-                                                    <stop offset="95%" stopColor="#4caf50" stopOpacity={0} />
-                                                </linearGradient>
-                                                <linearGradient id="colorExp" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="#cc0000" stopOpacity={0.1} />
-                                                    <stop offset="95%" stopColor="#cc0000" stopOpacity={0} />
-                                                </linearGradient>
-                                            </defs>
-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
-                                            <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
-                                            <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `${v / 1000}k`} />
-                                            <Tooltip />
-                                            <Area type="monotone" dataKey="revenue" stroke="#4caf50" fillOpacity={1} fill="url(#colorRev)" strokeWidth={3} />
-                                            <Area type="monotone" dataKey="expenses" stroke="#cc0000" fillOpacity={1} fill="url(#colorExp)" strokeWidth={3} />
-                                        </AreaChart>
-                                    </ResponsiveContainer>
-                                ) : (
-                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px', color: 'var(--text-muted)', fontSize: '13px' }}>
-                                        No trend data available
-                                    </div>
-                                )}
-                            </div>
-                        </div>
                     </div>
 
                     {/* Right Panel: Utilization & Inventory */}
