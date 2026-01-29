@@ -16,6 +16,8 @@ import WeatherCenter from './pages/WeatherCenter';
 import DocumentVault from './pages/DocumentVault';
 import Infrastructure from './pages/Infrastructure';
 import ProductionCosts from './pages/ProductionCosts';
+import Contracts from './pages/Contracts';
+import Stores from './pages/Stores';
 import MainLayout from './components/MainLayout';
 
 // Protected Route Component
@@ -47,13 +49,7 @@ function App() {
             </MainLayout>
           </ProtectedRoute>
         } />
-        <Route path="/inventory" element={
-          <ProtectedRoute>
-            <MainLayout>
-              <Inventory />
-            </MainLayout>
-          </ProtectedRoute>
-        } />
+        <Route path="/inventory" element={<Navigate to="/stores" />} />
         <Route path="/harvests" element={
           <ProtectedRoute>
             <MainLayout>
@@ -128,6 +124,20 @@ function App() {
           <ProtectedRoute>
             <MainLayout>
               <ProductionCosts />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/contracts" element={
+          <ProtectedRoute>
+            <MainLayout>
+              <Contracts />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/stores" element={
+          <ProtectedRoute>
+            <MainLayout>
+              <Stores />
             </MainLayout>
           </ProtectedRoute>
         } />

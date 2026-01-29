@@ -126,24 +126,33 @@ const MainLayout = ({ children }) => {
                     </NavGroup>
 
                     <NavGroup
-                        label="CULTIVATION"
+                        label="CULTIVATION & OPERATIONS"
                         isOpen={openGroups.cultivation}
                         onToggle={() => toggleGroup('cultivation')}
                     >
                         <SidebarLink to="/crops" icon="🌿" label="Crop Portfolio" sub />
-                        <SidebarLink to="/planner" icon="📅" label="Growth Planner" sub />
                         <SidebarLink to="/activities" icon="🚜" label="Operations Log" sub />
                         <SidebarLink to="/harvests" icon="🌾" label="Harvest Registry" sub />
+                        <SidebarLink to="/planner" icon="📅" label="Growth Planner" sub />
                     </NavGroup>
 
                     <NavGroup
-                        label="FINANCE & LOGISTICS"
+                        label="FINANCE & CONTRACTS"
                         isOpen={openGroups.finance}
                         onToggle={() => toggleGroup('finance')}
                     >
-                        <SidebarLink to="/inventory" icon="📦" label="Stock & Inventory" sub />
+                        <SidebarLink to="/contracts" icon="📜" label="Contracts" sub />
                         <SidebarLink to="/production-costs" icon="💰" label="Cost Analytics" sub />
                         <SidebarLink to="/reports" icon="📊" label="Performance Insights" sub />
+                    </NavGroup>
+
+                    <NavGroup
+                        label="LOGISTICS & STORAGE"
+                        isOpen={true}
+                        onToggle={() => { }}
+                    >
+                        <SidebarLink to="/stores" icon="🏢" label="Stores & Silos" sub />
+                        <SidebarLink to="/inventory" icon="📦" label="Input Stock" sub />
                     </NavGroup>
 
                     <NavGroup
