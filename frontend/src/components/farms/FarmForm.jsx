@@ -14,9 +14,75 @@ const FarmForm = ({ onComplete }) => {
         total_area: '',
         area_unit: 'hectares',
         latitude: '',
-        longitude: ''
+        longitude: '',
+        perimeter: ''
     });
+    const [coordsText, setCoordsText] = useState('');
     const [loading, setLoading] = useState(false);
+
+    const calculateMetrics = (text) => {
+        const lines = text.trim().split('\n');
+        const points = lines.map(line => {
+            const [lat, lng] = line.split(',').map(v => parseFloat(v.trim()));
+            return { lat, lng };
+        }).filter(p => !isNaN(p.lat) && !isNaN(p.lng));
+
+        if (points.length < 3) return;
+
+        // Radius of Earth in meters
+        const R = 6371000;
+
+        // 1. Perimeter Calculation (Haversine)
+        let totalPerimeter = 0;
+        for (let i = 0; i < points.length; i++) {
+            const p1 = points[i];
+            const p2 = points[(i + 1) % points.length];
+
+            const dLat = (p2.lat - p1.lat) * Math.PI / 180;
+            const dLon = (p2.lng - p1.lng) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(p1.lat * Math.PI / 180) * Math.cos(p2.lat * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            totalPerimeter += R * c;
+        }
+
+        // 2. Area Calculation (Shoelace on projected coords)
+        // Simplified planar projection for area (accurate enough for farms)
+        const avgLat = points.reduce((acc, p) => acc + p.lat, 0) / points.length;
+        const latRatio = 111320; // meters per degree lat
+        const lngRatio = 111320 * Math.cos(avgLat * Math.PI / 180);
+
+        let area = 0;
+        for (let i = 0; i < points.length; i++) {
+            const p1 = points[i];
+            const p2 = points[(i + 1) % points.length];
+            const x1 = p1.lng * lngRatio;
+            const y1 = p1.lat * latRatio;
+            const x2 = p2.lng * lngRatio;
+            const y2 = p2.lat * latRatio;
+            area += (x1 * y2 - x2 * y1);
+        }
+        area = Math.abs(area) / 2;
+
+        const areaHa = (area / 10000).toFixed(2);
+        const areaAc = (area / 4046.86).toFixed(2);
+
+        setFormData(prev => ({
+            ...prev,
+            total_area: areaHa,
+            area_unit: 'hectares',
+            latitude: points[0].lat.toString(),
+            longitude: points[0].lng.toString(),
+            perimeter: (totalPerimeter / 1000).toFixed(2) // km
+        }));
+    };
+
+    const handleCoordsChange = (e) => {
+        const text = e.target.value;
+        setCoordsText(text);
+        calculateMetrics(text);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -131,11 +197,36 @@ const FarmForm = ({ onComplete }) => {
                     </div>
                 </div>
 
-                <div className="card" style={{ backgroundColor: '#f8f9fa', borderStyle: 'dashed' }}>
-                    <label style={{ color: 'var(--primary)', fontWeight: '700' }}>🗺️ Geographic Center (Coordinates)</label>
+                <div className="card" style={{ backgroundColor: '#f8f9fa', borderStyle: 'dashed', marginBottom: '20px' }}>
+                    <label style={{ color: 'var(--primary)', fontWeight: '700' }}>🗺️ Boundary Coordinates (lat,lng per line)</label>
+                    <textarea
+                        rows="5"
+                        value={coordsText}
+                        onChange={handleCoordsChange}
+                        placeholder="45.4215,-75.6972&#10;45.4220,-75.6980&#10;45.4210,-75.6990"
+                        style={{ marginTop: '10px', fontSize: '13px', fontFamily: 'monospace' }}
+                    />
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '16px' }}>
+                        <div className="card" style={{ padding: '12px', textAlign: 'center', backgroundColor: 'white' }}>
+                            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Surface Area</div>
+                            <div style={{ fontWeight: 'bold' }}>{formData.total_area || '0'} ha</div>
+                        </div>
+                        <div className="card" style={{ padding: '12px', textAlign: 'center', backgroundColor: 'white' }}>
+                            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Surface Area</div>
+                            <div style={{ fontWeight: 'bold' }}>{(formData.total_area * 2.47105).toFixed(2) || '0'} ac</div>
+                        </div>
+                        <div className="card" style={{ padding: '12px', textAlign: 'center', backgroundColor: 'white' }}>
+                            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Perimeter</div>
+                            <div style={{ fontWeight: 'bold' }}>{formData.perimeter || '0'} km</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="card" style={{ backgroundColor: '#f8f9fa', borderStyle: 'solid', borderColor: '#eee' }}>
+                    <label style={{ color: 'var(--primary)', fontWeight: '700' }}>📍 Secondary Location Info</label>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '10px' }}>
                         <div>
-                            <label style={{ fontSize: '11px' }}>Latitude</label>
+                            <label style={{ fontSize: '11px' }}>Latitude (auto-filled)</label>
                             <input
                                 type="text"
                                 value={formData.latitude}
@@ -145,7 +236,7 @@ const FarmForm = ({ onComplete }) => {
                             />
                         </div>
                         <div>
-                            <label style={{ fontSize: '11px' }}>Longitude</label>
+                            <label style={{ fontSize: '11px' }}>Longitude (auto-filled)</label>
                             <input
                                 type="text"
                                 value={formData.longitude}

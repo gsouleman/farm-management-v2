@@ -16,7 +16,70 @@ const FieldForm = ({ onComplete }) => {
         boundary_coordinates: []
     });
     const [calculatedArea, setCalculatedArea] = useState(0);
+    const [calculatedPerimeter, setCalculatedPerimeter] = useState(0);
+    const [coordsText, setCoordsText] = useState('');
     const [loading, setLoading] = useState(false);
+
+    const calculateMetrics = (text) => {
+        const lines = text.trim().split('\n');
+        const points = lines.map(line => {
+            const [lat, lng] = line.split(',').map(v => parseFloat(v.trim()));
+            return { lat, lng };
+        }).filter(p => !isNaN(p.lat) && !isNaN(p.lng));
+
+        if (points.length < 3) return;
+
+        // Radius of Earth in meters
+        const R = 6371000;
+
+        // 1. Perimeter Calculation (Haversine)
+        let totalPerimeter = 0;
+        for (let i = 0; i < points.length; i++) {
+            const p1 = points[i];
+            const p2 = points[(i + 1) % points.length];
+
+            const dLat = (p2.lat - p1.lat) * Math.PI / 180;
+            const dLon = (p2.lng - p1.lng) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(p1.lat * Math.PI / 180) * Math.cos(p2.lat * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            totalPerimeter += R * c;
+        }
+
+        // 2. Area Calculation (Shoelace on projected coords)
+        const avgLat = points.reduce((acc, p) => acc + p.lat, 0) / points.length;
+        const latRatio = 111320;
+        const lngRatio = 111320 * Math.cos(avgLat * Math.PI / 180);
+
+        let area = 0;
+        for (let i = 0; i < points.length; i++) {
+            const p1 = points[i];
+            const p2 = points[(i + 1) % points.length];
+            const x1 = p1.lng * lngRatio;
+            const y1 = p1.lat * latRatio;
+            const x2 = p2.lng * lngRatio;
+            const y2 = p2.lat * latRatio;
+            area += (x1 * y2 - x2 * y1);
+        }
+        area = Math.abs(area) / 2;
+
+        const areaHa = (area / 10000).toFixed(2);
+        const areaAc = (area / 4046.86).toFixed(2);
+
+        setCalculatedArea(formData.area_unit === 'hectares' ? areaHa : areaAc);
+        setCalculatedPerimeter((totalPerimeter / 1000).toFixed(2));
+        setFormData(prev => ({
+            ...prev,
+            boundary_coordinates: points.map(p => ({ lat: p.lat, lng: p.lng }))
+        }));
+    };
+
+    const handleCoordsChange = (e) => {
+        const text = e.target.value;
+        setCoordsText(text);
+        calculateMetrics(text);
+    };
 
     const handleBoundarySave = (data) => {
         setFormData({ ...formData, boundary_coordinates: data.coordinates });
@@ -125,9 +188,25 @@ const FieldForm = ({ onComplete }) => {
                         </div>
                     </div>
 
-                    <div className="card" style={{ background: 'var(--bg-main)', borderStyle: 'dashed', textAlign: 'center', padding: '16px', marginBottom: '16px' }}>
-                        <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>MAPPED SURFACE AREA</div>
-                        <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--primary)' }}>{calculatedArea} <span style={{ fontSize: '14px' }}>{formData.area_unit === 'hectares' ? 'ha' : 'ac'}</span></div>
+                    <div className="card" style={{ background: 'var(--bg-main)', borderStyle: 'dashed', padding: '16px', marginBottom: '16px' }}>
+                        <label style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>OR PASTE BOUNDARY COORDINATES (lat,lng)</label>
+                        <textarea
+                            rows="4"
+                            value={coordsText}
+                            onChange={handleCoordsChange}
+                            placeholder="45.4215,-75.6972&#10;45.4220,-75.6980..."
+                            style={{ fontSize: '12px', fontFamily: 'monospace', marginBottom: '12px' }}
+                        />
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                            <div style={{ background: 'white', padding: '8px', borderRadius: '4px', textAlign: 'center' }}>
+                                <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>PROJECTED AREA</div>
+                                <div style={{ fontSize: '16px', fontWeight: 'bold' }}>{calculatedArea} {formData.area_unit === 'hectares' ? 'ha' : 'ac'}</div>
+                            </div>
+                            <div style={{ background: 'white', padding: '8px', borderRadius: '4px', textAlign: 'center' }}>
+                                <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>PERIMETER</div>
+                                <div style={{ fontSize: '16px', fontWeight: 'bold' }}>{calculatedPerimeter} km</div>
+                            </div>
+                        </div>
                     </div>
 
                     <div style={{ marginBottom: '20px' }}>
