@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, FeatureGroup, Polygon, CircleMarker, Polyline, Popup, useMap } from 'react-leaflet';
 import { EditControl } from 'react-leaflet-draw';
 import L from 'leaflet';
@@ -30,6 +31,7 @@ const ZoomToData = ({ bounds }) => {
 
 const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundary, manualCoordinates, onBoundaryCreate, editable = true }) => {
     const mapRef = useRef();
+    const navigate = useNavigate();
 
     const handleCreated = (e) => {
         const layer = e.layer;
@@ -177,7 +179,7 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
 
                                     <div style={{ marginTop: '12px', textAlign: 'center' }}>
                                         <button
-                                            onClick={() => window.location.href = `/crops?view=details&id=${crop.id}`}
+                                            onClick={() => navigate(`/crops?view=details&id=${crop.id}`)}
                                             style={{
                                                 width: '100%',
                                                 padding: '6px',
