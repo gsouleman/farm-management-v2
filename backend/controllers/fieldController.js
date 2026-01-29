@@ -77,11 +77,12 @@ exports.createField = async (req, res) => {
                 }
             );
 
-            if (result && result.area_hectares) {
+            if (result && result.area_hectares !== undefined) {
+                console.log(`Calculated area for new field ${field.name}: ${result.area_hectares} ha`);
                 await field.update({ area: result.area_hectares });
             }
         } catch (areaError) {
-            console.error('Area calculation failed:', areaError);
+            console.error('Area calculation failed for new field:', areaError);
         }
 
         res.status(201).json(field);
@@ -137,11 +138,27 @@ exports.updateField = async (req, res) => {
                         type: sequelize.QueryTypes.SELECT
                     }
                 );
-                if (result && result.area_hectares) {
+                if (result && result.area_hectares !== undefined) {
                     updateData.area = result.area_hectares;
                 }
             } catch (areaError) {
-                console.error('Area calculation failed during update:', areaError);
+                console.error('Area calculation failed during boundary update:', areaError);
+            }
+        } else if ((!field.area || parseFloat(field.area) === 0) && field.boundary) {
+            // Force recalculation for existing fields with 0 area
+            try {
+                const [result] = await sequelize.query(
+                    `SELECT ST_Area(boundary) / 10000 AS area_hectares FROM fields WHERE id = :id`,
+                    {
+                        replacements: { id: field.id },
+                        type: sequelize.QueryTypes.SELECT
+                    }
+                );
+                if (result && result.area_hectares !== undefined) {
+                    updateData.area = result.area_hectares;
+                }
+            } catch (recalcError) {
+                console.error('Forced area metric recalculation failed:', recalcError);
             }
         }
 

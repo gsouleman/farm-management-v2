@@ -1,10 +1,21 @@
 import React, { useEffect, useState } from 'react';
+import * as turf from '@turf/turf';
 import api from '../../services/api';
 import FieldMap from './FieldMap';
 import CropForm from '../crops/CropForm';
 import ActivityForm from '../activities/ActivityForm';
 
 const FieldDetails = ({ field, onBack }) => {
+    // Calculate area fallback if database says 0
+    let displayArea = parseFloat(field.area || 0);
+    if (displayArea === 0 && field.boundary?.coordinates?.[0]) {
+        try {
+            const polygon = turf.polygon(field.boundary.coordinates);
+            displayArea = turf.area(polygon) / 10000;
+        } catch (e) {
+            console.error('Frontend area calculation failed:', e);
+        }
+    }
     const [crops, setCrops] = useState([]);
     const [activities, setActivities] = useState([]);
     const [view, setView] = useState('overview'); // overview, add-crop, add-activity
@@ -40,7 +51,7 @@ const FieldDetails = ({ field, onBack }) => {
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             <DataRow label="Field Number" value={field.field_number || 'N/A'} />
-                            <DataRow label="Total Area" value={`${parseFloat(field.area || 0).toFixed(2)} ha`} />
+                            <DataRow label="Total Area" value={`${displayArea.toFixed(2)} ha`} />
                             <DataRow label="Soil Type" value={field.soil_type || 'Unknown'} />
                             <DataRow label="Irrigation" value={field.irrigation ? 'Operational' : 'None'} />
                         </div>

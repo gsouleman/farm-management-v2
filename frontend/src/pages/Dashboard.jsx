@@ -4,6 +4,7 @@ import useFarmStore from '../store/farmStore';
 import useCropStore from '../store/cropStore';
 import useInfrastructureStore from '../store/infrastructureStore';
 import FieldMap from '../components/fields/FieldMap';
+import * as turf from '@turf/turf';
 import FarmForm from '../components/farms/FarmForm';
 import FieldForm from '../components/fields/FieldForm';
 import FieldDetails from '../components/fields/FieldDetails';
@@ -151,16 +152,27 @@ const Dashboard = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {fields.map(f => (
-                                        <tr key={f.id} style={{ borderBottom: '1px solid var(--border)', fontSize: '14px' }}>
-                                            <td style={{ padding: '12px 8px', fontWeight: 'bold', color: 'var(--primary)' }}>{f.name}</td>
-                                            <td style={{ padding: '12px 8px', fontWeight: 'bold' }}>{parseFloat(f.area || 0).toFixed(2)} ha</td>
-                                            <td style={{ padding: '12px 8px', textTransform: 'capitalize' }}>{f.soil_type || '—'}</td>
-                                            <td style={{ padding: '12px 8px' }}>
-                                                <button onClick={() => { setSelectedField(f); setView('field-details'); }} style={{ padding: '4px 12px', borderRadius: '4px', fontSize: '11px', backgroundColor: 'var(--primary)', color: 'white', border: 'none', cursor: 'pointer' }}>Manage</button>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                    {fields.map(f => {
+                                        let fieldDisplayArea = parseFloat(f.area || 0);
+                                        if (fieldDisplayArea === 0 && f.boundary?.coordinates?.[0]) {
+                                            try {
+                                                const poly = turf.polygon(f.boundary.coordinates);
+                                                fieldDisplayArea = turf.area(poly) / 10000;
+                                            } catch (e) {
+                                                console.error('Dashboard field area calc failed:', e);
+                                            }
+                                        }
+                                        return (
+                                            <tr key={f.id} style={{ borderBottom: '1px solid var(--border)', fontSize: '14px' }}>
+                                                <td style={{ padding: '12px 8px', fontWeight: 'bold', color: 'var(--primary)' }}>{f.name}</td>
+                                                <td style={{ padding: '12px 8px', fontWeight: 'bold' }}>{fieldDisplayArea.toFixed(2)} ha</td>
+                                                <td style={{ padding: '12px 8px', textTransform: 'capitalize' }}>{f.soil_type || '—'}</td>
+                                                <td style={{ padding: '12px 8px' }}>
+                                                    <button onClick={() => { setSelectedField(f); setView('field-details'); }} style={{ padding: '4px 12px', borderRadius: '4px', fontSize: '11px', backgroundColor: 'var(--primary)', color: 'white', border: 'none', cursor: 'pointer' }}>Manage</button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                     {fields.length === 0 && (
                                         <tr>
                                             <td colSpan="4" style={{ textAlign: 'center', padding: '24px', color: 'var(--text-muted)' }}>No fields recorded for this farm. Use '+ Boundary' to add one.</td>
