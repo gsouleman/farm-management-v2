@@ -60,21 +60,34 @@ const CropForm = ({ fieldId, onComplete }) => {
         }
 
         try {
-            // Normalize numeric fields: empty strings should be null for the backend
+            // Normalize numeric fields: empty strings or NaN should be null for the backend
+            const parseNum = (val) => {
+                const parsed = parseFloat(val);
+                return isNaN(parsed) ? null : parsed;
+            };
+
             const normalizedData = {
                 ...formData,
-                planted_area: formData.planted_area === '' ? null : parseFloat(formData.planted_area),
-                planting_rate: formData.planting_rate === '' ? null : parseFloat(formData.planting_rate),
-                row_spacing: formData.row_spacing === '' ? null : parseFloat(formData.row_spacing),
-                estimated_cost: formData.estimated_cost === '' ? null : parseFloat(formData.estimated_cost),
-                year: parseInt(formData.year, 10)
+                planted_area: parseNum(formData.planted_area),
+                planting_rate: parseNum(formData.planting_rate),
+                row_spacing: parseNum(formData.row_spacing),
+                estimated_cost: parseNum(formData.estimated_cost),
+                year: parseInt(formData.year, 10) || new Date().getFullYear(),
+                expected_harvest_date: formData.expected_harvest_date || null,
+                planting_date: formData.planting_date || null
             };
+
+            console.log('Normalized Data for Submission:', normalizedData);
 
             await createCrop(targetFieldId, normalizedData);
             if (onComplete) onComplete();
         } catch (error) {
             console.error('Submission failed:', error);
-            alert(`Error: ${error.response?.data?.message || 'Failed to save record. Please check field data.'}`);
+            const serverMsg = error.response?.data?.message || 'Failed to save record';
+            const serverError = error.response?.data?.error || '';
+            const details = error.response?.data?.details ? `\n- ${error.response.data.details.join('\n- ')}` : '';
+
+            alert(`Error: ${serverMsg}${serverError ? ` (${serverError})` : ''}${details}`);
         } finally {
             setLoading(false);
         }

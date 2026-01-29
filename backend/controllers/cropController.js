@@ -153,11 +153,25 @@ exports.createCrop = async (req, res) => {
 
         res.status(201).json(crop);
     } catch (error) {
-        console.error('Crop creation error:', error);
+        console.error('CRITICAL CROP CREATION ERROR:', error);
+
+        // Handle specific validation/database errors
+        if (error.name === 'SequelizeValidationError') {
+            return res.status(400).json({
+                message: 'Validation Error',
+                details: error.errors.map(e => e.message)
+            });
+        }
+
         if (error.name === 'SequelizeDatabaseError' && error.message.includes('uuid')) {
             return res.status(400).json({ message: 'Invalid Field selected. Please ensure a valid field is chosen.' });
         }
-        res.status(500).json({ message: `Error creating crop: ${error.message}` });
+
+        res.status(500).json({
+            message: 'Internal Server Error',
+            error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 };
 
