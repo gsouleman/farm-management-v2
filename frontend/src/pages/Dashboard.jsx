@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import useFarmStore from '../store/farmStore';
 import FieldMap from '../components/fields/FieldMap';
 import FarmForm from '../components/farms/FarmForm';
@@ -9,6 +10,7 @@ const Dashboard = () => {
     const { fetchFarms, currentFarm, fields, fetchFields, loading } = useFarmStore();
     const [view, setView] = useState('overview'); // overview, add-farm, add-field, field-details
     const [selectedField, setSelectedField] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchFarms();

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import useFarmStore from '../store/farmStore';
 import FieldForm from '../components/fields/FieldForm';
 
 const Fields = () => {
     const { currentFarm, fields, fetchFields } = useFarmStore();
     const [view, setView] = useState('list'); // list, add
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (currentFarm) {
