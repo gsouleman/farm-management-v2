@@ -29,16 +29,57 @@ const ZoomToData = ({ bounds }) => {
     return null;
 };
 
-const PolygonLabel = ({ coordinates, label, color = '#ffffff' }) => {
+const CROP_STYLES = {
+    // Cereals
+    maize: { color: '#FFD700', font: "'Arial Black', Gadget, sans-serif" },
+    rice: { color: '#E0FFFF', font: "'Courier New', Courier, monospace" },
+    sorghum: { color: '#FFA500', font: "Impact, Charcoal, sans-serif" },
+
+    // Roots
+    cassava: { color: '#D2B48C', font: "Georgia, serif" },
+    yam: { color: '#8B4513', font: "Georgia, serif" },
+    cocoyam: { color: '#BC8F8F', font: "Georgia, serif" },
+
+    // Cash Crops
+    cocoa: { color: '#8B4513', font: "'Palatino Linotype', 'Book Antiqua', Palatino, serif" },
+    coffee_robusta: { color: '#2E8B57', font: "'Times New Roman', Times, serif" },
+    coffee_arabica: { color: '#3CB371', font: "'Times New Roman', Times, serif" },
+    oil_palm: { color: '#556B2F', font: "'Bookman Old Style', serif" },
+
+    // Fruits
+    plantain: { color: '#9ACD32', font: "Verdana, Geneva, sans-serif" },
+    banana: { color: '#FFF700', font: "Verdana, Geneva, sans-serif" },
+    avocado: { color: '#556B2F', font: "Tahoma, Geneva, sans-serif" },
+    pineapple: { color: '#FFEB3B', font: "'Trebuchet MS', sans-serif" },
+
+    // Vegetables
+    tomato: { color: '#FF6347', font: "'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif" },
+    pepper: { color: '#FF4500', font: "Monaco, 'Lucida Console', monospace" },
+    penja_pepper: { color: '#F5F5F5', font: "monospace" },
+
+    default: { color: '#FFFFFF', font: "sans-serif" }
+};
+
+const getCropStyle = (cropType) => {
+    if (!cropType) return CROP_STYLES.default;
+    const type = cropType.toLowerCase();
+    return CROP_STYLES[type] || Object.entries(CROP_STYLES).find(([key]) => type.includes(key))?.[1] || CROP_STYLES.default;
+};
+
+const PolygonLabel = ({ coordinates, label, cropType, color: overrideColor }) => {
     if (!coordinates || coordinates.length < 3) return null;
     try {
+        const style = getCropStyle(cropType);
+        const textColor = overrideColor || style.color;
+        const fontFamily = style.font;
+
         const polygon = turf.polygon([coordinates]);
         const centroid = turf.centroid(polygon);
         const [lng, lat] = centroid.geometry.coordinates;
 
         const icon = L.divIcon({
             className: 'polygon-label',
-            html: `<div style="color: ${color}; font-weight: 800; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); white-space: nowrap; pointer-events: none; font-size: 13px; transform: translate(-50%, -50%); text-transform: uppercase; letter-spacing: 0.5px;">${label}</div>`,
+            html: `<div style="color: ${textColor}; font-family: ${fontFamily}; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.9); white-space: nowrap; pointer-events: none; font-size: 14px; transform: translate(-50%, -50%); text-transform: uppercase; letter-spacing: 1px;">${label}</div>`,
             iconSize: [0, 0],
             iconAnchor: [0, 0]
         });
@@ -221,6 +262,7 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
                             <PolygonLabel
                                 coordinates={crop.boundary.coordinates[0]}
                                 label={crop.crop_type}
+                                cropType={crop.crop_type}
                             />
                         </React.Fragment>
                     ))}
@@ -302,7 +344,7 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
                                 <PolygonLabel
                                     coordinates={manualCoordinates}
                                     label={currentLabel}
-                                    color="#f44336"
+                                    cropType={currentLabel}
                                 />
                             )}
                         </>
