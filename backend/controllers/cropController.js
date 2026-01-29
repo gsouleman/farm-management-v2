@@ -153,8 +153,11 @@ exports.createCrop = async (req, res) => {
 
         res.status(201).json(crop);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error creating crop' });
+        console.error('Crop creation error:', error);
+        if (error.name === 'SequelizeDatabaseError' && error.message.includes('uuid')) {
+            return res.status(400).json({ message: 'Invalid Field selected. Please ensure a valid field is chosen.' });
+        }
+        res.status(500).json({ message: `Error creating crop: ${error.message}` });
     }
 };
 

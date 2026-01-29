@@ -45,16 +45,36 @@ const CropForm = ({ fieldId, onComplete }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+
+        const targetFieldId = selectedFieldId === 'undefined' ? null : selectedFieldId;
+
+        console.log('Submitting Crop Record:', {
+            targetFieldId,
+            formData
+        });
+
+        if (!targetFieldId) {
+            alert('Selection Error: Please select a valid target field.');
+            setLoading(false);
+            return;
+        }
+
         try {
-            if (!selectedFieldId) {
-                alert('Please select a target field for this cultivation.');
-                setLoading(false);
-                return;
-            }
-            await createCrop(selectedFieldId, formData);
+            // Normalize numeric fields: empty strings should be null for the backend
+            const normalizedData = {
+                ...formData,
+                planted_area: formData.planted_area === '' ? null : parseFloat(formData.planted_area),
+                planting_rate: formData.planting_rate === '' ? null : parseFloat(formData.planting_rate),
+                row_spacing: formData.row_spacing === '' ? null : parseFloat(formData.row_spacing),
+                estimated_cost: formData.estimated_cost === '' ? null : parseFloat(formData.estimated_cost),
+                year: parseInt(formData.year, 10)
+            };
+
+            await createCrop(targetFieldId, normalizedData);
             if (onComplete) onComplete();
         } catch (error) {
-            console.error(error);
+            console.error('Submission failed:', error);
+            alert(`Error: ${error.response?.data?.message || 'Failed to save record. Please check field data.'}`);
         } finally {
             setLoading(false);
         }
