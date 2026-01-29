@@ -29,6 +29,8 @@ app.use('/api/fields', require('./routes/fieldRoutes'));
 app.use('/api/crops', require('./routes/cropRoutes'));
 app.use('/api/activities', require('./routes/activityRoutes'));
 app.use('/api/inputs', require('./routes/inputRoutes'));
+app.use('/api/reports', require('./routes/reportRoutes'));
+app.use('/api/exports', require('./routes/exportRoutes'));
 
 // Database sync and server start
 const startServer = async () => {
