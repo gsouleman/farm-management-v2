@@ -66,11 +66,11 @@ const getCropStyle = (cropType) => {
     return CROP_STYLES[type] || Object.entries(CROP_STYLES).find(([key]) => type.includes(key))?.[1] || CROP_STYLES.default;
 };
 
-const PolygonLabel = ({ coordinates, label, cropType, color: overrideColor }) => {
+const PolygonLabel = ({ coordinates, label, cropType }) => {
     if (!coordinates || coordinates.length < 3) return null;
     try {
         const style = getCropStyle(cropType);
-        const textColor = overrideColor || style.color;
+        const textColor = '#FFFFFF'; // Force Bold White as requested
         const fontFamily = style.font;
 
         const polygon = turf.polygon([coordinates]);
