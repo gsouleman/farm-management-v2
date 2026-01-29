@@ -209,79 +209,82 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
                     ))}
 
                     {/* Crop Allocations Highlight */}
-                    {crops?.filter(c => c?.boundary?.coordinates?.[0]).map(crop => (
-                        <React.Fragment key={crop.id}>
-                            <Polygon
-                                positions={crop.boundary.coordinates[0].map(coord => [coord[1], coord[0]])}
-                                pathOptions={{
-                                    color: '#ffc107',
-                                    fillColor: '#ffc107',
-                                    fillOpacity: 0.6,
-                                    weight: 2
-                                }}
-                            >
-                                <Popup>
-                                    <div style={{ fontSize: '13px', minWidth: '220px', padding: '5px' }}>
-                                        <div style={{ borderBottom: '2px solid #ffc107', paddingBottom: '8px', marginBottom: '8px' }}>
-                                            <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1a365d' }}>{crop.crop_type}</div>
-                                            <div style={{ fontSize: '12px', color: '#718096' }}>{crop.variety}</div>
-                                        </div>
+                    {crops?.filter(c => c?.boundary?.coordinates?.[0]).map(crop => {
+                        const style = getCropStyle(crop.crop_type);
+                        return (
+                            <React.Fragment key={crop.id}>
+                                <Polygon
+                                    positions={crop.boundary.coordinates[0].map(coord => [coord[1], coord[0]])}
+                                    pathOptions={{
+                                        color: style.color,
+                                        fillColor: style.color,
+                                        fillOpacity: 0.5,
+                                        weight: 2
+                                    }}
+                                >
+                                    <Popup>
+                                        <div style={{ fontSize: '13px', minWidth: '220px', padding: '5px' }}>
+                                            <div style={{ borderBottom: `2px solid ${style.color}`, paddingBottom: '8px', marginBottom: '8px' }}>
+                                                <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1a365d' }}>{crop.crop_type}</div>
+                                                <div style={{ fontSize: '12px', color: '#718096' }}>{crop.variety}</div>
+                                            </div>
 
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', backgroundColor: '#fffbe6', padding: '8px', borderRadius: '4px' }}>
-                                            <span style={{ fontWeight: '600' }}>Surface Area:</span>
-                                            <span style={{ color: '#b7791f', fontWeight: 'bold' }}>{crop.planted_area} ha</span>
-                                        </div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', backgroundColor: '#fffbe6', padding: '8px', borderRadius: '4px' }}>
+                                                <span style={{ fontWeight: '600' }}>Surface Area:</span>
+                                                <span style={{ color: '#b7791f', fontWeight: 'bold' }}>{crop.planted_area} ha</span>
+                                            </div>
 
-                                        <div style={{ fontWeight: '600', fontSize: '11px', color: '#4a5568', textTransform: 'uppercase', marginBottom: '5px' }}>
-                                            Allocation Corners (lat, lng):
-                                        </div>
-                                        <div style={{
-                                            backgroundColor: '#f7fafc',
-                                            padding: '10px',
-                                            borderRadius: '4px',
-                                            fontSize: '10.5px',
-                                            maxHeight: '120px',
-                                            overflowY: 'auto',
-                                            fontFamily: 'monospace',
-                                            lineHeight: '1.4',
-                                            border: '1px solid #e2e8f0'
-                                        }}>
-                                            {crop.boundary.coordinates[0].map((c, i) => (
-                                                <div key={i} style={{ borderBottom: i < crop.boundary.coordinates[0].length - 1 ? '1px solid #edf2f7' : 'none', padding: '2px 0' }}>
-                                                    <span style={{ color: '#718096', marginRight: '5px' }}>{i + 1}.</span>
-                                                    {c[1].toFixed(6)}, {c[0].toFixed(6)}
-                                                </div>
-                                            ))}
-                                        </div>
+                                            <div style={{ fontWeight: '600', fontSize: '11px', color: '#4a5568', textTransform: 'uppercase', marginBottom: '5px' }}>
+                                                Allocation Corners (lat, lng):
+                                            </div>
+                                            <div style={{
+                                                backgroundColor: '#f7fafc',
+                                                padding: '10px',
+                                                borderRadius: '4px',
+                                                fontSize: '10.5px',
+                                                maxHeight: '120px',
+                                                overflowY: 'auto',
+                                                fontFamily: 'monospace',
+                                                lineHeight: '1.4',
+                                                border: '1px solid #e2e8f0'
+                                            }}>
+                                                {crop.boundary.coordinates[0].map((c, i) => (
+                                                    <div key={i} style={{ borderBottom: i < crop.boundary.coordinates[0].length - 1 ? '1px solid #edf2f7' : 'none', padding: '2px 0' }}>
+                                                        <span style={{ color: '#718096', marginRight: '5px' }}>{i + 1}.</span>
+                                                        {c[1].toFixed(6)}, {c[0].toFixed(6)}
+                                                    </div>
+                                                ))}
+                                            </div>
 
-                                        <div style={{ marginTop: '12px', textAlign: 'center' }}>
-                                            <button
-                                                onClick={() => navigate(`/crops?view=details&id=${crop.id}`)}
-                                                style={{
-                                                    width: '100%',
-                                                    padding: '6px',
-                                                    backgroundColor: '#ffc107',
-                                                    color: '#1a365d',
-                                                    border: 'none',
-                                                    borderRadius: '4px',
-                                                    fontSize: '11px',
-                                                    fontWeight: 'bold',
-                                                    cursor: 'pointer'
-                                                }}
-                                            >
-                                                View Full Timeline
-                                            </button>
+                                            <div style={{ marginTop: '12px', textAlign: 'center' }}>
+                                                <button
+                                                    onClick={() => navigate(`/crops?view=details&id=${crop.id}`)}
+                                                    style={{
+                                                        width: '100%',
+                                                        padding: '6px',
+                                                        backgroundColor: style.color,
+                                                        color: '#1a365d',
+                                                        border: 'none',
+                                                        borderRadius: '4px',
+                                                        fontSize: '11px',
+                                                        fontWeight: 'bold',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                >
+                                                    View Full Timeline
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                </Popup>
-                            </Polygon>
-                            <PolygonLabel
-                                coordinates={crop.boundary.coordinates[0]}
-                                label={crop.crop_type}
-                                cropType={crop.crop_type}
-                            />
-                        </React.Fragment>
-                    ))}
+                                    </Popup>
+                                </Polygon>
+                                <PolygonLabel
+                                    coordinates={crop.boundary.coordinates[0]}
+                                    label={crop.crop_type}
+                                    cropType={crop.crop_type}
+                                />
+                            </React.Fragment>
+                        );
+                    })}
 
                     {/* Infrastructure Highlight */}
                     {infrastructure?.filter(i => i?.boundary?.coordinates?.[0]).map(infra => (
@@ -334,37 +337,40 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
                     ))}
 
                     {/* Manual Entry Highlight */}
-                    {manualCoordinates?.length > 0 && (
-                        <>
-                            {manualCoordinates.filter(c => c && c.length >= 2).map((coord, idx) => (
-                                <CircleMarker
-                                    key={`manual-point-${idx}`}
-                                    center={[coord[1], coord[0]]}
-                                    pathOptions={{ color: '#f44336', fillColor: '#f44336', fillOpacity: 1 }}
-                                    radius={4}
-                                />
-                            ))}
-                            {manualCoordinates.length === 2 && manualCoordinates.every(c => c && c.length >= 2) && (
-                                <Polyline
-                                    positions={manualCoordinates.map(coord => [coord[1], coord[0]])}
-                                    pathOptions={{ color: '#f44336', weight: 2, dashArray: '5, 5' }}
-                                />
-                            )}
-                            {manualCoordinates.length >= 3 && manualCoordinates.every(c => c && c.length >= 2) && (
-                                <Polygon
-                                    positions={manualCoordinates.map(coord => [coord[1], coord[0]])}
-                                    pathOptions={{ color: '#f44336', weight: 2, dashArray: '5, 5', fillOpacity: 0.2 }}
-                                />
-                            )}
-                            {manualCoordinates.length >= 3 && currentLabel && (
-                                <PolygonLabel
-                                    coordinates={manualCoordinates}
-                                    label={currentLabel}
-                                    cropType={currentLabel}
-                                />
-                            )}
-                        </>
-                    )}
+                    {manualCoordinates?.length > 0 && (() => {
+                        const style = getCropStyle(currentLabel);
+                        return (
+                            <>
+                                {manualCoordinates.filter(c => c && c.length >= 2).map((coord, idx) => (
+                                    <CircleMarker
+                                        key={`manual-point-${idx}`}
+                                        center={[coord[1], coord[0]]}
+                                        pathOptions={{ color: style.color, fillColor: style.color, fillOpacity: 1 }}
+                                        radius={4}
+                                    />
+                                ))}
+                                {manualCoordinates.length === 2 && manualCoordinates.every(c => c && c.length >= 2) && (
+                                    <Polyline
+                                        positions={manualCoordinates.map(coord => [coord[1], coord[0]])}
+                                        pathOptions={{ color: style.color, weight: 2, dashArray: '5, 5' }}
+                                    />
+                                ))}
+                                {manualCoordinates.length >= 3 && manualCoordinates.every(c => c && c.length >= 2) && (
+                                    <Polygon
+                                        positions={manualCoordinates.map(coord => [coord[1], coord[0]])}
+                                        pathOptions={{ color: style.color, weight: 2, dashArray: '5, 5', fillOpacity: 0.3 }}
+                                    />
+                                )}
+                                {manualCoordinates.length >= 3 && currentLabel && (
+                                    <PolygonLabel
+                                        coordinates={manualCoordinates}
+                                        label={currentLabel}
+                                        cropType={currentLabel}
+                                    />
+                                )}
+                            </>
+                        );
+                    })()}
                 </FeatureGroup>
 
                 {(() => {
