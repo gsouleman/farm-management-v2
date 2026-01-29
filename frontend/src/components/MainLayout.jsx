@@ -114,20 +114,6 @@ const MainLayout = ({ children }) => {
                         onToggle={() => { }}
                     >
                         <SidebarLink to="/" icon="📺" label="DASHBOARD" sub />
-                        <SidebarLink
-                            to="/"
-                            icon="➕"
-                            label="NEW FARM"
-                            sub
-                            onClick={(e) => {
-                                e.preventDefault();
-                                navigate('/');
-                                // In a real app we might use a query param or state, 
-                                // but for now we follow the Dashboard's setView('add-farm') logic if it were integrated,
-                                // or simply navigate to the dashboard where the button exists.
-                                // Given Dashboard is the landing, let's just make it prominent.
-                            }}
-                        />
                     </NavGroup>
 
                     <NavGroup
