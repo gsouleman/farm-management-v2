@@ -18,6 +18,10 @@ router.post('/', cropController.createCrop);
 // Activity sub-routes
 const activityController = require('../controllers/activityController');
 router.get('/:cropId/activities', activityController.getCropActivities);
+router.post('/:cropId/activities', (req, res, next) => {
+    req.body.crop_id = req.params.cropId;
+    next();
+}, activityController.createActivity);
 
 // Harvest sub-routes
 const harvestController = require('../controllers/harvestController');
