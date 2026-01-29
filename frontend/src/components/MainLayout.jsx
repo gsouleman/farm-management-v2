@@ -72,21 +72,62 @@ const MainLayout = ({ children }) => {
                     <SidebarLink to="/reports" icon="📑" label="Reports" />
                 </nav>
 
-                {/* User Footer */}
-                <div style={{ padding: '20px', borderTop: '1px solid #2d3238', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#4caf50', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '18px' }}>
-                        {user?.first_name?.charAt(0)}
-                    </div>
-                    <div style={{ flex: 1, overflow: 'hidden' }}>
-                        <div style={{ fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.first_name} {user?.last_name}</div>
-                        <button onClick={handleLogout} style={{ border: 'none', background: 'none', color: '#6c757d', padding: 0, fontSize: '12px', cursor: 'pointer' }}>Logout</button>
-                    </div>
-                </div>
             </aside>
 
-            {/* Main Content */}
-            <main style={{ flex: 1, overflowY: 'auto' }}>
-                {children}
+            {/* Main Content Area */}
+            <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                {/* Top Header */}
+                <header style={{
+                    height: '70px',
+                    backgroundColor: '#1a1d21',
+                    borderBottom: '4px solid var(--primary)',
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    alignItems: 'center',
+                    padding: '0 40px',
+                    color: 'white',
+                    zIndex: 90
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontSize: '15px', fontWeight: '700', letterSpacing: '0.02em' }}>{user?.first_name} {user?.last_name}</div>
+                            <button
+                                onClick={handleLogout}
+                                style={{
+                                    border: 'none',
+                                    background: 'none',
+                                    color: '#adb5bd',
+                                    padding: 0,
+                                    fontSize: '12px',
+                                    cursor: 'pointer',
+                                    fontWeight: '500',
+                                    marginTop: '2px'
+                                }}
+                            >
+                                Logout
+                            </button>
+                        </div>
+                        <div style={{
+                            width: '44px',
+                            height: '44px',
+                            borderRadius: '50%',
+                            backgroundColor: '#4caf50',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            fontSize: '20px',
+                            fontWeight: 'bold',
+                            border: '2px solid rgba(255,255,255,0.1)'
+                        }}>
+                            {user?.first_name?.charAt(0)}
+                        </div>
+                    </div>
+                </header>
+
+                {/* Page Content */}
+                <div style={{ flex: 1, overflowY: 'auto', backgroundColor: '#f8f9fa' }}>
+                    {children}
+                </div>
             </main>
         </div>
     );
