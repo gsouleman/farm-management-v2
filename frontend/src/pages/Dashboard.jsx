@@ -28,36 +28,88 @@ const Dashboard = () => {
         }
     }, [currentFarm, fetchFields, fetchCropsByFarm, fetchInfrastructure]);
 
-    const totalAllocatedArea = (fields || []).reduce((sum, f) => sum + parseFloat(f.area || 0), 0) +
-        (infrastructure || []).reduce((sum, i) => sum + parseFloat(i.area_sqm || 0) / 10000, 0);
+    const totalPlantedArea = (crops || [])
+        .filter(c => c.status === 'planted' || c.status === 'active')
+        .reduce((sum, c) => sum + parseFloat(c.planted_area || 0), 0);
 
     const stats = [
         { label: 'Total Fields', value: fields.length, icon: '🗺️' },
         {
-            label: 'Total Planted/Allocated',
-            value: `${totalAllocatedArea > 0 ? totalAllocatedArea.toFixed(2) : (currentFarm?.total_area || '0.00')} ha`,
+            label: 'TOTAL AREA OF FARM',
+            value: `${currentFarm?.total_area || '0.00'} ha`,
             icon: '📏'
         },
-        { label: 'Active Crops', value: crops.filter(c => c.status === 'planted').length, icon: '🌱' },
-        { label: 'Tasks Today', value: '2', icon: '✅' }
+        {
+            label: 'TOTAL PLANTED/ALLOCATED',
+            value: `${totalPlantedArea.toFixed(2)} ha`,
+            icon: '🌱',
+            onClick: () => setView('crop-breakdown'),
+            clickable: true
+        },
+        { label: 'Active Crops', value: crops.filter(c => c.status === 'planted').length, icon: '🚜' }
     ];
+
+    const renderCropBreakdown = () => (
+        <div className="animate-fade-in card">
+            <div className="card-header">
+                <h3 style={{ margin: 0, fontSize: '18px' }}>Crop Allocation Breakdown</h3>
+                <div style={{ fontSize: '14px', fontWeight: 'bold', color: 'var(--primary)' }}>
+                    Total Planted: {totalPlantedArea.toFixed(2)} ha
+                </div>
+            </div>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                    <tr style={{ textAlign: 'left', fontSize: '12px', color: 'var(--text-muted)', borderBottom: '2px solid var(--border)' }}>
+                        <th style={{ padding: '12px 8px' }}>Crop Type</th>
+                        <th style={{ padding: '12px 8px' }}>Variety</th>
+                        <th style={{ padding: '12px 8px' }}>Surface Area (ha)</th>
+                        <th style={{ padding: '12px 8px' }}>Location/Field</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {crops.filter(c => c.status === 'planted' || c.status === 'active').map(c => (
+                        <tr key={c.id} style={{ borderBottom: '1px solid var(--border)', fontSize: '14px' }}>
+                            <td style={{ padding: '12px 8px', fontWeight: 'bold' }}>{c.crop_type}</td>
+                            <td style={{ padding: '12px 8px' }}>{c.variety}</td>
+                            <td style={{ padding: '12px 8px', fontWeight: 'bold', color: 'var(--secondary)' }}>{parseFloat(c.planted_area || 0).toFixed(2)} ha</td>
+                            <td style={{ padding: '12px 8px' }}>{fields.find(f => f.id === c.field_id)?.name || 'N/A'}</td>
+                        </tr>
+                    ))}
+                    {crops.length === 0 && (
+                        <tr>
+                            <td colSpan="4" style={{ textAlign: 'center', padding: '24px' }}>No active crops found.</td>
+                        </tr>
+                    )}
+                </tbody>
+            </table>
+        </div>
+    );
 
     const renderContent = () => {
         if (view === 'add-farm') return <FarmForm onComplete={() => { setView('overview'); fetchFarms(); }} />;
         if (view === 'add-field') return <FieldForm onComplete={() => { setView('overview'); fetchFields(currentFarm.id); }} />;
         if (view === 'field-details') return <FieldDetails field={selectedField} onBack={() => setView('overview')} />;
+        if (view === 'crop-breakdown') return renderCropBreakdown();
 
         return (
             <div className="animate-fade-in">
                 {/* AgriXP Stat Snapshots */}
                 <div className="snapshot-grid">
                     {stats.map((stat, i) => (
-                        <div key={i} className="snapshot-card">
+                        <div
+                            key={i}
+                            className={`snapshot-card ${stat.clickable ? 'clickable-card' : ''}`}
+                            onClick={stat.onClick}
+                            style={stat.clickable ? { cursor: 'pointer', transition: 'transform 0.2s' } : {}}
+                            onMouseOver={(e) => stat.clickable && (e.currentTarget.style.transform = 'translateY(-4px)')}
+                            onMouseOut={(e) => stat.clickable && (e.currentTarget.style.transform = 'translateY(0)')}
+                        >
                             <div className="flex j-between a-center">
                                 <span className="snapshot-label">{stat.label}</span>
                                 <span style={{ fontSize: '20px' }}>{stat.icon}</span>
                             </div>
                             <div className="snapshot-value">{stat.value}</div>
+                            {stat.clickable && <div style={{ fontSize: '10px', color: 'var(--primary)', marginTop: '4px' }}>Click for breakdown ↓</div>}
                         </div>
                     ))}
                 </div>
