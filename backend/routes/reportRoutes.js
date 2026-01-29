@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const reportController = require('../controllers/reportController');
-const auth = require('../middleware/auth');
+const authMiddleware = require('../middleware/authMiddleware');
 
-router.use(auth); // All reporting routes require authentication
+router.use(authMiddleware); // All reporting routes require authentication
 
 router.get('/farm-summary', reportController.getFarmSummary);
 router.get('/crop-budget', reportController.getCropBudget);
