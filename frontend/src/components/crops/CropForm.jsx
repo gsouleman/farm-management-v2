@@ -42,6 +42,10 @@ const CropForm = ({ fieldId, onComplete }) => {
             .find(c => c.id === formData.crop_type)?.varieties || []
         : [];
 
+    const selectedCropLabel = formData.crop_type
+        ? Object.values(cropCategories).flat().find(c => c.id === formData.crop_type)?.label || formData.crop_type
+        : '';
+
 
 
     const handleSubmit = async (e) => {
@@ -213,6 +217,8 @@ const CropForm = ({ fieldId, onComplete }) => {
                             infrastructure={infrastructure}
                             farmBoundary={parentField?.boundary}
                             editable={true}
+                            manualCoordinates={formData.boundary_coordinates}
+                            currentLabel={selectedCropLabel}
                             onBoundaryCreate={(data) => {
                                 setFormData(prev => ({
                                     ...prev,
