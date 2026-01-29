@@ -1,4 +1,63 @@
-const { Crop, Field } = require('../models');
+const { Crop, Field, Activity, Harvest, Input } = require('../models');
+
+exports.getCropById = async (req, res) => {
+    try {
+        const crop = await Crop.findByPk(req.params.id, {
+            include: [{ model: Field }]
+        });
+        if (!crop) return res.status(404).json({ message: 'Crop not found' });
+        res.json(crop);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching crop details' });
+    }
+};
+
+exports.getCropTimeline = async (req, res) => {
+    try {
+        const cropId = req.params.id;
+
+        const [activities, harvests] = await Promise.all([
+            Activity.findAll({
+                where: { crop_id: cropId },
+                include: [{ model: Input }],
+                order: [['activity_date', 'DESC']]
+            }),
+            Harvest.findAll({
+                where: { crop_id: cropId },
+                order: [['harvest_date', 'DESC']]
+            })
+        ]);
+
+        const timeline = [
+            ...activities.map(a => ({
+                id: a.id,
+                type: 'activity',
+                date: a.activity_date,
+                title: a.activity_type,
+                description: a.description,
+                meta: {
+                    duration: a.duration_hours,
+                    inputs: a.Inputs?.map(i => i.input_name)
+                }
+            })),
+            ...harvests.map(h => ({
+                id: h.id,
+                type: 'harvest',
+                date: h.harvest_date,
+                title: 'Harvest Recorded',
+                description: `Yield: ${h.quantity} ${h.unit} (${h.quality_grade})`,
+                meta: {
+                    revenue: h.total_revenue
+                }
+            }))
+        ].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        res.json(timeline);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error fetching crop timeline' });
+    }
+};
 
 exports.getCropsByField = async (req, res) => {
     try {

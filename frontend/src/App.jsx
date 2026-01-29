@@ -10,6 +10,7 @@ import Inventory from './pages/Inventory';
 import Reports from './pages/Reports';
 import TeamManagement from './pages/TeamManagement';
 import Harvests from './pages/Harvests';
+import Crops from './pages/Crops';
 import WeatherCenter from './pages/WeatherCenter';
 import DocumentVault from './pages/DocumentVault';
 import MainLayout from './components/MainLayout';
@@ -54,6 +55,13 @@ function App() {
           <ProtectedRoute>
             <MainLayout>
               <Harvests />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/crops" element={
+          <ProtectedRoute>
+            <MainLayout>
+              <Crops />
             </MainLayout>
           </ProtectedRoute>
         } />

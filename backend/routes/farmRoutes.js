@@ -11,4 +11,8 @@ router.post('/', farmController.createFarm);
 router.put('/:id', farmController.updateFarm);
 router.delete('/:id', farmController.deleteFarm);
 
+// Crop sub-routes
+const cropController = require('../controllers/cropController');
+router.get('/:farmId/crops', cropController.getFarmCrops);
+
 module.exports = router;

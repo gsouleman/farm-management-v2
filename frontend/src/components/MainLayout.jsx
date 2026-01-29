@@ -60,6 +60,7 @@ const MainLayout = ({ children }) => {
                 {/* Navigation */}
                 <nav style={{ flex: 1, padding: '10px' }}>
                     <SidebarLink to="/" icon="📊" label="Dashboard" />
+                    <SidebarLink to="/crops" icon="🌱" label="Crops" />
                     <SidebarLink to="/fields" icon="🗺️" label="My Fields" />
                     <SidebarLink to="/activities" icon="🚜" label="Activities" />
                     <SidebarLink to="/inventory" icon="📦" label="Inventory" />

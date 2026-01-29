@@ -38,6 +38,18 @@ const useCropStore = create((set, get) => ({
         }
     },
 
+    fetchCropTimeline: async (id) => {
+        set({ loading: true });
+        try {
+            const response = await api.get(`/crops/${id}/timeline`);
+            set({ loading: false });
+            return response.data;
+        } catch (error) {
+            set({ loading: false });
+            throw error;
+        }
+    },
+
     createCrop: async (fieldId, cropData) => {
         try {
             const response = await api.post(`/fields/${fieldId}/crops`, cropData);
