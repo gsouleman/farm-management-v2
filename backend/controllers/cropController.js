@@ -89,7 +89,7 @@ exports.createCrop = async (req, res) => {
         const {
             field_id, crop_type, variety, planting_date, expected_harvest_date,
             planted_area, planting_rate, row_spacing, season, year, notes,
-            boundary_coordinates
+            boundary_coordinates, estimated_cost
         } = req.body;
 
         let boundary = null;
@@ -128,6 +128,7 @@ exports.createCrop = async (req, res) => {
             year,
             notes,
             boundary,
+            estimated_cost,
             status: 'planted'
         });
 
