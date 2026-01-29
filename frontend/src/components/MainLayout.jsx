@@ -57,7 +57,30 @@ const MainLayout = ({ children }) => {
 
                 {/* Farm Selector - CNN Styled */}
                 <div style={{ padding: '20px 24px', backgroundColor: '#111' }}>
-                    <label style={{ fontSize: '11px', color: '#888', display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>STATION SELECTOR</label>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                        <label style={{ fontSize: '11px', color: '#888', fontWeight: 'bold' }}>STATION SELECTOR</label>
+                        <button
+                            onClick={() => {
+                                // If we're on dashboard, we can use state, but simpler to just navigate with a signifier
+                                navigate('/');
+                                // We'll need a way to tell Dashboard to show the form. 
+                                // For now, I'll add a 'new=true' query param logic in Dashboard or use a simple window event.
+                                window.dispatchEvent(new CustomEvent('open-new-farm'));
+                            }}
+                            style={{
+                                backgroundColor: '#cc0000',
+                                color: 'white',
+                                border: 'none',
+                                padding: '2px 8px',
+                                fontSize: '10px',
+                                fontWeight: 'bold',
+                                cursor: 'pointer',
+                                borderRadius: '2px'
+                            }}
+                        >
+                            + NEW STATION
+                        </button>
+                    </div>
                     <select
                         value={currentFarm?.id || ''}
                         onChange={(e) => {
@@ -85,7 +108,27 @@ const MainLayout = ({ children }) => {
 
                 {/* Navigation */}
                 <nav style={{ flex: 1, overflowY: 'auto', padding: '20px 12px' }}>
-                    <SidebarLink to="/" icon="📺" label="DASHBOARD" />
+                    <NavGroup
+                        label="CONTROL CENTER"
+                        isOpen={true}
+                        onToggle={() => { }}
+                    >
+                        <SidebarLink to="/" icon="📺" label="DASHBOARD" sub />
+                        <SidebarLink
+                            to="/"
+                            icon="➕"
+                            label="NEW FARM"
+                            sub
+                            onClick={(e) => {
+                                e.preventDefault();
+                                navigate('/');
+                                // In a real app we might use a query param or state, 
+                                // but for now we follow the Dashboard's setView('add-farm') logic if it were integrated,
+                                // or simply navigate to the dashboard where the button exists.
+                                // Given Dashboard is the landing, let's just make it prominent.
+                            }}
+                        />
+                    </NavGroup>
 
                     <NavGroup
                         label="ESTATE & INFRASTRUCTURE"
@@ -192,13 +235,14 @@ const NavGroup = ({ label, children, isOpen, onToggle }) => (
     </div>
 );
 
-const SidebarLink = ({ to, icon, label, sub }) => (
+const SidebarLink = ({ to, icon, label, sub, onClick }) => (
     <NavLink
         to={to}
+        onClick={onClick}
         style={({ isActive }) => ({
             display: 'flex',
             alignItems: 'center',
-            gap: '12px',
+            gap: isActive && !sub ? '12px' : '12px',
             padding: sub ? '8px 16px' : '12px 16px',
             color: isActive ? 'white' : '#aaa',
             textDecoration: 'none',
@@ -206,10 +250,12 @@ const SidebarLink = ({ to, icon, label, sub }) => (
             margin: sub ? '2px 0' : '4px 0',
             fontSize: sub ? '13px' : '14px',
             fontWeight: sub ? '500' : '700',
-            transition: 'all 0.2s'
+            transition: 'all 0.2s',
+            borderLeft: isActive && !sub ? '4px solid white' : 'none'
         })}
     >
         {!sub && <span style={{ fontSize: '18px' }}>{icon}</span>}
+        {sub && icon && <span style={{ fontSize: '14px', marginRight: '4px' }}>{icon}</span>}
         <span>{label.toUpperCase()}</span>
     </NavLink>
 );
