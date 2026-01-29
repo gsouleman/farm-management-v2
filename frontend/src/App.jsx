@@ -9,6 +9,7 @@ import Activities from './pages/Activities';
 import Inventory from './pages/Inventory';
 import Reports from './pages/Reports';
 import TeamManagement from './pages/TeamManagement';
+import Harvests from './pages/Harvests';
 import WeatherCenter from './pages/WeatherCenter';
 import DocumentVault from './pages/DocumentVault';
 import MainLayout from './components/MainLayout';
@@ -46,6 +47,13 @@ function App() {
           <ProtectedRoute>
             <MainLayout>
               <Inventory />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/harvests" element={
+          <ProtectedRoute>
+            <MainLayout>
+              <Harvests />
             </MainLayout>
           </ProtectedRoute>
         } />
