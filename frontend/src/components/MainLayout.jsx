@@ -151,8 +151,8 @@ const MainLayout = ({ children }) => {
                         isOpen={true}
                         onToggle={() => { }}
                     >
-                        <SidebarLink to="/stores" icon="🏢" label="Stores & Silos" sub />
-                        <SidebarLink to="/inventory" icon="📦" label="Input Stock" sub />
+                        <SidebarLink to="/stores?view=structures" icon="🏢" label="Stores & Silos" sub />
+                        <SidebarLink to="/stores?view=inventory" icon="📦" label="Input Stock" sub />
                     </NavGroup>
 
                     <NavGroup
