@@ -11,8 +11,10 @@ const CropForm = ({ fieldId, onComplete }) => {
     const { fields } = useFarmStore();
     const { infrastructure } = useInfrastructureStore();
 
+    const [selectedFieldId, setSelectedFieldId] = useState(fieldId || '');
+
     // Find parent field for map context
-    const parentField = fields.find(f => f.id === fieldId);
+    const parentField = fields.find(f => String(f.id) === String(selectedFieldId));
 
     const [formData, setFormData] = useState({
         crop_type: '',
@@ -44,7 +46,12 @@ const CropForm = ({ fieldId, onComplete }) => {
         e.preventDefault();
         setLoading(true);
         try {
-            await createCrop(fieldId, formData);
+            if (!selectedFieldId) {
+                alert('Please select a target field for this cultivation.');
+                setLoading(false);
+                return;
+            }
+            await createCrop(selectedFieldId, formData);
             if (onComplete) onComplete();
         } catch (error) {
             console.error(error);
@@ -59,6 +66,22 @@ const CropForm = ({ fieldId, onComplete }) => {
                 <h3 style={{ margin: 0, fontSize: '20px', color: '#1a365d' }}>Establish New Cultivation Record</h3>
             </div>
             <form onSubmit={handleSubmit} style={{ padding: '24px' }}>
+                <div style={{ marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid #edf2f7' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>TARGET FIELD FOR CULTIVATION</label>
+                    <select
+                        value={selectedFieldId}
+                        onChange={(e) => setSelectedFieldId(e.target.value)}
+                        required
+                        style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%', backgroundColor: fieldId ? '#f7fafc' : 'white' }}
+                        disabled={!!fieldId}
+                    >
+                        <option value="">-- Select Field --</option>
+                        {fields.map(f => (
+                            <option key={f.id} value={f.id}>{f.name} ({f.area} ha)</option>
+                        ))}
+                    </select>
+                </div>
+
                 {/* Crop Selection Section */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '24px' }}>
                     <div>
@@ -254,8 +277,8 @@ const CropForm = ({ fieldId, onComplete }) => {
                     </button>
                     <button type="button" onClick={onComplete} className="outline" style={{ flex: 1, padding: '14px' }}>Discard</button>
                 </div>
-            </form>
-        </div>
+            </form >
+        </div >
     );
 };
 
