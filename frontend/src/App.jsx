@@ -3,12 +3,14 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import useAuthStore from './store/authStore';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import Dashboard from './pages/Dashboard';
+import Fields from './pages/Fields';
+import Activities from './pages/Activities';
 import Inventory from './pages/Inventory';
+import Reports from './pages/Reports';
 import TeamManagement from './pages/TeamManagement';
 import WeatherCenter from './pages/WeatherCenter';
 import DocumentVault from './pages/DocumentVault';
-
-import Dashboard from './pages/Dashboard';
 import MainLayout from './components/MainLayout';
 
 // Protected Route Component
@@ -44,6 +46,27 @@ function App() {
           <ProtectedRoute>
             <MainLayout>
               <Inventory />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/fields" element={
+          <ProtectedRoute>
+            <MainLayout>
+              <Fields />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/activities" element={
+          <ProtectedRoute>
+            <MainLayout>
+              <Activities />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/reports" element={
+          <ProtectedRoute>
+            <MainLayout>
+              <Reports />
             </MainLayout>
           </ProtectedRoute>
         } />

@@ -15,7 +15,19 @@ const Inventory = () => {
         }
     }, [currentFarm, fetchInputs]);
 
-    const filteredInputs = inputs.filter(i => filter === 'all' || i.input_type === filter);
+    if (!currentFarm) return (
+        <div style={{ padding: '40px', textAlign: 'center' }}>
+            <h2>No Farm Selected</h2>
+            <p>Please select a farm from the sidebar to view inventory.</p>
+        </div>
+    );
+
+    if (loading && inputs.length === 0) return (
+        <div style={{ padding: '40px', textAlign: 'center' }}>
+            <div className="spinner"></div>
+            <p>Loading inventory data...</p>
+        </div>
+    );
 
     if (view === 'add') return <InputForm farmId={currentFarm.id} onComplete={() => setView('list')} />;
 
