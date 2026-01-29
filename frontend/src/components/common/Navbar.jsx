@@ -14,13 +14,13 @@ const Navbar = () => {
     };
 
     return (
-        <nav className="glass-card" style={{
+        <nav style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            padding: '16px 40px',
-            borderRadius: '0',
-            marginBottom: '20px',
+            padding: '12px 40px',
+            backgroundColor: '#ffffff',
+            borderBottom: '4px solid var(--primary)',
             position: 'sticky',
             top: '0',
             zIndex: '1000'

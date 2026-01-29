@@ -107,11 +107,11 @@ const Dashboard = () => {
                     {/* Right Panel: Activities & Actions */}
                     <div>
                         <div className="card">
-                            <h3 style={{ marginBottom: '20px', fontSize: '16px' }}>Quick Actions</h3>
-                            <button className="primary" style={{ width: '100%', marginBottom: '12px' }} onClick={() => setView('add-farm')}>+ New Farm</button>
-                            <button className="secondary" style={{ width: '100%', marginBottom: '12px' }}>Record Activity</button>
-                            <button className="outline" style={{ width: '100%', marginBottom: '12px' }} onClick={() => navigate('/crops?view=add')}>Add Crop</button>
-                            <button className="outline" style={{ width: '100%' }}>Check Weather</button>
+                            <h3 style={{ marginBottom: '20px', fontSize: '16px', borderBottom: '2px solid var(--primary)', display: 'inline-block' }}>Quick Actions</h3>
+                            <button className="primary" style={{ width: '100%', marginBottom: '12px', backgroundColor: 'var(--primary)', color: 'white' }} onClick={() => setView('add-farm')}>+ New Farm</button>
+                            <button className="secondary" style={{ width: '100%', marginBottom: '12px', backgroundColor: 'var(--secondary)', color: 'white' }} onClick={() => navigate('/activities')}>Record Activity</button>
+                            <button className="accent" style={{ width: '100%', marginBottom: '12px', backgroundColor: 'var(--accent)', color: 'white' }} onClick={() => navigate('/crops?view=add')}>Add Crop</button>
+                            <button className="success" style={{ width: '100%', backgroundColor: 'var(--success)', color: 'white' }} onClick={() => navigate('/weather')}>Check Weather</button>
                         </div>
 
                         <div className="card">
