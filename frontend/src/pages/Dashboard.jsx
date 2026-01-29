@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useFarmStore from '../store/farmStore';
 import useCropStore from '../store/cropStore';
@@ -22,7 +22,6 @@ const Dashboard = () => {
     const [view, setView] = useState('overview');
     const [selectedField, setSelectedField] = useState(null);
     const [budgetData, setBudgetData] = useState([]);
-    const [trendData, setTrendData] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -46,32 +45,36 @@ const Dashboard = () => {
             api.get('/reports/crop-budget', { params: { farmId: currentFarm.id } })
                 .then(res => {
                     setBudgetData(res.data);
-                    // Prepare trend data
-                    const trend = [
-                        { name: 'Jan', revenue: 0, expenses: 1000 },
-                        { name: 'Feb', revenue: 0, expenses: 5000 },
-                        { name: 'Mar', revenue: 0, expenses: 12000 },
-                        { name: 'Apr', revenue: 0, expenses: 15000 },
-                        { name: 'Today', revenue: (harvests || []).reduce((s, h) => s + parseFloat(h.total_revenue || 0), 0), expenses: (res.data || []).reduce((s, b) => s + parseFloat(b.actualCosts || 0), 0) }
-                    ];
-                    setTrendData(trend);
                 })
                 .catch(err => console.error('Error fetching budget:', err));
         }
-    }, [currentFarm, fetchFields, fetchCropsByFarm, fetchInfrastructure, fetchHarvestsByFarm, harvests]);
+    }, [currentFarm, fetchFields, fetchCropsByFarm, fetchInfrastructure, fetchHarvestsByFarm]);
 
-    const totalPlantedArea = (crops || [])
+    // Derived Statistics and Trends
+    const totalPlantedArea = useMemo(() => (crops || [])
         .filter(c => c.status === 'planted' || c.status === 'active')
-        .reduce((sum, c) => sum + parseFloat(c.planted_area || 0), 0);
+        .reduce((sum, c) => sum + parseFloat(c.planted_area || 0), 0), [crops]);
 
-    const totalRevenue = (harvests || []).reduce((sum, h) => sum + parseFloat(h.total_revenue || 0), 0);
-    const totalExpenses = (budgetData || []).reduce((sum, b) => sum + parseFloat(b.actualCosts || 0), 0);
-    const netCashFlow = totalRevenue - totalExpenses;
-    const landUtilization = currentFarm?.total_area > 0
+    const totalRevenue = useMemo(() => (harvests || []).reduce((sum, h) => sum + parseFloat(h.total_revenue || 0), 0), [harvests]);
+    const totalExpenses = useMemo(() => (budgetData || []).reduce((sum, b) => sum + parseFloat(b.actualCosts || 0), 0), [budgetData]);
+    const netCashFlow = useMemo(() => totalRevenue - totalExpenses, [totalRevenue, totalExpenses]);
+
+    const landUtilization = useMemo(() => currentFarm?.total_area > 0
         ? (totalPlantedArea / parseFloat(currentFarm.total_area) * 100).toFixed(1)
-        : 0;
+        : 0, [currentFarm, totalPlantedArea]);
 
-    const stats = [
+    const trendData = useMemo(() => {
+        if (!currentFarm) return [];
+        return [
+            { name: 'Jan', revenue: 0, expenses: 1000 },
+            { name: 'Feb', revenue: 0, expenses: 5000 },
+            { name: 'Mar', revenue: 0, expenses: 12000 },
+            { name: 'Apr', revenue: 0, expenses: 15000 },
+            { name: 'Today', revenue: totalRevenue, expenses: totalExpenses }
+        ];
+    }, [currentFarm, totalRevenue, totalExpenses]);
+
+    const stats = useMemo(() => [
         { label: 'TOTAL REVENUE', value: `${totalRevenue.toLocaleString()} Xaf`, icon: '💰', color: '#4caf50' },
         { label: 'TOTAL EXPENSES', value: `${totalExpenses.toLocaleString()} Xaf`, icon: '📉', color: '#cc0000' },
         { label: 'NET CASH FLOW', value: `${netCashFlow.toLocaleString()} Xaf`, icon: '⚖️', color: netCashFlow >= 0 ? '#4caf50' : '#cc0000' },
@@ -86,7 +89,7 @@ const Dashboard = () => {
         },
         { label: 'TOTAL FIELDS', value: fields.length, icon: '🗺️' },
         { label: 'ACTIVE CROPS', value: crops.filter(c => c.status === 'planted').length, icon: '🚜' }
-    ];
+    ], [totalRevenue, totalExpenses, netCashFlow, landUtilization, currentFarm, totalPlantedArea, fields.length, crops]);
 
     const renderCropBreakdown = () => (
         <div className="animate-fade-in card">
