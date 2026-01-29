@@ -33,8 +33,9 @@ app.use('/api/inputs', require('./routes/inputRoutes'));
 // Database sync and server start
 const startServer = async () => {
     try {
-        await sequelize.authenticate();
-        console.log('Database connected successfully.');
+        // Enable PostGIS extension
+        await sequelize.query('CREATE EXTENSION IF NOT EXISTS postgis;');
+        console.log('PostGIS extension verified.');
 
         // Sync models (in production, use migrations)
         await sequelize.sync({ alter: true });
