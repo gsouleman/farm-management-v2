@@ -13,7 +13,9 @@ const useFarmStore = create((set, get) => ({
             const response = await api.get('/farms');
             set({ farms: response.data, loading: false });
             if (response.data.length > 0 && !get().currentFarm) {
-                set({ currentFarm: response.data[0] });
+                const firstFarm = response.data[0];
+                set({ currentFarm: firstFarm });
+                get().fetchFields(firstFarm.id);
             }
         } catch (error) {
             set({ loading: false });
@@ -28,7 +30,8 @@ const useFarmStore = create((set, get) => ({
     fetchFields: async (farmId) => {
         set({ loading: true });
         try {
-            const response = await api.get(`/fields/farm/${farmId}`);
+            // Updated endpoint to match the new schema structure /api/farms/:farmId/fields
+            const response = await api.get(`/farms/${farmId}/fields`);
             set({ fields: response.data, loading: false });
         } catch (error) {
             set({ loading: false });
@@ -39,17 +42,54 @@ const useFarmStore = create((set, get) => ({
         try {
             const response = await api.post('/farms', farmData);
             set((state) => ({ farms: [...state.farms, response.data] }));
+            if (!get().currentFarm) set({ currentFarm: response.data });
             return response.data;
         } catch (error) {
             throw error;
         }
     },
 
-    createField: async (fieldData) => {
+    updateFarm: async (id, farmData) => {
         try {
-            const response = await api.post('/fields', fieldData);
+            const response = await api.put(`/farms/${id}`, farmData);
+            set((state) => ({
+                farms: state.farms.map(f => f.id === id ? response.data : f),
+                currentFarm: state.currentFarm?.id === id ? response.data : state.currentFarm
+            }));
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    createField: async (farmId, fieldData) => {
+        try {
+            const response = await api.post(`/farms/${farmId}/fields`, fieldData);
             set((state) => ({ fields: [...state.fields, response.data] }));
             return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    updateField: async (id, fieldData) => {
+        try {
+            const response = await api.put(`/fields/${id}`, fieldData);
+            set((state) => ({
+                fields: state.fields.map(f => f.id === id ? response.data : f)
+            }));
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    deleteField: async (id) => {
+        try {
+            await api.delete(`/fields/${id}`);
+            set((state) => ({
+                fields: state.fields.filter(f => f.id !== id)
+            }));
         } catch (error) {
             throw error;
         }
