@@ -36,6 +36,10 @@ module.exports = (sequelize) => {
             type: DataTypes.DECIMAL(10, 2),
             defaultValue: 0
         },
+        boundary: {
+            type: DataTypes.GEOMETRY('POLYGON', 4326),
+            allowNull: true
+        },
         notes: DataTypes.TEXT
     }, {
         tableName: 'crops',

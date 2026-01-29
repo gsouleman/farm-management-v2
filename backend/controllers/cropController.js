@@ -86,7 +86,34 @@ exports.getFarmCrops = async (req, res) => {
 
 exports.createCrop = async (req, res) => {
     try {
-        const { field_id, crop_type, variety, planting_date, expected_harvest_date, planted_area, planting_rate, row_spacing, season, year, notes } = req.body;
+        const {
+            field_id, crop_type, variety, planting_date, expected_harvest_date,
+            planted_area, planting_rate, row_spacing, season, year, notes,
+            boundary_coordinates
+        } = req.body;
+
+        let boundary = null;
+        if (boundary_coordinates && boundary_coordinates.length > 0) {
+            let normalizedCoords = boundary_coordinates.map(coord => {
+                if (Array.isArray(coord)) return coord;
+                if (coord && typeof coord === 'object' && coord.lat !== undefined) {
+                    return [parseFloat(coord.lng), parseFloat(coord.lat)];
+                }
+                return coord;
+            });
+
+            // Ensure closed polygon ring
+            const first = normalizedCoords[0];
+            const last = normalizedCoords[normalizedCoords.length - 1];
+            if (first[0] !== last[0] || first[1] !== last[1]) {
+                normalizedCoords.push(first);
+            }
+
+            boundary = {
+                type: 'Polygon',
+                coordinates: [normalizedCoords]
+            };
+        }
 
         const crop = await Crop.create({
             field_id,
@@ -100,11 +127,33 @@ exports.createCrop = async (req, res) => {
             season,
             year,
             notes,
+            boundary,
             status: 'planted'
         });
 
+        // If coordinates provided but area wasn't, calculate area server-side
+        if (boundary && !planted_area) {
+            try {
+                const { sequelize } = require('../models');
+                const [result] = await sequelize.query(
+                    `SELECT ST_Area(ST_GeogFromGeoJSON(:boundary)) / 10000 AS area_hectares`,
+                    {
+                        replacements: { boundary: JSON.stringify(boundary) },
+                        type: sequelize.QueryTypes.SELECT
+                    }
+                );
+
+                if (result && result.area_hectares) {
+                    await crop.update({ planted_area: result.area_hectares });
+                }
+            } catch (areaError) {
+                console.error('Crop area calculation failed:', areaError);
+            }
+        }
+
         res.status(201).json(crop);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Error creating crop' });
     }
 };
@@ -114,9 +163,50 @@ exports.updateCrop = async (req, res) => {
         const crop = await Crop.findByPk(req.params.id);
         if (!crop) return res.status(404).json({ message: 'Crop not found' });
 
-        await crop.update(req.body);
+        const { boundary_coordinates, ...otherData } = req.body;
+
+        if (boundary_coordinates) {
+            let normalizedCoords = boundary_coordinates.map(coord => {
+                if (Array.isArray(coord)) return coord;
+                if (coord && typeof coord === 'object' && coord.lat !== undefined) {
+                    return [parseFloat(coord.lng), parseFloat(coord.lat)];
+                }
+                return coord;
+            });
+
+            const first = normalizedCoords[0];
+            const last = normalizedCoords[normalizedCoords.length - 1];
+            if (first[0] !== last[0] || first[1] !== last[1]) {
+                normalizedCoords.push(first);
+            }
+
+            otherData.boundary = {
+                type: 'Polygon',
+                coordinates: [normalizedCoords]
+            };
+
+            // Recalculate area
+            try {
+                const { sequelize } = require('../models');
+                const [result] = await sequelize.query(
+                    `SELECT ST_Area(ST_GeogFromGeoJSON(:boundary)) / 10000 AS area_hectares`,
+                    {
+                        replacements: { boundary: JSON.stringify(otherData.boundary) },
+                        type: sequelize.QueryTypes.SELECT
+                    }
+                );
+                if (result && result.area_hectares) {
+                    otherData.planted_area = result.area_hectares;
+                }
+            } catch (areaError) {
+                console.error('Crop area calculation failed:', areaError);
+            }
+        }
+
+        await crop.update(otherData);
         res.json(crop);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Error updating crop' });
     }
 };

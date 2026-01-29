@@ -24,7 +24,7 @@ const ZoomToData = ({ bounds }) => {
     return null;
 };
 
-const FieldMap = ({ center, fields, farmBoundary, onBoundaryCreate, editable = true }) => {
+const FieldMap = ({ center, fields, crops = [], farmBoundary, onBoundaryCreate, editable = true }) => {
     const mapRef = useRef();
 
     const handleCreated = (e) => {
@@ -118,9 +118,30 @@ const FieldMap = ({ center, fields, farmBoundary, onBoundaryCreate, editable = t
                         <Polygon
                             key={field.id}
                             positions={field.positions}
-                            pathOptions={{ color: 'var(--primary)', fillOpacity: 0.3 }}
+                            pathOptions={{ color: 'var(--primary)', fillOpacity: 0.1, weight: 1.5 }}
                         >
-                            {/* Optional: Add Popup with field name */}
+                        </Polygon>
+                    ))}
+
+                    {/* Crop Allocations Highlight */}
+                    {crops?.filter(c => c.boundary).map(crop => (
+                        <Polygon
+                            key={crop.id}
+                            positions={crop.boundary.coordinates[0].map(coord => [coord[1], coord[0]])}
+                            pathOptions={{
+                                color: '#ffc107',
+                                fillColor: '#ffc107',
+                                fillOpacity: 0.6,
+                                weight: 2
+                            }}
+                        >
+                            <L.Popup>
+                                <div style={{ fontSize: '12px' }}>
+                                    <strong>{crop.crop_type}</strong><br />
+                                    {crop.variety}<br />
+                                    Area: {crop.planted_area} ha
+                                </div>
+                            </L.Popup>
                         </Polygon>
                     ))}
                 </FeatureGroup>

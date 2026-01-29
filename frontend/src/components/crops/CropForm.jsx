@@ -1,14 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import useCropStore from '../../store/cropStore';
+import useFarmStore from '../../store/farmStore';
+import FieldMap from '../fields/FieldMap';
 
 const CropForm = ({ fieldId, onComplete }) => {
     const { createCrop } = useCropStore();
+    const { fields } = useFarmStore();
+
+    // Find parent field for map context
+    const parentField = fields.find(f => f.id === fieldId);
+
     const [formData, setFormData] = useState({
         crop_type: '',
         variety: '',
         planting_date: new Date().toISOString().split('T')[0],
         expected_harvest_date: '',
         planted_area: '',
+        boundary_coordinates: [], // Captured from map
         planting_rate: '',
         row_spacing: '',
         season: '',
@@ -180,6 +188,33 @@ const CropForm = ({ fieldId, onComplete }) => {
                             style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}
                         />
                     </div>
+                </div>
+
+                <div className="card" style={{ backgroundColor: '#fcfcfc', marginBottom: '24px', border: '1px solid #e0e0e0', padding: '0', overflow: 'hidden' }}>
+                    <div style={{ padding: '16px 20px', backgroundColor: '#f8f9fa', borderBottom: '1px solid #e0e0e0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <h4 style={{ margin: 0, fontSize: '13px', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Land Allocation Map</h4>
+                        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Draw the planted area within the field boundary</span>
+                    </div>
+                    <div style={{ height: '350px' }}>
+                        <FieldMap
+                            center={parentField?.boundary?.coordinates?.[0]?.[0] ? [parentField.boundary.coordinates[0][0][1], parentField.boundary.coordinates[0][0][0]] : null}
+                            farmBoundary={parentField?.boundary}
+                            editable={true}
+                            onBoundaryCreate={(data) => {
+                                setFormData({
+                                    ...formData,
+                                    boundary_coordinates: data.coordinates,
+                                    planted_area: data.area
+                                });
+                            }}
+                        />
+                    </div>
+                    {formData.boundary_coordinates.length > 0 && (
+                        <div style={{ padding: '12px 20px', backgroundColor: '#fffbe6', borderTop: '1px solid #ffe58f', fontSize: '12px', display: 'flex', gap: '20px' }}>
+                            <span><strong>Allocated Area:</strong> {formData.planted_area} ha</span>
+                            <span><strong>Geofence:</strong> {formData.boundary_coordinates.length} points captured</span>
+                        </div>
+                    )}
                 </div>
 
                 <div className="card" style={{ backgroundColor: '#f7fafc', marginBottom: '24px', border: '1px solid #edf2f7' }}>

@@ -69,7 +69,12 @@ const FieldDetails = ({ field, onBack }) => {
 
                 <div>
                     <div className="card" style={{ padding: '0', overflow: 'hidden', height: '350px', marginBottom: '24px' }}>
-                        <FieldMap center={[field.boundary.coordinates[0][0][1], field.boundary.coordinates[0][0][0]]} fields={[field]} editable={false} />
+                        <FieldMap
+                            center={[field.boundary.coordinates[0][0][1], field.boundary.coordinates[0][0][0]]}
+                            fields={[field]}
+                            crops={crops}
+                            editable={false}
+                        />
                     </div>
 
                     <div className="card">
