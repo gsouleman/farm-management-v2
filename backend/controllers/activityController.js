@@ -28,7 +28,7 @@ exports.getFarmActivities = async (req, res) => {
 
 exports.createActivity = async (req, res) => {
     try {
-        const { crop_id, field_id, activity_type, activity_date, description, inputs } = req.body;
+        const { crop_id, field_id, activity_type, activity_date, description, inputs, labor_cost } = req.body;
 
         const activity = await Activity.create({
             crop_id,
@@ -36,20 +36,25 @@ exports.createActivity = async (req, res) => {
             performed_by: req.user.id,
             activity_type,
             activity_date,
-            description
+            description,
+            labor_cost: labor_cost || 0
         });
 
         if (inputs && inputs.length > 0) {
             for (const item of inputs) {
+                // Find input to get unit cost
+                const input = await Input.findByPk(item.input_id);
+                const itemCost = input ? (parseFloat(input.unit_cost || 0) * parseFloat(item.quantity_used || 0)) : 0;
+
                 await ActivityInput.create({
                     activity_id: activity.id,
                     input_id: item.input_id,
                     quantity_used: item.quantity_used,
-                    unit: item.unit
+                    unit: item.unit || (input ? input.unit : ''),
+                    cost: itemCost
                 });
 
                 // Update input quantity in stock
-                const input = await Input.findByPk(item.input_id);
                 if (input) {
                     await input.update({
                         quantity_in_stock: parseFloat(input.quantity_in_stock) - parseFloat(item.quantity_used)

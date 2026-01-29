@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
-import useActivityStore from '../../store/activityStore';
+import useInventoryStore from '../../store/inventoryStore';
+import useFarmStore from '../../store/farmStore';
 
 const ActivityForm = ({ fieldId, cropId, onComplete }) => {
     const { createActivity } = useActivityStore();
+    const { inputs: inventory, fetchInputs } = useInventoryStore();
+    const { currentFarm } = useFarmStore();
+
     const [formData, setFormData] = useState({
         activity_type: 'planting',
         activity_date: new Date().toISOString().split('T')[0],
@@ -15,16 +18,40 @@ const ActivityForm = ({ fieldId, cropId, onComplete }) => {
         temperature: '',
         equipment_used: '',
         labor_cost: '',
-        notes: ''
+        notes: '',
+        input_id: '',
+        quantity_used: '',
+        application_rate: ''
     });
     const [loading, setLoading] = useState(false);
+
+    React.useEffect(() => {
+        if (currentFarm) {
+            fetchInputs(currentFarm.id);
+        }
+    }, [currentFarm, fetchInputs]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         try {
+            const payload = { ...formData };
+
+            // Structure inputs array if an item is selected
+            if (formData.input_id && formData.quantity_used) {
+                const selectedInput = inventory.find(i => i.id === formData.input_id);
+                payload.inputs = [{
+                    input_id: formData.input_id,
+                    quantity_used: formData.quantity_used,
+                    unit: selectedInput ? selectedInput.unit : '',
+                    application_rate: formData.application_rate
+                }];
+            } else {
+                payload.inputs = [];
+            }
+
             await createActivity(cropId, {
-                ...formData,
+                ...payload,
                 field_id: fieldId
             });
             if (onComplete) onComplete();
@@ -155,24 +182,27 @@ const ActivityForm = ({ fieldId, cropId, onComplete }) => {
                     <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '10px' }}>Select an item from your inventory to record its usage in this operation.</div>
                     <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '12px' }}>
                         <select
-                            value={formData.input_id || ''}
+                            value={formData.input_id}
                             onChange={(e) => setFormData({ ...formData, input_id: e.target.value })}
                         >
                             <option value="">-- No Inventory Item --</option>
-                            {/* In a real app, we would fetch and map inputs here */}
-                            <option value="test-id">Example: Urea 46% (Stock: 250kg)</option>
+                            {inventory.map(item => (
+                                <option key={item.id} value={item.id}>
+                                    {item.name} ({item.brand}) - Stock: {item.quantity_in_stock} {item.unit}
+                                </option>
+                            ))}
                         </select>
                         <input
                             type="number"
                             placeholder="Qty Used"
-                            value={formData.quantity_used || ''}
+                            value={formData.quantity_used}
                             onChange={(e) => setFormData({ ...formData, quantity_used: e.target.value })}
                             style={{ fontSize: '12px' }}
                         />
                         <input
                             type="text"
                             placeholder="Rate (kg/ha)"
-                            value={formData.application_rate || ''}
+                            value={formData.application_rate}
                             onChange={(e) => setFormData({ ...formData, application_rate: e.target.value })}
                             style={{ fontSize: '12px' }}
                         />
