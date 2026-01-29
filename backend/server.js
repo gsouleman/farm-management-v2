@@ -34,6 +34,7 @@ app.use('/api/exports', require('./routes/exportRoutes'));
 app.use('/api/harvests', require('./routes/harvestRoutes'));
 app.use('/api/weather', require('./routes/weatherRoutes'));
 app.use('/api/documents', require('./routes/documentRoutes'));
+app.use('/api/farm-users', require('./routes/teamRoutes'));
 
 // Static files for uploads
 const path = require('path');

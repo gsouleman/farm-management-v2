@@ -37,6 +37,11 @@ router.get('/:farmId/weather/history', weatherController.getWeatherHistory);
 const documentController = require('../controllers/documentController');
 router.get('/:farmId/documents', documentController.getFarmDocuments);
 
+// Team sub-routes
+const teamController = require('../controllers/teamController');
+router.get('/:farmId/team', teamController.getFarmTeam);
+router.post('/:farmId/invite', teamController.inviteMember);
+
 // Crop sub-routes
 const cropController = require('../controllers/cropController');
 router.get('/:farmId/crops', cropController.getFarmCrops);
