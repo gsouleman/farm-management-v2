@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, FeatureGroup, Polygon, CircleMarker, Polyline, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, FeatureGroup, Polygon, CircleMarker, Polyline, Popup, useMap } from 'react-leaflet';
 import { EditControl } from 'react-leaflet-draw';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -141,7 +141,7 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
                                 weight: 2
                             }}
                         >
-                            <L.Popup>
+                            <Popup>
                                 <div style={{ fontSize: '12px', maxWidth: '200px' }}>
                                     <strong>{crop.crop_type}</strong><br />
                                     {crop.variety}<br />
@@ -152,7 +152,7 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
                                         {crop.boundary.coordinates[0].map(c => `${c[1].toFixed(5)}, ${c[0].toFixed(5)}`).join('\n')}
                                     </pre>
                                 </div>
-                            </L.Popup>
+                            </Popup>
                         </Polygon>
                     ))}
 
@@ -168,7 +168,7 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
                                 weight: 2
                             }}
                         >
-                            <L.Popup>
+                            <Popup>
                                 <div style={{ fontSize: '12px', maxWidth: '200px' }}>
                                     <strong>{infra.name}</strong><br />
                                     Type: {infra.type}<br />
@@ -179,7 +179,7 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
                                         {infra.boundary.coordinates[0].map(c => `${c[1].toFixed(5)}, ${c[0].toFixed(5)}`).join('\n')}
                                     </pre>
                                 </div>
-                            </L.Popup>
+                            </Popup>
                         </Polygon>
                     ))}
 

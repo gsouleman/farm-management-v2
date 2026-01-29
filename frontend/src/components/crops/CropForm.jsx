@@ -111,7 +111,7 @@ const CropForm = ({ fieldId, onComplete }) => {
                         disabled={!!fieldId}
                     >
                         <option value="">-- Select Field --</option>
-                        {fields.map(f => (
+                        {(fields || []).map(f => (
                             <option key={f.id} value={f.id}>{f.name} ({f.area} ha)</option>
                         ))}
                     </select>
@@ -128,9 +128,9 @@ const CropForm = ({ fieldId, onComplete }) => {
                             style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
                         >
                             <option value="">-- Select Crop --</option>
-                            {Object.entries(cropCategories).map(([category, items]) => (
+                            {Object.entries(cropCategories || {}).map(([category, items]) => (
                                 <optgroup key={category} label={category}>
-                                    {items.map(item => (
+                                    {(items || []).map(item => (
                                         <option key={item.id} value={item.id}>{item.label}</option>
                                     ))}
                                 </optgroup>
@@ -149,7 +149,7 @@ const CropForm = ({ fieldId, onComplete }) => {
                             style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
                         />
                         <datalist id="variety-presets">
-                            {currentCropVarieties.map(v => (
+                            {(currentCropVarieties || []).map(v => (
                                 <option key={v} value={v} />
                             ))}
                         </datalist>
@@ -312,8 +312,8 @@ const CropForm = ({ fieldId, onComplete }) => {
                     </button>
                     <button type="button" onClick={onComplete} className="outline" style={{ flex: 1, padding: '14px' }}>Discard</button>
                 </div>
-            </form >
-        </div >
+            </form>
+        </div>
     );
 };
 
