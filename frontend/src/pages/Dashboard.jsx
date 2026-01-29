@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useFarmStore from '../store/farmStore';
 import useCropStore from '../store/cropStore';
+import useInfrastructureStore from '../store/infrastructureStore';
 import FieldMap from '../components/fields/FieldMap';
 import FarmForm from '../components/farms/FarmForm';
 import FieldForm from '../components/fields/FieldForm';
@@ -10,6 +11,7 @@ import FieldDetails from '../components/fields/FieldDetails';
 const Dashboard = () => {
     const { fetchFarms, currentFarm, fields, fetchFields, loading } = useFarmStore();
     const { fetchCropsByFarm, crops } = useCropStore();
+    const { infrastructure, fetchInfrastructure } = useInfrastructureStore();
     const [view, setView] = useState('overview'); // overview, add-farm, add-field, field-details
     const [selectedField, setSelectedField] = useState(null);
     const navigate = useNavigate();
@@ -22,14 +24,18 @@ const Dashboard = () => {
         if (currentFarm) {
             fetchFields(currentFarm.id);
             fetchCropsByFarm(currentFarm.id);
+            fetchInfrastructure(currentFarm.id);
         }
-    }, [currentFarm, fetchFields, fetchCropsByFarm]);
+    }, [currentFarm, fetchFields, fetchCropsByFarm, fetchInfrastructure]);
+
+    const totalAllocatedArea = (fields || []).reduce((sum, f) => sum + parseFloat(f.area || 0), 0) +
+        (infrastructure || []).reduce((sum, i) => sum + parseFloat(i.area_sqm || 0) / 10000, 0);
 
     const stats = [
         { label: 'Total Fields', value: fields.length, icon: '🗺️' },
         {
             label: 'Total Planted/Allocated',
-            value: `${fields.reduce((sum, f) => sum + parseFloat(f.area || 0), 0).toFixed(2)} ha`,
+            value: `${totalAllocatedArea > 0 ? totalAllocatedArea.toFixed(2) : (currentFarm?.total_area || '0.00')} ha`,
             icon: '📏'
         },
         { label: 'Active Crops', value: crops.filter(c => c.status === 'planted').length, icon: '🌱' },
@@ -71,6 +77,7 @@ const Dashboard = () => {
                                     center={currentFarm?.coordinates?.coordinates ? [currentFarm.coordinates.coordinates[1], currentFarm.coordinates.coordinates[0]] : [37.7749, -122.4194]}
                                     fields={fields}
                                     crops={crops}
+                                    infrastructure={infrastructure}
                                     farmBoundary={currentFarm?.boundary}
                                     editable={false}
                                 />
