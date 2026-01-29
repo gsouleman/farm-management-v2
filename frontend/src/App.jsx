@@ -11,6 +11,7 @@ import Reports from './pages/Reports';
 import TeamManagement from './pages/TeamManagement';
 import Harvests from './pages/Harvests';
 import Crops from './pages/Crops';
+import Planner from './pages/Planner';
 import WeatherCenter from './pages/WeatherCenter';
 import DocumentVault from './pages/DocumentVault';
 import MainLayout from './components/MainLayout';
@@ -62,6 +63,13 @@ function App() {
           <ProtectedRoute>
             <MainLayout>
               <Crops />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/planner" element={
+          <ProtectedRoute>
+            <MainLayout>
+              <Planner />
             </MainLayout>
           </ProtectedRoute>
         } />

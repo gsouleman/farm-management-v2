@@ -159,12 +159,39 @@ const Crops = () => {
 
     return (
         <div className="animate-fade-in" style={{ padding: '24px' }}>
-            <div className="flex j-between a-center" style={{ marginBottom: '32px' }}>
+            <div className="flex j-between a-center" style={{ marginBottom: '24px' }}>
                 <div>
                     <h1 style={{ fontSize: '24px', margin: 0 }}>Crops & Cultivation</h1>
                     <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Manage all active and historical plantings for {currentFarm?.name}.</p>
                 </div>
                 <button className="primary" onClick={() => setView('add')}>+ Plan New Crop</button>
+            </div>
+
+            {/* AgriXP Style Summary Box */}
+            <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: '24px',
+                marginBottom: '32px'
+            }}>
+                <div className="card" style={{ padding: '20px', borderLeft: '4px solid var(--primary)' }}>
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 'bold' }}>TOTAL PLANTED AREA</div>
+                    <div style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '8px' }}>
+                        {crops.reduce((sum, c) => sum + parseFloat(c.planted_area || 0), 0).toFixed(2)} ha
+                    </div>
+                </div>
+                <div className="card" style={{ padding: '20px', borderLeft: '4px solid #4a90e2' }}>
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 'bold' }}>CROP DIVERSITY</div>
+                    <div style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '8px' }}>
+                        {new Set(crops.map(c => c.crop_type)).size} Active Types
+                    </div>
+                </div>
+                <div className="card" style={{ padding: '20px', borderLeft: '4px solid #f5a623' }}>
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 'bold' }}>ESTIMATED TOTAL BUDGET</div>
+                    <div style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '8px' }}>
+                        {crops.reduce((sum, c) => sum + parseFloat(c.estimated_cost || 0), 0).toLocaleString()} <span style={{ fontSize: '14px' }}>XAF</span>
+                    </div>
+                </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
