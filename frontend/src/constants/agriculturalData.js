@@ -1,69 +1,63 @@
 export const CROP_CATEGORIES = {
     "Cereals & Grains": [
-        { id: "corn_grain", label: "Corn (Grain)", varieties: ["Pioneer P1197", "DeKalb DKC62-08", "NK N68K", "Croplan 5678", "Channel 211-33"] },
-        { id: "corn_silage", label: "Corn (Silage)", varieties: ["Pioneer P0157", "DeKalb DKC55-53", "Preferred Silage Plus"] },
-        { id: "wheat_spring", label: "Wheat (Spring)", varieties: ["AAC Brandon", "AAC Viewfield", "AAC Starbuck", "SY Torach"] },
-        { id: "wheat_winter", label: "Wheat (Winter)", varieties: ["AAC Wildfire", "AAC Emerson", "SY Sunrise"] },
-        { id: "barley", label: "Barley", varieties: ["CDC Copeland", "AAC Synergy", "CDC Austenson", "KWS Fantex"] },
-        { id: "oats", label: "Oats", varieties: ["CS Camden", "CDC Arborg", "AAC Douglas"] },
-        { id: "sorghum", label: "Sorghum", varieties: ["Pioneer 84G62", "Dekalb DKS28-05", "Check-Mate"] },
-        { id: "rice", label: "Rice (Paddy)", varieties: ["IR64", "Basmati 370", "Jasmine 85"] }
+        { id: "maize", label: "Maize (Maïs)", varieties: ["CMS 8704", "CMS 9015", "CMS 8501", "Composite White", "Local Yellow"] },
+        { id: "rice", label: "Rice (Riz)", varieties: ["IRAD 342", "NERICA 3", "NERICA 8", "Tox 3145", "Local Paddy"] },
+        { id: "sorghum", label: "Sorghum (Sorgho)", varieties: ["IRAD S-35", "CS-54", "Local Red"] },
+        { id: "millet", label: "Millet", varieties: ["Local Early", "Local Late"] }
     ],
-    "Oilseeds": [
-        { id: "canola", label: "Canola / Rapeseed", varieties: ["InVigor L233P", "InVigor L340PC", "Nexera 1022 RR", "Pioneer 45H33"] },
-        { id: "soybeans", label: "Soybeans", varieties: ["Asgrow AG06X8", "Pioneer P007A32X", "NK S007-Y4", "ProYield 005"] },
-        { id: "sunflower", label: "Sunflower", varieties: ["P63ME70", "N4HM354", "Cobalt II"] },
-        { id: "flax", label: "Flax / Linseed", varieties: ["CDC Glas", "CDC Bethune"] }
+    "Roots & Tubers": [
+        { id: "cassava", label: "Cassava (Manioc)", varieties: ["TME 419", "TMS 92/0326", "TMS 96/0023", "Red Skin", "White Skin"] },
+        { id: "yam", label: "Yam (Igname)", varieties: ["Yellow Yam", "White Yam", "Water Yam (Bitala)"] },
+        { id: "cocoyam", label: "Cocoyam (Macabo/Taro)", varieties: ["Ibo Macabo", "Red Macabo", "White Macabo", "Taro (Ekoe)"] },
+        { id: "sweet_potato", label: "Sweet Potato (Patate)", varieties: ["TIB 1", "TIB 2", "Orange Fleshed (OFSP)", "White Fleshed"] },
+        { id: "irish_potato", label: "Irish Potato (Pomme)", varieties: ["Cipira", "Bambui Red"] }
     ],
     "Pulses & Legumes": [
-        { id: "peas_yellow", label: "Peas (Yellow)", varieties: ["AAC Carver", "CDC Amarillo", "CDC Spectrum"] },
-        { id: "lentils_red", label: "Lentils (Red)", varieties: ["CDC Maxim", "CDC Proclaim"] },
-        { id: "chickpeas", label: "Chickpeas (Kabuli)", varieties: ["CDC Leader", "CDC Frontier"] },
-        { id: "beans_dry", label: "Beans (Dry/Kidney)", varieties: ["CDC Blackstrap", "AAC Island", "Red Hawk"] },
-        { id: "peanuts", label: "Peanuts / Groundnut", varieties: ["Spanish White", "Virginia Jumbo"] }
+        { id: "groundnuts", label: "Groundnuts (Arachides)", varieties: ["28-206", "Florispan", "Campala", "Local Red"] },
+        { id: "beans", label: "Beans (Haricots)", varieties: ["GLP 2", "NITU", "Black Beans", "Kidney Beans"] },
+        { id: "soybeans", label: "Soybeans (Soja)", varieties: ["TGX 1910-14F", "TGX 1835-10E"] },
+        { id: "egusi", label: "Egusi (Melon)", varieties: ["Large Seed", "Small Seed"] }
     ],
-    "Roots, Tubers & Bulbs": [
-        { id: "potatoes", label: "Potatoes (Table)", varieties: ["Russet Burbank", "Norland", "Yukon Gold", "Ken_nebec"] },
-        { id: "potatoes_seed", label: "Potatoes (Seed)", varieties: ["Elite 1", "Elite 2"] },
-        { id: "cassava", label: "Cassava / Mani_oc", varieties: ["TME 419", "TMS 30572"] },
-        { id: "sweet_potato", label: "Sweet Potato", varieties: ["Beauregard", "Covington"] },
-        { id: "onion", label: "Onion", varieties: ["Yellow Spanish", "Red Burgundy"] },
-        { id: "garlic", label: "Garlic", varieties: ["Music", "Silverwhite"] }
+    "Fruit Trees": [
+        { id: "plantain", label: "Plantain", varieties: ["Big Ebanga", "Batard", "Essong", "Mbouroukou"] },
+        { id: "banana", label: "Banana (Banane douce)", varieties: ["Cavendish", "Gros Michel", "Poyo"] },
+        { id: "avocado", label: "Avocado (Avocatier)", varieties: ["Booth 7", "Booth 8", "Hass", "Local Butter"] },
+        { id: "mango", label: "Mango (Manguier)", varieties: ["Amélie", "Brooks", "Kent", "Keitt", "Local Green"] },
+        { id: "citrus", label: "Citrus (Orange/Citron)", varieties: ["Valencia Orange", "Washington Navel", "Eureka Lemon", "Lime"] },
+        { id: "papaya", label: "Papaya (Papayer)", varieties: ["Solo", "Sunrise", "Local Large"] },
+        { id: "pineapple", label: "Pineapple (Ananas)", varieties: ["Smooth Cayenne", "Sugar Loaf"] },
+        { id: "safou", label: "Safou (Plum)", varieties: ["Long Safou", "Round Safou"] }
     ],
-    "Fruits & Perennials": [
-        { id: "apple", label: "Apple Orchard", varieties: ["Gala", "Honeycrisp", "Fuji"] },
-        { id: "grape_wine", label: "Grape (Wine)", varieties: ["Cabernet Sauvignon", "Chardonnay", "Merlot"] },
-        { id: "citrus", label: "Citrus (Orange/Lemon)", varieties: ["Valencia", "Eureka"] },
-        { id: "banana", label: "Banana / Plantain", varieties: ["Cavendish", "Big Ebanga"] }
+    "Cash & Industrial": [
+        { id: "cocoa", label: "Cocoa (Cacao)", varieties: ["Hybrid (High Yield)", "Forastero", "Trinitario"] },
+        { id: "coffee_robusta", label: "Coffee (Robusta)", varieties: ["IFC 1", "Local Selection"] },
+        { id: "coffee_arabica", label: "Coffee (Arabica)", varieties: ["Java", "Jamaican Blue Mountain Type"] },
+        { id: "oil_palm", label: "Oil Palm (Palmier)", varieties: ["Tenera (Hybrid)", "Dura", "Pisifera"] },
+        { id: "rubber", label: "Rubber (Hévéa)", varieties: ["GT 1", "PB 217", "Local Clone"] },
+        { id: "cotton", label: "Cotton (Coton)", varieties: ["IRAD Hybrid", "Local L-21"] },
+        { id: "sugar_cane", label: "Sugar Cane (Canne)", varieties: ["Local Red", "Local Green"] }
     ],
-    "Specialty & Industrial": [
-        { id: "sugar_beets", label: "Sugar Beets", varieties: ["Betaseed", "Crystal", "Hilleshog"] },
-        { id: "sugar_cane", label: "Sugar Cane", varieties: ["CP 89-2143", "L 01-299"] },
-        { id: "cotton", label: "Cotton", varieties: ["Deltapine 164 B2XF", "Phytogen 400 W3FE", "Stoneville 4946"] },
-        { id: "tobacco", label: "Tobacco", varieties: ["Burley 21", "Virginia Gold"] },
-        { id: "hemp", label: "Hemp (Industrial)", varieties: ["Finola", "Katani"] }
-    ],
-    "Beverages & Spices": [
-        { id: "coffee", label: "Coffee (Arabica/Robusta)", varieties: ["SL28", "Catimor", "K7"] },
-        { id: "cocoa", label: "Cocoa / Cacao", varieties: ["Forastero", "Criollo", "Trinitario"] },
-        { id: "tea", label: "Tea", varieties: ["Assam", "Darjeeling"] },
-        { id: "ginger", label: "Ginger", varieties: ["Canton", "Queensland"] },
-        { id: "pepper_black", label: "Pepper (Black/White)", varieties: ["Lampong", "Sarawak"] }
-    ],
-    "Forage & Cover": [
-        { id: "alfalfa", label: "Alfalfa", varieties: ["Common Heritage", "AC Bluebird", "Magnum 7"] },
-        { id: "clover", label: "Clover (Red/White)", varieties: ["Red Clover", "White Clover"] },
-        { id: "timothy", label: "Timothy Grass", varieties: ["Climax", "Richmond"] },
-        { id: "cover_mix", label: "Cover Crop Mix", varieties: ["Radish/Rye Mix", "Oat/Pea Mix"] }
+    "Vegetables & Spices": [
+        { id: "tomato", label: "Tomato (Tomate)", varieties: ["Rio Grande", "Roma VF", "Cobra", "Local Cherry"] },
+        { id: "onion", label: "Onion (Oignon)", varieties: ["Galmi Violet", "Red Creole"] },
+        { id: "pepper", label: "Pepper (Piment)", varieties: ["Habanero (Yellow/Red)", "Bird's Eye", "Green Pepper"] },
+        { id: "okra", label: "Okra (Gombo)", varieties: ["Kirikou", "Local Early"] },
+        { id: "ndole", label: "Bitter leaf (Ndolé)", varieties: ["Small leaf", "Large leaf"] },
+        { id: "penja_pepper", label: "Penja Pepper", varieties: ["White Penja", "Black Penja"] },
+        { id: "ginger", label: "Ginger (Gingembre)", varieties: ["Local Sharp", "Yellow Ginger"] },
+        { id: "garlic", label: "Garlic (Ail)", varieties: ["Local White"] }
     ]
 };
 
 export const INFRASTRUCTURE_TYPES = [
     { id: 'farm_house', label: 'Farm House', icon: '🏠' },
-    { id: 'residential', label: 'Residential House', icon: '🏡' },
-    { id: 'storage', label: 'Storage / Warehouse', icon: '🏭' },
-    { id: 'poultry', label: 'Poultry House', icon: '🐔' },
+    { id: 'residential', label: 'Residential Unit', icon: '🏡' },
+    { id: 'storage', label: 'General Warehouse', icon: '🏭' },
+    { id: 'cocoa_dryer', label: 'Cocoa/Coffee Dryer', icon: '♨️' },
+    { id: 'oil_press', label: 'Oil Press / Mill', icon: '⚙️' },
+    { id: 'poultry', label: 'Poultry Pen', icon: '🐔' },
+    { id: 'livestock_pen', label: 'Livestock Pen (Piggery/Shed)', icon: '🐖' },
     { id: 'irrigation', label: 'Irrigation System', icon: '💧' },
     { id: 'well', label: 'Water Well / Borehole', icon: '🚰' },
-    { id: 'fence', label: 'Fencing', icon: '🚧' }
+    { id: 'fence', label: 'Fencing / Boundary', icon: '🚧' }
 ];
