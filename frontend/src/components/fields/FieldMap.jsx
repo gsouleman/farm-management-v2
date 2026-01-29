@@ -86,6 +86,7 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
                             onCreated={handleCreated}
                             draw={{
                                 rectangle: {
+                                    showArea: false, // Set to false to avoid ReferenceError: type is not defined
                                     shapeOptions: {
                                         color: 'var(--primary)'
                                     }
