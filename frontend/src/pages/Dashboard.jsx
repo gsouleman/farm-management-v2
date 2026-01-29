@@ -9,7 +9,7 @@ import FieldDetails from '../components/fields/FieldDetails';
 
 const Dashboard = () => {
     const { fetchFarms, currentFarm, fields, fetchFields, loading } = useFarmStore();
-    const { fetchFarmCrops, crops } = useCropStore();
+    const { fetchCropsByFarm, crops } = useCropStore();
     const [view, setView] = useState('overview'); // overview, add-farm, add-field, field-details
     const [selectedField, setSelectedField] = useState(null);
     const navigate = useNavigate();
@@ -21,9 +21,9 @@ const Dashboard = () => {
     useEffect(() => {
         if (currentFarm) {
             fetchFields(currentFarm.id);
-            fetchFarmCrops(currentFarm.id);
+            fetchCropsByFarm(currentFarm.id);
         }
-    }, [currentFarm, fetchFields, fetchFarmCrops]);
+    }, [currentFarm, fetchFields, fetchCropsByFarm]);
 
     const stats = [
         { label: 'Total Fields', value: fields.length, icon: '🗺️' },
