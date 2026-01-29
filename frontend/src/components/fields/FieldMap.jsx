@@ -1,5 +1,4 @@
-import React, { useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, FeatureGroup, Polygon, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, FeatureGroup, Polygon, CircleMarker, Polyline, useMap } from 'react-leaflet';
 import { EditControl } from 'react-leaflet-draw';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -18,7 +17,11 @@ const ZoomToData = ({ bounds }) => {
     const map = useMap();
     useEffect(() => {
         if (bounds && bounds.length > 0) {
-            map.fitBounds(bounds);
+            try {
+                map.fitBounds(bounds);
+            } catch (e) {
+                console.warn('Error fitting bounds:', e);
+            }
         }
     }, [bounds, map]);
     return null;
@@ -56,11 +59,6 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
     // Convert farm boundary if present
     const farmPolygon = farmBoundary && farmBoundary.coordinates ?
         farmBoundary.coordinates[0].map(coord => [coord[1], coord[0]]) : null;
-
-    const allBounds = [
-        ...fieldPolygons.flatMap(p => p.positions),
-        ...(farmPolygon || [])
-    ];
 
     return (
         <div className="glass-card" style={{ height: '500px', padding: '0', overflow: 'hidden' }}>
@@ -126,7 +124,7 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
                     ))}
 
                     {/* Crop Allocations Highlight */}
-                    {crops?.filter(c => c.boundary).map(crop => (
+                    {crops?.filter(c => c?.boundary?.coordinates?.[0]).map(crop => (
                         <Polygon
                             key={crop.id}
                             positions={crop.boundary.coordinates[0].map(coord => [coord[1], coord[0]])}
@@ -153,7 +151,7 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
                     ))}
 
                     {/* Infrastructure Highlight */}
-                    {infrastructure?.filter(i => i.boundary).map(infra => (
+                    {infrastructure?.filter(i => i?.boundary?.coordinates?.[0]).map(infra => (
                         <Polygon
                             key={infra.id}
                             positions={infra.boundary.coordinates[0].map(coord => [coord[1], coord[0]])}
@@ -182,21 +180,21 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
                     {/* Manual Entry Highlight */}
                     {manualCoordinates?.length > 0 && (
                         <>
-                            {manualCoordinates.map((coord, idx) => (
-                                <L.CircleMarker
+                            {manualCoordinates.filter(c => c && c.length >= 2).map((coord, idx) => (
+                                <CircleMarker
                                     key={`manual-point-${idx}`}
                                     center={[coord[1], coord[0]]}
                                     pathOptions={{ color: '#f44336', fillColor: '#f44336', fillOpacity: 1 }}
                                     radius={4}
                                 />
                             ))}
-                            {manualCoordinates.length === 2 && (
-                                <L.Polyline
+                            {manualCoordinates.length === 2 && manualCoordinates.every(c => c && c.length >= 2) && (
+                                <Polyline
                                     positions={manualCoordinates.map(coord => [coord[1], coord[0]])}
                                     pathOptions={{ color: '#f44336', weight: 2, dashArray: '5, 5' }}
                                 />
                             )}
-                            {manualCoordinates.length >= 3 && (
+                            {manualCoordinates.length >= 3 && manualCoordinates.every(c => c && c.length >= 2) && (
                                 <Polygon
                                     positions={manualCoordinates.map(coord => [coord[1], coord[0]])}
                                     pathOptions={{ color: '#f44336', weight: 2, dashArray: '5, 5', fillOpacity: 0.2 }}
@@ -209,7 +207,10 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
                 {(() => {
                     // Priority: Manual coordinates currently being entered
                     if (manualCoordinates?.length > 0) {
-                        return <ZoomToData bounds={manualCoordinates.map(coord => [coord[1], coord[0]])} />;
+                        const validCoords = manualCoordinates.filter(c => c && c.length >= 2).map(coord => [coord[1], coord[0]]);
+                        if (validCoords.length > 0) {
+                            return <ZoomToData bounds={validCoords} />;
+                        }
                     }
                     const allB = [
                         ...fieldPolygons.flatMap(p => p.positions),
