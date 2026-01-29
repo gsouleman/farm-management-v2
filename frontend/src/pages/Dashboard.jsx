@@ -223,8 +223,8 @@ const Dashboard = () => {
                                 <h3 style={{ margin: 0, fontSize: '16px' }}>Cash Flow Trend</h3>
                                 <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>PROJECTED VS ACTUAL</div>
                             </div>
-                            <div style={{ height: '300px', width: '100%', marginTop: '20px' }}>
-                                <ResponsiveContainer width="100%" height="100%">
+                            <div style={{ height: '300px', width: '100%', marginTop: '20px', position: 'relative' }}>
+                                <ResponsiveContainer width="100%" height="100%" minHeight={0} minWidth={0}>
                                     <AreaChart data={trendData}>
                                         <defs>
                                             <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
@@ -253,7 +253,7 @@ const Dashboard = () => {
                         <div className="card" style={{ textAlign: 'center' }}>
                             <h3 style={{ fontSize: '14px', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '1px' }}>Land Utilization</h3>
                             <div style={{ height: '200px', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
-                                <ResponsiveContainer width="100%" height="100%">
+                                <ResponsiveContainer width="100%" height="100%" minHeight={0} minWidth={0}>
                                     <PieChart>
                                         <Pie
                                             data={[

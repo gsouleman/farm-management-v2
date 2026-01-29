@@ -49,7 +49,7 @@ const startServer = async () => {
         console.log('PostGIS extension verified.');
 
         // Sync models (in production, use migrations)
-        await sequelize.sync({ alter: true });
+        await sequelize.sync({ alter: false });
 
         app.listen(PORT, () => {
             console.log(`Server is running on port ${PORT}`);
