@@ -15,6 +15,7 @@ import Planner from './pages/Planner';
 import WeatherCenter from './pages/WeatherCenter';
 import DocumentVault from './pages/DocumentVault';
 import Infrastructure from './pages/Infrastructure';
+import ProductionCosts from './pages/ProductionCosts';
 import MainLayout from './components/MainLayout';
 
 // Protected Route Component
@@ -120,6 +121,13 @@ function App() {
           <ProtectedRoute>
             <MainLayout>
               <Infrastructure />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/production-costs" element={
+          <ProtectedRoute>
+            <MainLayout>
+              <ProductionCosts />
             </MainLayout>
           </ProtectedRoute>
         } />

@@ -66,6 +66,7 @@ const MainLayout = ({ children }) => {
                     <SidebarLink to="/infrastructure" icon="🏗️" label="Infrastructure" />
                     <SidebarLink to="/activities" icon="🚜" label="Activities" />
                     <SidebarLink to="/inventory" icon="📦" label="Inventory" />
+                    <SidebarLink to="/production-costs" icon="💰" label="Production Costs" />
                     <SidebarLink to="/harvests" icon="🌾" label="Harvests" />
                     <SidebarLink to="/weather" icon="☁️" label="Weather" />
                     <SidebarLink to="/vault" icon="📂" label="Documents" />
