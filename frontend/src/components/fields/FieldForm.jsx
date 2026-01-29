@@ -139,30 +139,49 @@ const FieldForm = ({ onComplete }) => {
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
                             <div>
                                 <label>Soil Type</label>
-                                <input
-                                    type="text"
+                                <select
                                     value={formData.soil_type}
                                     onChange={(e) => setFormData({ ...formData, soil_type: e.target.value })}
-                                />
+                                >
+                                    <option value="">-- Select Soil --</option>
+                                    <option value="sandy">Sandy</option>
+                                    <option value="loamy">Loamy</option>
+                                    <option value="clay">Clay</option>
+                                    <option value="silt">Silt</option>
+                                    <option value="peaty">Peaty</option>
+                                    <option value="chalky">Chalky</option>
+                                    <option value="saline">Saline</option>
+                                </select>
                             </div>
                             <div>
                                 <label>Drainage</label>
-                                <input
-                                    type="text"
+                                <select
                                     value={formData.drainage}
                                     onChange={(e) => setFormData({ ...formData, drainage: e.target.value })}
-                                />
+                                >
+                                    <option value="">-- Select Drainage --</option>
+                                    <option value="excellent">Excellent</option>
+                                    <option value="good">Good</option>
+                                    <option value="fair">Fair</option>
+                                    <option value="poor">Poor</option>
+                                    <option value="very_poor">Very Poor</option>
+                                </select>
                             </div>
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
                             <div>
                                 <label>Slope</label>
-                                <input
-                                    type="text"
+                                <select
                                     value={formData.slope}
                                     onChange={(e) => setFormData({ ...formData, slope: e.target.value })}
-                                />
+                                >
+                                    <option value="">-- Select Slope --</option>
+                                    <option value="level">Level (0-2%)</option>
+                                    <option value="gentle">Gentle (2-5%)</option>
+                                    <option value="moderate">Moderate (5-10%)</option>
+                                    <option value="steep">Steep ({'>'}10%)</option>
+                                </select>
                             </div>
                             <div>
                                 <label>Area Unit</label>

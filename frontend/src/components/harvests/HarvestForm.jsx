@@ -92,6 +92,11 @@ const HarvestForm = ({ cropId, onComplete }) => {
                                 <option value="kg">kg</option>
                                 <option value="tonnes">t</option>
                                 <option value="bushels">bu</option>
+                                <option value="liters">L</option>
+                                <option value="gallons">gal</option>
+                                <option value="bins">bins</option>
+                                <option value="crates">crates</option>
+                                <option value="units">units (count)</option>
                             </select>
                         </div>
                     </div>

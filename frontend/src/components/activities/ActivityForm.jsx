@@ -83,6 +83,12 @@ const ActivityForm = ({ fieldId, cropId, onComplete }) => {
                             <option value="tillage">Tillage / Cultivation</option>
                             <option value="harvesting">Harvesting</option>
                             <option value="scouting">Scouting / Inspection</option>
+                            <option value="pruning">Pruning</option>
+                            <option value="thinning">Thinning</option>
+                            <option value="mowing">Mowing</option>
+                            <option value="mulching">Mulching</option>
+                            <option value="soil_sampling">Soil Sampling</option>
+                            <option value="maintenance">Maintenance</option>
                         </select>
                     </div>
                     <div>

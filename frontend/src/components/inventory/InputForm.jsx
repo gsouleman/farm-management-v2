@@ -76,11 +76,26 @@ const InputForm = ({ farmId, onComplete }) => {
                     </div>
                     <div>
                         <label>Category / Specialization</label>
-                        <input
-                            type="text"
-                            value={formData.category}
-                            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                        />
+                        {formData.input_type === 'pesticide' ? (
+                            <select
+                                value={formData.category}
+                                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                            >
+                                <option value="">-- Select Category --</option>
+                                <option value="herbicide">Herbicide</option>
+                                <option value="insecticide">Insecticide</option>
+                                <option value="fungicide">Fungicide</option>
+                                <option value="rodenticide">Rodenticide</option>
+                                <option value="growth_regulator">Growth Regulator</option>
+                                <option value="other">Other</option>
+                            </select>
+                        ) : (
+                            <input
+                                type="text"
+                                value={formData.category}
+                                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                            />
+                        )}
                     </div>
                     <div>
                         <label>Unit of Measure</label>
@@ -89,9 +104,16 @@ const InputForm = ({ farmId, onComplete }) => {
                             onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
                         >
                             <option value="kg">Kilograms (kg)</option>
+                            <option value="g">Grams (g)</option>
+                            <option value="lb">Pounds (lb)</option>
+                            <option value="oz">Ounces (oz)</option>
                             <option value="liters">Liters (L)</option>
+                            <option value="ml">Milliliters (ml)</option>
+                            <option value="gal">Gallons (gal)</option>
+                            <option value="pt">Pints (pt)</option>
+                            <option value="qt">Quarts (qt)</option>
                             <option value="bags">Bags</option>
-                            <option value="tonnes">Tonnes</option>
+                            <option value="tonnes">Tonnes (t)</option>
                         </select>
                     </div>
                 </div>
