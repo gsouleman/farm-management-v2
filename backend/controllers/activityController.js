@@ -36,13 +36,13 @@ exports.getCropActivities = async (req, res) => {
 exports.getFarmActivities = async (req, res) => {
     try {
         const activities = await Activity.findAll({
-            include: [{
-                model: Field,
-                where: { farm_id: req.params.farmId }
-            }, Input]
+            where: { farm_id: req.params.farmId },
+            include: [Field, Input, Crop, Infrastructure],
+            order: [['activity_date', 'DESC']]
         });
         res.json(activities);
     } catch (error) {
+        console.error('Error fetching farm activities:', error);
         res.status(500).json({ message: 'Error fetching farm activities' });
     }
 };
@@ -52,6 +52,7 @@ exports.createActivity = async (req, res) => {
         const activityData = {
             ...req.body,
             performed_by: req.user.id,
+            farm_id: req.body.farm_id, // Ensure farm_id is passed from frontend
             transaction_type: req.body.transaction_type || 'expense',
             labor_cost: req.body.labor_cost || 0,
             material_cost: req.body.material_cost || 0,
@@ -211,6 +212,7 @@ exports.bulkUploadActivities = async (req, res) => {
                 field_id,
                 crop_id,
                 infrastructure_id,
+                farm_id: farmId, // Persist farm_id in bulk upload
                 performed_by: req.user.id,
                 transaction_type: row.type?.toLowerCase() === 'income' ? 'income' : 'expense',
                 work_status: row.status || 'completed'

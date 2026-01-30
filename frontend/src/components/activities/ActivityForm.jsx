@@ -74,6 +74,7 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
             const payload = {
                 ...formData,
                 field_id: selectedFieldId,
+                farm_id: currentFarm.id,
                 crop_id: associatedOperation.type === 'crop' ? associatedOperation.id : null,
                 infrastructure_id: associatedOperation.type === 'infrastructure' ? associatedOperation.id : null
             };

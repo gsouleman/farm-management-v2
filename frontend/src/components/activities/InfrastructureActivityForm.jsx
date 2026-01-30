@@ -76,6 +76,7 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
             const payload = {
                 ...formData,
                 field_id: infrastructure?.field_id || null, // Inherit field from infrastructure
+                farm_id: currentFarm.id,
                 transaction_type: 'expense' // Log operations are typically expenses
             };
 

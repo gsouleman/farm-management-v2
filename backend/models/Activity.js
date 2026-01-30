@@ -11,6 +11,10 @@ module.exports = (sequelize) => {
         field_id: DataTypes.UUID,
         infrastructure_id: DataTypes.UUID,
         harvest_id: DataTypes.UUID,
+        farm_id: {
+            type: DataTypes.UUID,
+            allowNull: false
+        },
         performed_by: DataTypes.UUID,
         activity_type: {
             type: DataTypes.STRING,
@@ -62,6 +66,7 @@ module.exports = (sequelize) => {
         Activity.belongsTo(models.Crop, { foreignKey: 'crop_id' });
         Activity.belongsTo(models.Field, { foreignKey: 'field_id' });
         Activity.belongsTo(models.Infrastructure, { foreignKey: 'infrastructure_id' });
+        Activity.belongsTo(models.Farm, { foreignKey: 'farm_id' });
         Activity.belongsTo(models.User, { foreignKey: 'performed_by' });
         Activity.belongsToMany(models.Input, { through: models.ActivityInput, foreignKey: 'activity_id' });
     };
