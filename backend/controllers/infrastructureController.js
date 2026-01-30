@@ -6,7 +6,7 @@ exports.createInfrastructure = async (req, res) => {
         const { boundary_coordinates, ...rest } = req.body;
 
         let boundary = null;
-        if (boundary_coordinates && boundary_coordinates.length >= 3) {
+        if (boundary_coordinates && Array.isArray(boundary_coordinates) && boundary_coordinates.length >= 3) {
             // Ensure first and last coordinates are the same for a closed polygon
             const closedCoords = [...boundary_coordinates];
             if (
@@ -30,8 +30,12 @@ exports.createInfrastructure = async (req, res) => {
 
         res.status(201).json(infra);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: error.message });
+        console.error('[InfrastructureController] Create Error:', error);
+        res.status(500).json({
+            error: 'Failed to create infrastructure',
+            details: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 };
 
@@ -56,7 +60,7 @@ exports.updateInfrastructure = async (req, res) => {
         const infra = await Infrastructure.findByPk(id);
         if (!infra) return res.status(404).json({ error: 'Infrastructure not found' });
 
-        if (boundary_coordinates) {
+        if (boundary_coordinates && Array.isArray(boundary_coordinates) && boundary_coordinates.length >= 3) {
             const closedCoords = [...boundary_coordinates];
             if (
                 closedCoords[0][0] !== closedCoords[closedCoords.length - 1][0] ||
@@ -68,12 +72,18 @@ exports.updateInfrastructure = async (req, res) => {
                 type: 'Polygon',
                 coordinates: [closedCoords]
             };
+        } else if (boundary_coordinates && boundary_coordinates.length === 0) {
+            infra.boundary = null;
         }
 
         await infra.update(rest);
         res.json(infra);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('[InfrastructureController] Update Error:', error);
+        res.status(500).json({
+            error: 'Failed to update infrastructure',
+            details: error.message
+        });
     }
 };
 

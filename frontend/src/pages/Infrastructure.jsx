@@ -66,7 +66,7 @@ const Infrastructure = () => {
                         </div>
                     </div>
 
-                    {selectedInfra.boundary && (
+                    {selectedInfra.boundary?.coordinates?.[0]?.[0] && (
                         <div style={{ marginTop: '32px', height: '300px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #eee' }}>
                             <FieldMap
                                 center={[selectedInfra.boundary.coordinates[0][0][1], selectedInfra.boundary.coordinates[0][0][0]]}
