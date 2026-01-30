@@ -35,6 +35,17 @@ const useActivityStore = create((set, get) => ({
         }
     },
 
+    logActivity: async (activityData) => {
+        try {
+            const response = await api.post('/activities', activityData);
+            set((state) => ({ activities: [...state.activities, response.data] }));
+            return response.data;
+        } catch (error) {
+            console.error('[ActivityStore] logActivity error:', error);
+            throw error;
+        }
+    },
+
     updateActivity: async (id, activityData) => {
         try {
             const response = await api.put(`/activities/${id}`, activityData);

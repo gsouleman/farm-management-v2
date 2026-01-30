@@ -3,14 +3,17 @@ import useActivityStore from '../../store/activityStore';
 import useInventoryStore from '../../store/inventoryStore';
 import useFarmStore from '../../store/farmStore';
 import useCropStore from '../../store/cropStore';
+import { INFRASTRUCTURE_TYPES } from '../../constants/agriculturalData';
 
-const ActivityForm = ({ fieldId, cropId, onComplete, initialData }) => {
-    const { createActivity, updateActivity } = useActivityStore();
+const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData }) => {
+    const { logActivity, updateActivity } = useActivityStore();
     const { inputs: inventory, fetchInputs } = useInventoryStore();
     const { crops, fetchCropsByFarm } = useCropStore();
-    const { currentFarm } = useFarmStore();
+    const { currentFarm, fields, fetchFields } = useFarmStore();
 
-    const [internalSelectedCropId, setInternalSelectedCropId] = useState('');
+    const [selectedFieldId, setSelectedFieldId] = useState(initialFieldId || '');
+    const [selectedCropId, setSelectedCropId] = useState(cropId || '');
+
     const [formData, setFormData] = useState({
         activity_type: 'planting',
         activity_date: new Date().toISOString().split('T')[0],
@@ -38,7 +41,8 @@ const ActivityForm = ({ fieldId, cropId, onComplete, initialData }) => {
                 quantity_used: initialData.Inputs?.[0]?.ActivityInput?.quantity_used || '',
                 application_rate: initialData.Inputs?.[0]?.ActivityInput?.application_rate || ''
             });
-            if (initialData.crop_id) setInternalSelectedCropId(initialData.crop_id);
+            if (initialData.field_id) setSelectedFieldId(initialData.field_id);
+            if (initialData.crop_id) setSelectedCropId(initialData.crop_id);
         }
     }, [initialData]);
 
@@ -47,24 +51,26 @@ const ActivityForm = ({ fieldId, cropId, onComplete, initialData }) => {
     useEffect(() => {
         if (currentFarm) {
             fetchInputs(currentFarm.id);
-            if (!cropId) {
-                fetchCropsByFarm(currentFarm.id);
-            }
+            fetchFields(currentFarm.id);
+            fetchCropsByFarm(currentFarm.id);
         }
-    }, [currentFarm, fetchInputs, fetchCropsByFarm, cropId]);
+    }, [currentFarm, fetchInputs, fetchFields, fetchCropsByFarm]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const finalCropId = cropId || internalSelectedCropId;
-        if (!finalCropId) {
-            alert('Please select a crop for this activity.');
+        if (!selectedFieldId) {
+            alert('Please select a target field for this activity.');
             return;
         }
 
         setLoading(true);
         try {
-            const payload = { ...formData };
+            const payload = {
+                ...formData,
+                field_id: selectedFieldId,
+                crop_id: selectedCropId || null
+            };
 
             // Structure inputs array if an item is selected
             if (formData.input_id && formData.quantity_used) {
@@ -80,18 +86,9 @@ const ActivityForm = ({ fieldId, cropId, onComplete, initialData }) => {
             }
 
             if (initialData?.id) {
-                await updateActivity(initialData.id, {
-                    ...payload,
-                    field_id: fieldId || initialData.field_id
-                });
+                await updateActivity(initialData.id, payload);
             } else {
-                // Find the field_id from the selected crop if not provided
-                const targetFieldId = fieldId || crops.find(c => c.id === finalCropId)?.field_id;
-
-                await createActivity(finalCropId, {
-                    ...payload,
-                    field_id: targetFieldId
-                });
+                await logActivity(payload);
             }
             if (onComplete) onComplete();
         } catch (error) {
@@ -102,31 +99,49 @@ const ActivityForm = ({ fieldId, cropId, onComplete, initialData }) => {
         }
     };
 
+    // Filter crops based on selected field
+    const filteredCrops = crops.filter(c => c.field_id === selectedFieldId);
+
     return (
         <div className="card animate-fade-in" style={{ maxWidth: '850px', margin: '0 auto' }}>
             <div className="card-header">
                 <h3 style={{ margin: 0, fontSize: '18px' }}>Log Field Operation</h3>
             </div>
             <form onSubmit={handleSubmit}>
-                {!cropId && (
-                    <div style={{ marginBottom: '20px', padding: '16px', backgroundColor: '#e8f5e9', borderRadius: '8px', border: '1px solid #c8e6c9' }}>
-                        <label style={{ color: '#2e7d32', fontWeight: 'bold' }}>Target Crop / Cultivation</label>
-                        <div style={{ fontSize: '11px', color: '#666', marginBottom: '8px' }}>Since you are logging from the global operations page, please specify which crop this activity belongs to.</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px', padding: '16px', backgroundColor: '#f0f4f8', borderRadius: '8px', border: '1px solid #d1d9e6' }}>
+                    <div>
+                        <label style={{ color: '#2c5282', fontWeight: 'bold' }}>Target Field</label>
                         <select
-                            value={internalSelectedCropId}
-                            onChange={(e) => setInternalSelectedCropId(e.target.value)}
+                            value={selectedFieldId}
+                            onChange={(e) => {
+                                setSelectedFieldId(e.target.value);
+                                setSelectedCropId(''); // Reset crop when field changes
+                            }}
                             required
-                            style={{ borderColor: '#2e7d32' }}
+                            style={{ borderColor: '#2c5282' }}
                         >
-                            <option value="">-- Select Crop --</option>
-                            {crops.map(crop => (
+                            <option value="">-- Select Field --</option>
+                            {fields.map(field => (
+                                <option key={field.id} value={field.id}>{field.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <label style={{ color: '#4a5568', fontWeight: 'bold' }}>Associated Crop (Optional)</label>
+                        <select
+                            value={selectedCropId}
+                            onChange={(e) => setSelectedCropId(e.target.value)}
+                            disabled={!selectedFieldId}
+                        >
+                            <option value="">-- No Specific Crop --</option>
+                            {filteredCrops.map(crop => (
                                 <option key={crop.id} value={crop.id}>
-                                    {crop.crop_type} ({crop.variety}) - {crop.Field?.name}
+                                    {crop.crop_type} ({crop.variety})
                                 </option>
                             ))}
                         </select>
                     </div>
-                )}
+                </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                     <div>
@@ -136,19 +151,28 @@ const ActivityForm = ({ fieldId, cropId, onComplete, initialData }) => {
                             onChange={(e) => setFormData({ ...formData, activity_type: e.target.value })}
                             required
                         >
-                            <option value="planting">Planting</option>
-                            <option value="fertilizing">Fertilizing</option>
-                            <option value="spraying">Spraying / Protection</option>
-                            <option value="irrigation">Irrigation</option>
-                            <option value="tillage">Tillage / Cultivation</option>
-                            <option value="harvesting">Harvesting</option>
-                            <option value="scouting">Scouting / Inspection</option>
-                            <option value="pruning">Pruning</option>
-                            <option value="thinning">Thinning</option>
-                            <option value="mowing">Mowing</option>
-                            <option value="mulching">Mulching</option>
-                            <option value="soil_sampling">Soil Sampling</option>
-                            <option value="maintenance">Maintenance</option>
+                            <optgroup label="Field Operations">
+                                <option value="planting">Planting</option>
+                                <option value="fertilizing">Fertilizing</option>
+                                <option value="spraying">Spraying / Protection</option>
+                                <option value="irrigation">Irrigation</option>
+                                <option value="tillage">Tillage / Cultivation</option>
+                                <option value="harvesting">Harvesting</option>
+                                <option value="scouting">Scouting / Inspection</option>
+                                <option value="pruning">Pruning</option>
+                                <option value="thinning">Thinning</option>
+                                <option value="mowing">Mowing</option>
+                                <option value="mulching">Mulching</option>
+                                <option value="soil_sampling">Soil Sampling</option>
+                                <option value="maintenance">General Maintenance</option>
+                            </optgroup>
+                            <optgroup label="Infrastructure Related">
+                                {INFRASTRUCTURE_TYPES.map(type => (
+                                    <option key={type.id} value={type.id}>
+                                        {type.icon} {type.label}
+                                    </option>
+                                ))}
+                            </optgroup>
                         </select>
                     </div>
                     <div>
