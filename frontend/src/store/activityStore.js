@@ -41,7 +41,11 @@ const useActivityStore = create((set, get) => ({
             set((state) => ({ activities: [...state.activities, response.data] }));
             return response.data;
         } catch (error) {
-            console.error('[ActivityStore] logActivity error:', error);
+            console.error('[ActivityStore] logActivity error details:', {
+                status: error.response?.status,
+                data: error.response?.data,
+                message: error.message
+            });
             throw error;
         }
     },
@@ -54,6 +58,11 @@ const useActivityStore = create((set, get) => ({
             }));
             return response.data;
         } catch (error) {
+            console.error('[ActivityStore] updateActivity error details:', {
+                status: error.response?.status,
+                data: error.response?.data,
+                message: error.message
+            });
             throw error;
         }
     },

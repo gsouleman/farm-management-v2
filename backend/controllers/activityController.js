@@ -14,10 +14,20 @@ const getVal = (row, ...keys) => {
     }
     return null;
 };
+
+const isValidUUID = (id) => {
+    if (!id) return false;
+    const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    return regex.test(id);
+};
 const path = require('path');
 
 const sanitizeUUID = (val) => {
     if (val === '' || val === undefined || val === null || val === 'null' || val === 'undefined') return null;
+    if (typeof val !== 'string' || !isValidUUID(val)) {
+        console.warn(`[SanitizeUUID] Invalid UUID format skipped: ${val}`);
+        return null;
+    }
     return val;
 };
 
@@ -78,7 +88,8 @@ exports.getFarmActivities = async (req, res) => {
 exports.createActivity = async (req, res) => {
     try {
         const activityData = {
-            ...req.body,
+            activity_type: req.body.activity_type || 'planting',
+            activity_date: req.body.activity_date || new Date().toISOString().split('T')[0],
             performed_by: req.user.id,
             farm_id: sanitizeUUID(req.body.farm_id),
             crop_id: sanitizeUUID(req.body.crop_id),
@@ -97,9 +108,25 @@ exports.createActivity = async (req, res) => {
             area_covered: sanitizeNum(req.body.area_covered),
             duration_hours: sanitizeNum(req.body.duration_hours),
             temperature: sanitizeNum(req.body.temperature),
-            num_workers: Math.round(sanitizeNum(req.body.num_workers, 0))
+            num_workers: Math.round(sanitizeNum(req.body.num_workers, 0)),
+            description: String(req.body.description || ''),
+            notes: String(req.body.notes || ''),
+            priority: req.body.priority,
+            work_status: req.body.work_status,
+            start_time: req.body.start_time,
+            end_time: req.body.end_time,
+            weather_conditions: req.body.weather_conditions,
+            equipment_used: req.body.equipment_used,
+            component: req.body.component,
+            materials_used: req.body.materials_used,
+            issues: req.body.issues,
+            supplier_name: req.body.supplier_name,
+            supplier_contact: req.body.supplier_contact,
+            invoice_number: req.body.invoice_number,
+            warranty: req.body.warranty,
+            payment_method: req.body.payment_method
         };
-        console.log('[CreateActivity] Payload received:', JSON.stringify(activityData, null, 2));
+        console.log('[CreateActivity] Cleansed payload:', JSON.stringify(activityData, null, 2));
 
         const activity = await Activity.create(activityData);
 
@@ -153,8 +180,10 @@ exports.createActivity = async (req, res) => {
             });
         }
         res.status(500).json({
-            message: 'Error creating activity',
+            message: 'Internal server error create activity',
             error: error.message,
+            detail: error.original ? error.original.detail : undefined,
+            hint: error.original ? error.original.hint : undefined,
             stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
         });
     }
