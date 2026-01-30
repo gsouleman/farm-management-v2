@@ -125,12 +125,12 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
                     </h3>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
                         <div className="form-group">
-                            <label style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Operational Date</label>
-                            <input type="date" value={formData.activity_date} onChange={e => setFormData({ ...formData, activity_date: e.target.value })} required style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px' }} />
+                            <label htmlFor="activity_date" style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Operational Date</label>
+                            <input id="activity_date" name="activity_date" type="date" value={formData.activity_date} onChange={e => setFormData({ ...formData, activity_date: e.target.value })} required style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px' }} />
                         </div>
                         <div className="form-group">
-                            <label style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Component / Segment Identifier</label>
-                            <input type="text" placeholder="e.g. CORE-PUMP-01" value={formData.component} onChange={e => setFormData({ ...formData, component: e.target.value })} style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px' }} />
+                            <label htmlFor="component" style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Component / Segment Identifier</label>
+                            <input id="component" name="component" type="text" placeholder="e.g. CORE-PUMP-01" value={formData.component} onChange={e => setFormData({ ...formData, component: e.target.value })} style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px' }} />
                         </div>
                     </div>
                 </div>
@@ -142,8 +142,8 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
                     </h3>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '30px', marginBottom: '24px' }}>
                         <div className="form-group">
-                            <label style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Operation Category</label>
-                            <select value={formData.activity_type} onChange={e => setFormData({ ...formData, activity_type: e.target.value })} required style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px', fontWeight: '700' }}>
+                            <label htmlFor="activity_type" style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Operation Category</label>
+                            <select id="activity_type" name="activity_type" value={formData.activity_type} onChange={e => setFormData({ ...formData, activity_type: e.target.value })} required style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px', fontWeight: '700' }}>
                                 <option value="installation">New Installation</option>
                                 <option value="maintenance">Routine Maintenance</option>
                                 <option value="repair">Repair</option>
@@ -154,8 +154,8 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
                             </select>
                         </div>
                         <div className="form-group">
-                            <label style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Priority Matrix</label>
-                            <select value={formData.priority} onChange={e => setFormData({ ...formData, priority: e.target.value })} style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px', fontWeight: '700' }}>
+                            <label htmlFor="priority" style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Priority Matrix</label>
+                            <select id="priority" name="priority" value={formData.priority} onChange={e => setFormData({ ...formData, priority: e.target.value })} style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px', fontWeight: '700' }}>
                                 <option value="low">Standard (Low)</option>
                                 <option value="medium">Optimized (Medium)</option>
                                 <option value="high">Urgent (High)</option>
@@ -163,16 +163,18 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
                             </select>
                         </div>
                         <div className="form-group">
-                            <label style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Transaction Protocol</label>
-                            <select value={formData.transaction_type} onChange={e => setFormData({ ...formData, transaction_type: e.target.value })} required style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px', fontWeight: '700', backgroundColor: formData.transaction_type === 'income' ? '#f0fff4' : '#fff5f5' }}>
+                            <label htmlFor="transaction_type" style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Transaction Protocol</label>
+                            <select id="transaction_type" name="transaction_type" value={formData.transaction_type} onChange={e => setFormData({ ...formData, transaction_type: e.target.value })} required style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px', fontWeight: '700', backgroundColor: formData.transaction_type === 'income' ? '#f0fff4' : '#fff5f5' }}>
                                 <option value="expense">📉 Operational Expense</option>
                                 <option value="income">💰 Operational Income</option>
                             </select>
                         </div>
                     </div>
                     <div className="form-group">
-                        <label style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Summary of Actions Performed</label>
+                        <label htmlFor="description" style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Summary of Actions Performed</label>
                         <textarea
+                            id="description"
+                            name="description"
                             value={formData.description}
                             onChange={e => setFormData({ ...formData, description: e.target.value })}
                             placeholder="Detailed technical description..."
@@ -190,10 +192,10 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '32px' }}>
                         {['labor_cost', 'material_cost', 'equipment_cost', 'service_cost', 'transport_cost', 'other_cost'].map(field => (
                             <div key={field} className="form-group">
-                                <label style={{ fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', color: '#777', marginBottom: '4px', display: 'block' }}>{field.replace('_', ' ')}</label>
+                                <label htmlFor={field} style={{ fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', color: '#777', marginBottom: '4px', display: 'block' }}>{field.replace('_', ' ')}</label>
                                 <div style={{ display: 'flex', alignItems: 'center' }}>
                                     <span style={{ backgroundColor: '#f0f0f0', border: '2px solid #ddd', borderRight: 'none', padding: '12px', fontWeight: '900', fontSize: '12px' }}>XAF</span>
-                                    <input type="number" value={formData[field]} onChange={e => setFormData({ ...formData, [field]: e.target.value })} style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px' }} />
+                                    <input id={field} name={field} type="number" value={formData[field]} onChange={e => setFormData({ ...formData, [field]: e.target.value })} style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px' }} />
                                 </div>
                             </div>
                         ))}
@@ -207,8 +209,8 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
                             </div>
                         </div>
                         <div className="form-group">
-                            <label style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Payment Protocol</label>
-                            <select value={formData.payment_method} onChange={e => setFormData({ ...formData, payment_method: e.target.value })} style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px', fontWeight: '700' }}>
+                            <label htmlFor="payment_method" style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Payment Protocol</label>
+                            <select id="payment_method" name="payment_method" value={formData.payment_method} onChange={e => setFormData({ ...formData, payment_method: e.target.value })} style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px', fontWeight: '700' }}>
                                 <option value="cash">Cash Settlement</option>
                                 <option value="bank_transfer">Electronic Transfer</option>
                                 <option value="mobile_money">Mobile Payment</option>

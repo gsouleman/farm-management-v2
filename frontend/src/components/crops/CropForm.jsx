@@ -106,8 +106,10 @@ const CropForm = ({ fieldId, onComplete }) => {
             </div>
             <form onSubmit={handleSubmit} style={{ padding: '24px' }}>
                 <div style={{ marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid #edf2f7' }}>
-                    <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>TARGET FIELD FOR CULTIVATION</label>
+                    <label htmlFor="field_id" style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>TARGET FIELD FOR CULTIVATION</label>
                     <select
+                        id="field_id"
+                        name="field_id"
                         value={selectedFieldId}
                         onChange={(e) => setSelectedFieldId(e.target.value)}
                         required
@@ -124,8 +126,10 @@ const CropForm = ({ fieldId, onComplete }) => {
                 {/* Crop Selection Section */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '24px' }}>
                     <div>
-                        <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Crop Type</label>
+                        <label htmlFor="crop_type" style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Crop Type</label>
                         <select
+                            id="crop_type"
+                            name="crop_type"
                             value={formData.crop_type}
                             onChange={(e) => setFormData({ ...formData, crop_type: e.target.value, variety: '' })}
                             required
@@ -143,8 +147,10 @@ const CropForm = ({ fieldId, onComplete }) => {
                         </select>
                     </div>
                     <div>
-                        <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Variety / Hybrid</label>
+                        <label htmlFor="variety" style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Variety / Hybrid</label>
                         <input
+                            id="variety"
+                            name="variety"
                             list="variety-presets"
                             type="text"
                             placeholder="Select or enter variety"
@@ -159,8 +165,10 @@ const CropForm = ({ fieldId, onComplete }) => {
                         </datalist>
                     </div>
                     <div>
-                        <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Crop Year</label>
+                        <label htmlFor="year" style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Crop Year</label>
                         <input
+                            id="year"
+                            name="year"
                             type="number"
                             value={formData.year}
                             onChange={(e) => setFormData({ ...formData, year: e.target.value })}
@@ -173,8 +181,10 @@ const CropForm = ({ fieldId, onComplete }) => {
                 {/* Timing Section */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '24px' }}>
                     <div>
-                        <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Season</label>
+                        <label htmlFor="season" style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Season</label>
                         <input
+                            id="season"
+                            name="season"
                             type="text"
                             placeholder="e.g. Spring 2026"
                             value={formData.season}
@@ -183,8 +193,10 @@ const CropForm = ({ fieldId, onComplete }) => {
                         />
                     </div>
                     <div>
-                        <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Planting Date</label>
+                        <label htmlFor="planting_date" style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Planting Date</label>
                         <input
+                            id="planting_date"
+                            name="planting_date"
                             type="date"
                             value={formData.planting_date}
                             onChange={(e) => setFormData({ ...formData, planting_date: e.target.value })}
@@ -193,8 +205,10 @@ const CropForm = ({ fieldId, onComplete }) => {
                         />
                     </div>
                     <div>
-                        <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Exp. Harvest Date</label>
+                        <label htmlFor="expected_harvest_date" style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Exp. Harvest Date</label>
                         <input
+                            id="expected_harvest_date"
+                            name="expected_harvest_date"
                             type="date"
                             value={formData.expected_harvest_date}
                             onChange={(e) => setFormData({ ...formData, expected_harvest_date: e.target.value })}
@@ -244,8 +258,10 @@ const CropForm = ({ fieldId, onComplete }) => {
                     <h4 style={{ fontSize: '11px', color: '#2b6cb0', marginBottom: '16px', letterSpacing: '0.05em', textTransform: 'uppercase', paddingBottom: '8px', borderBottom: '1px solid #e2e8f0' }}>PLANTING SPECIFICATIONS</h4>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
                         <div>
-                            <label style={{ fontSize: '12px', color: '#4a5568', marginBottom: '6px', display: 'block' }}>Area (ha)</label>
+                            <label htmlFor="planted_area" style={{ fontSize: '12px', color: '#4a5568', marginBottom: '6px', display: 'block' }}>Area (ha)</label>
                             <input
+                                id="planted_area"
+                                name="planted_area"
                                 type="number"
                                 step="0.01"
                                 value={formData.planted_area}
@@ -254,8 +270,10 @@ const CropForm = ({ fieldId, onComplete }) => {
                             />
                         </div>
                         <div>
-                            <label style={{ fontSize: '12px', color: '#4a5568', marginBottom: '6px', display: 'block' }}>Rate (seeds/ha)</label>
+                            <label htmlFor="planting_rate" style={{ fontSize: '12px', color: '#4a5568', marginBottom: '6px', display: 'block' }}>Rate (seeds/ha)</label>
                             <input
+                                id="planting_rate"
+                                name="planting_rate"
                                 type="number"
                                 step="0.01"
                                 value={formData.planting_rate}
@@ -264,8 +282,10 @@ const CropForm = ({ fieldId, onComplete }) => {
                             />
                         </div>
                         <div>
-                            <label style={{ fontSize: '12px', color: '#4a5568', marginBottom: '6px', display: 'block' }}>Spacing (cm)</label>
+                            <label htmlFor="row_spacing" style={{ fontSize: '12px', color: '#4a5568', marginBottom: '6px', display: 'block' }}>Spacing (cm)</label>
                             <input
+                                id="row_spacing"
+                                name="row_spacing"
                                 type="number"
                                 step="0.1"
                                 value={formData.row_spacing}
@@ -278,8 +298,10 @@ const CropForm = ({ fieldId, onComplete }) => {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
                     <div>
-                        <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Current Status</label>
+                        <label htmlFor="status" style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Current Status</label>
                         <select
+                            id="status"
+                            name="status"
                             value={formData.status}
                             onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                             style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
@@ -290,8 +312,10 @@ const CropForm = ({ fieldId, onComplete }) => {
                         </select>
                     </div>
                     <div>
-                        <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Budgeted Cost (XAF)</label>
+                        <label htmlFor="estimated_cost" style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Budgeted Cost (XAF)</label>
                         <input
+                            id="estimated_cost"
+                            name="estimated_cost"
                             type="number"
                             placeholder="e.g. 500000"
                             value={formData.estimated_cost}
@@ -302,8 +326,10 @@ const CropForm = ({ fieldId, onComplete }) => {
                 </div>
 
                 <div style={{ marginBottom: '24px' }}>
-                    <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Internal Monitoring Notes</label>
+                    <label htmlFor="notes" style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Internal Monitoring Notes</label>
                     <textarea
+                        id="notes"
+                        name="notes"
                         value={formData.notes}
                         onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                         placeholder="Details about seed quality, depth, or moisture at planting..."

@@ -118,8 +118,10 @@ const FieldForm = ({ onComplete }) => {
                     <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px', marginBottom: '16px' }}>
                             <div>
-                                <label>Field Name</label>
+                                <label htmlFor="name">Field Name</label>
                                 <input
+                                    id="name"
+                                    name="name"
                                     type="text"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -127,8 +129,10 @@ const FieldForm = ({ onComplete }) => {
                                 />
                             </div>
                             <div>
-                                <label>Lot #</label>
+                                <label htmlFor="field_number">Lot #</label>
                                 <input
+                                    id="field_number"
+                                    name="field_number"
                                     type="text"
                                     value={formData.field_number}
                                     onChange={(e) => setFormData({ ...formData, field_number: e.target.value })}
@@ -138,8 +142,10 @@ const FieldForm = ({ onComplete }) => {
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
                             <div>
-                                <label>Soil Type</label>
+                                <label htmlFor="soil_type">Soil Type</label>
                                 <select
+                                    id="soil_type"
+                                    name="soil_type"
                                     value={formData.soil_type}
                                     onChange={(e) => setFormData({ ...formData, soil_type: e.target.value })}
                                 >
@@ -154,8 +160,10 @@ const FieldForm = ({ onComplete }) => {
                                 </select>
                             </div>
                             <div>
-                                <label>Drainage</label>
+                                <label htmlFor="drainage">Drainage</label>
                                 <select
+                                    id="drainage"
+                                    name="drainage"
                                     value={formData.drainage}
                                     onChange={(e) => setFormData({ ...formData, drainage: e.target.value })}
                                 >
@@ -171,8 +179,10 @@ const FieldForm = ({ onComplete }) => {
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
                             <div>
-                                <label>Slope</label>
+                                <label htmlFor="slope">Slope</label>
                                 <select
+                                    id="slope"
+                                    name="slope"
                                     value={formData.slope}
                                     onChange={(e) => setFormData({ ...formData, slope: e.target.value })}
                                 >
@@ -184,8 +194,10 @@ const FieldForm = ({ onComplete }) => {
                                 </select>
                             </div>
                             <div>
-                                <label>Area Unit</label>
+                                <label htmlFor="area_unit">Area Unit</label>
                                 <select
+                                    id="area_unit"
+                                    name="area_unit"
                                     value={formData.area_unit}
                                     onChange={(e) => setFormData({ ...formData, area_unit: e.target.value })}
                                 >
@@ -197,19 +209,22 @@ const FieldForm = ({ onComplete }) => {
 
                         <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <input
+                                id="irrigation-toggle"
+                                name="irrigation"
                                 type="checkbox"
                                 checked={formData.irrigation}
                                 onChange={(e) => setFormData({ ...formData, irrigation: e.target.checked })}
                                 style={{ width: 'auto' }}
-                                id="irrigation-toggle"
                             />
                             <label htmlFor="irrigation-toggle" style={{ margin: 0 }}>Irrigation Available</label>
                         </div>
                     </div>
 
                     <div className="card" style={{ background: 'var(--bg-main)', borderStyle: 'dashed', padding: '16px', marginBottom: '16px' }}>
-                        <label style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>OR PASTE BOUNDARY COORDINATES (lat,lng)</label>
+                        <label htmlFor="boundary_manual" style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>OR PASTE BOUNDARY COORDINATES (lat,lng)</label>
                         <textarea
+                            id="boundary_manual"
+                            name="boundary_manual"
                             rows="4"
                             value={coordsText}
                             onChange={handleCoordsChange}
@@ -229,8 +244,10 @@ const FieldForm = ({ onComplete }) => {
                     </div>
 
                     <div style={{ marginBottom: '20px' }}>
-                        <label>Operational Notes</label>
+                        <label htmlFor="notes">Operational Notes</label>
                         <textarea
+                            id="notes"
+                            name="notes"
                             value={formData.notes}
                             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                             rows="3"

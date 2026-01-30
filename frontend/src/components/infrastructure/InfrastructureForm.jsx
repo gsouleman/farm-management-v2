@@ -113,9 +113,11 @@ const InfrastructureForm = ({ farmId, onComplete, initialData = null }) => {
             </div>
             <form onSubmit={handleSubmit} style={{ padding: '24px' }}>
                 <div style={{ marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid #edf2f7' }}>
-                    <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>TARGET FIELD (OPTIONAL)</label>
+                    <label htmlFor="field_id" style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>TARGET FIELD (OPTIONAL)</label>
                     <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '12px' }}>Select a field to center the map and allocate the structure within its boundaries.</p>
                     <select
+                        id="field_id"
+                        name="field_id"
                         value={selectedFieldId}
                         onChange={(e) => setSelectedFieldId(e.target.value)}
                         style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
@@ -129,8 +131,10 @@ const InfrastructureForm = ({ farmId, onComplete, initialData = null }) => {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '24px' }}>
                     <div>
-                        <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Asset Name</label>
+                        <label htmlFor="name" style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Asset Name</label>
                         <input
+                            id="name"
+                            name="name"
                             type="text"
                             placeholder="e.g. Main Warehouse"
                             value={formData.name}
@@ -140,8 +144,10 @@ const InfrastructureForm = ({ farmId, onComplete, initialData = null }) => {
                         />
                     </div>
                     <div>
-                        <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Type</label>
+                        <label htmlFor="type" style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Type</label>
                         <select
+                            id="type"
+                            name="type"
                             value={formData.type}
                             onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                             required
@@ -154,8 +160,10 @@ const InfrastructureForm = ({ farmId, onComplete, initialData = null }) => {
                         </select>
                     </div>
                     <div>
-                        <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Status</label>
+                        <label htmlFor="status" style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Status</label>
                         <select
+                            id="status"
+                            name="status"
                             value={formData.status}
                             onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                             style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
@@ -176,8 +184,10 @@ const InfrastructureForm = ({ farmId, onComplete, initialData = null }) => {
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(240px, 1fr) 2fr', height: '400px' }}>
                         <div style={{ padding: '16px', backgroundColor: '#f1f5f9', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
-                            <label style={{ fontSize: '11px', fontWeight: 'bold', marginBottom: '8px', color: '#4a5568' }}>SURVEY COORDINATES (LAT, LNG)</label>
+                            <label htmlFor="boundary_manual" style={{ fontSize: '11px', fontWeight: 'bold', marginBottom: '8px', color: '#4a5568' }}>SURVEY COORDINATES (LAT, LNG)</label>
                             <textarea
+                                id="boundary_manual"
+                                name="boundary_manual"
                                 value={formData.boundary_manual}
                                 onChange={(e) => handleManualCoordsChange(e.target.value)}
                                 placeholder="4.05, 9.71&#10;4.06, 9.71..."
@@ -216,8 +226,10 @@ const InfrastructureForm = ({ farmId, onComplete, initialData = null }) => {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
                     <div>
-                        <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Construction Date</label>
+                        <label htmlFor="construction_date" style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Construction Date</label>
                         <input
+                            id="construction_date"
+                            name="construction_date"
                             type="date"
                             value={formData.construction_date}
                             onChange={(e) => setFormData({ ...formData, construction_date: e.target.value })}
@@ -225,8 +237,10 @@ const InfrastructureForm = ({ farmId, onComplete, initialData = null }) => {
                         />
                     </div>
                     <div>
-                        <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Asset Cost (XAF)</label>
+                        <label htmlFor="cost" style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Asset Cost (XAF)</label>
                         <input
+                            id="cost"
+                            name="cost"
                             type="text"
                             value={parseFloat(formData.cost || 0).toLocaleString()}
                             readOnly
@@ -237,8 +251,10 @@ const InfrastructureForm = ({ farmId, onComplete, initialData = null }) => {
                 </div>
 
                 <div style={{ marginBottom: '24px' }}>
-                    <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Additional Notes</label>
+                    <label htmlFor="notes" style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Additional Notes</label>
                     <textarea
+                        id="notes"
+                        name="notes"
                         value={formData.notes}
                         onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                         placeholder="Details about building materials, purpose, etc."

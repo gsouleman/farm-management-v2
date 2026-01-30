@@ -137,8 +137,10 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
             <form onSubmit={handleSubmit}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px', padding: '16px', backgroundColor: '#f0f4f8', borderRadius: '8px', border: '1px solid #d1d9e6' }}>
                     <div>
-                        <label style={{ color: '#2c5282', fontWeight: 'bold' }}>Target Field</label>
+                        <label htmlFor="field_id" style={{ color: '#2c5282', fontWeight: 'bold' }}>Target Field</label>
                         <select
+                            id="field_id"
+                            name="field_id"
                             value={selectedFieldId}
                             onChange={(e) => {
                                 setSelectedFieldId(e.target.value);
@@ -154,8 +156,10 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                         </select>
                     </div>
                     <div>
-                        <label style={{ color: '#4a5568', fontWeight: 'bold' }}>Associated Operation</label>
+                        <label htmlFor="associated_id" style={{ color: '#4a5568', fontWeight: 'bold' }}>Associated Operation</label>
                         <select
+                            id="associated_id"
+                            name="associated_id"
                             value={associatedOperation.type && associatedOperation.id ? `${associatedOperation.type}:${associatedOperation.id}` : ''}
                             onChange={(e) => {
                                 const [type, id] = e.target.value.split(':');
@@ -187,8 +191,10 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                     <div>
-                        <label>Activity Type</label>
+                        <label htmlFor="activity_type">Activity Type</label>
                         <select
+                            id="activity_type"
+                            name="activity_type"
                             value={formData.activity_type}
                             onChange={(e) => setFormData({ ...formData, activity_type: e.target.value })}
                             required
@@ -211,8 +217,10 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                         </select>
                     </div>
                     <div>
-                        <label>Transaction Category</label>
+                        <label htmlFor="transaction_type">Transaction Category</label>
                         <select
+                            id="transaction_type"
+                            name="transaction_type"
                             value={formData.transaction_type}
                             onChange={(e) => setFormData({ ...formData, transaction_type: e.target.value })}
                             required
@@ -222,8 +230,10 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                         </select>
                     </div>
                     <div>
-                        <label>Operation Date</label>
+                        <label htmlFor="activity_date">Operation Date</label>
                         <input
+                            id="activity_date"
+                            name="activity_date"
                             type="date"
                             value={formData.activity_date}
                             onChange={(e) => setFormData({ ...formData, activity_date: e.target.value })}
@@ -231,8 +241,10 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                         />
                     </div>
                     <div>
-                        <label>Area Covered (ha)</label>
+                        <label htmlFor="area_covered">Area Covered (ha)</label>
                         <input
+                            id="area_covered"
+                            name="area_covered"
                             type="number"
                             step="0.01"
                             value={formData.area_covered}
@@ -245,24 +257,30 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                     <h4 style={{ fontSize: '12px', color: 'var(--primary)', marginBottom: '12px', borderBottom: '1px solid #eee', paddingBottom: '6px' }}>TIMING & COST</h4>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
                         <div>
-                            <label style={{ fontSize: '11px' }}>Start Time</label>
+                            <label htmlFor="start_time" style={{ fontSize: '11px' }}>Start Time</label>
                             <input
+                                id="start_time"
+                                name="start_time"
                                 type="time"
                                 value={formData.start_time}
                                 onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
                             />
                         </div>
                         <div>
-                            <label style={{ fontSize: '11px' }}>End Time</label>
+                            <label htmlFor="end_time" style={{ fontSize: '11px' }}>End Time</label>
                             <input
+                                id="end_time"
+                                name="end_time"
                                 type="time"
                                 value={formData.end_time}
                                 onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
                             />
                         </div>
                         <div>
-                            <label style={{ fontSize: '11px' }}>Duration (h)</label>
+                            <label htmlFor="duration_hours" style={{ fontSize: '11px' }}>Duration (h)</label>
                             <input
+                                id="duration_hours"
+                                name="duration_hours"
                                 type="number"
                                 step="0.1"
                                 value={formData.duration_hours}
@@ -270,8 +288,10 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                             />
                         </div>
                         <div>
-                            <label style={{ fontSize: '11px' }}>Labor Cost (XAF)</label>
+                            <label htmlFor="labor_cost" style={{ fontSize: '11px' }}>Labor Cost (XAF)</label>
                             <input
+                                id="labor_cost"
+                                name="labor_cost"
                                 type="number"
                                 value={formData.labor_cost}
                                 onChange={(e) => setFormData({ ...formData, labor_cost: e.target.value })}
@@ -284,8 +304,10 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                     <h4 style={{ fontSize: '12px', color: '#555', marginBottom: '12px', borderBottom: '1px solid #eee', paddingBottom: '6px' }}>ENVIRONMENT & ASSETS</h4>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr', gap: '16px' }}>
                         <div>
-                            <label style={{ fontSize: '11px' }}>Weather Condition</label>
+                            <label htmlFor="weather_conditions" style={{ fontSize: '11px' }}>Weather Condition</label>
                             <input
+                                id="weather_conditions"
+                                name="weather_conditions"
                                 type="text"
                                 placeholder="Sunny, Wind 5km/h"
                                 value={formData.weather_conditions}
@@ -293,8 +315,10 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                             />
                         </div>
                         <div>
-                            <label style={{ fontSize: '11px' }}>Temp (°C)</label>
+                            <label htmlFor="temperature" style={{ fontSize: '11px' }}>Temp (°C)</label>
                             <input
+                                id="temperature"
+                                name="temperature"
                                 type="number"
                                 step="0.1"
                                 value={formData.temperature}
@@ -302,8 +326,10 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                             />
                         </div>
                         <div>
-                            <label style={{ fontSize: '11px' }}>Machinery / Equipment</label>
+                            <label htmlFor="equipment_used" style={{ fontSize: '11px' }}>Machinery / Equipment</label>
                             <input
+                                id="equipment_used"
+                                name="equipment_used"
                                 type="text"
                                 placeholder="Tractor Model, Sprayer ID"
                                 value={formData.equipment_used}
@@ -318,6 +344,8 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                     <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '10px' }}>Select an item from your inventory to record its usage in this operation.</div>
                     <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '12px' }}>
                         <select
+                            id="input_id"
+                            name="input_id"
                             value={formData.input_id}
                             onChange={(e) => setFormData({ ...formData, input_id: e.target.value })}
                         >
@@ -329,6 +357,8 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                             ))}
                         </select>
                         <input
+                            id="quantity_used"
+                            name="quantity_used"
                             type="number"
                             placeholder="Qty Used"
                             value={formData.quantity_used}
@@ -336,6 +366,8 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                             style={{ fontSize: '12px' }}
                         />
                         <input
+                            id="application_rate"
+                            name="application_rate"
                             type="text"
                             placeholder="Rate (kg/ha)"
                             value={formData.application_rate}
@@ -346,8 +378,10 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                 </div>
 
                 <div style={{ marginBottom: '20px' }}>
-                    <label>Technical Description</label>
+                    <label htmlFor="description">Technical Description</label>
                     <textarea
+                        id="description"
+                        name="description"
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         placeholder="Detailed log of what was performed..."

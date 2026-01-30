@@ -37,8 +37,9 @@ const Login = () => {
 
                 <form onSubmit={handleSubmit}>
                     <div style={{ marginBottom: '20px' }}>
-                        <label>Email Address</label>
+                        <label htmlFor="email">Email Address</label>
                         <input
+                            id="email"
                             type="email"
                             name="email"
                             placeholder="your@email.com"
@@ -49,10 +50,11 @@ const Login = () => {
                     </div>
                     <div style={{ marginBottom: '24px' }}>
                         <div className="flex j-between a-center" style={{ marginBottom: '6px' }}>
-                            <label style={{ margin: 0 }}>Password</label>
+                            <label htmlFor="password" style={{ margin: 0 }}>Password</label>
                             <Link to="#" style={{ fontSize: '12px', color: 'var(--primary)', textDecoration: 'none' }}>Forgot password?</Link>
                         </div>
                         <input
+                            id="password"
                             type="password"
                             name="password"
                             placeholder="••••••••"

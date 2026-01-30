@@ -45,8 +45,9 @@ const Register = () => {
                 <form onSubmit={handleSubmit}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
                         <div>
-                            <label>First Name</label>
+                            <label htmlFor="first_name">First Name</label>
                             <input
+                                id="first_name"
                                 type="text"
                                 name="first_name"
                                 value={formData.first_name}
@@ -55,8 +56,9 @@ const Register = () => {
                             />
                         </div>
                         <div>
-                            <label>Last Name</label>
+                            <label htmlFor="last_name">Last Name</label>
                             <input
+                                id="last_name"
                                 type="text"
                                 name="last_name"
                                 value={formData.last_name}
@@ -66,8 +68,9 @@ const Register = () => {
                         </div>
                     </div>
                     <div style={{ marginBottom: '20px' }}>
-                        <label>Email Address</label>
+                        <label htmlFor="email">Email Address</label>
                         <input
+                            id="email"
                             type="email"
                             name="email"
                             value={formData.email}
@@ -76,8 +79,9 @@ const Register = () => {
                         />
                     </div>
                     <div style={{ marginBottom: '20px' }}>
-                        <label>Phone Number</label>
+                        <label htmlFor="phone">Phone Number</label>
                         <input
+                            id="phone"
                             type="text"
                             name="phone"
                             value={formData.phone}
@@ -85,8 +89,9 @@ const Register = () => {
                         />
                     </div>
                     <div style={{ marginBottom: '24px' }}>
-                        <label>Password</label>
+                        <label htmlFor="password">Password</label>
                         <input
+                            id="password"
                             type="password"
                             name="password"
                             placeholder="At least 8 characters"
