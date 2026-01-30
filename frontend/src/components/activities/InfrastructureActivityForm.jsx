@@ -69,6 +69,7 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
     ]);
 
     const [loading, setLoading] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -94,7 +95,11 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
             } else {
                 await logActivity(payload);
             }
-            if (onComplete) onComplete();
+
+            setShowSuccess(true);
+            setTimeout(() => {
+                if (onComplete) onComplete();
+            }, 1500);
         } catch (error) {
             console.error('[InfrastructureActivityForm] Submission error:', error);
             const serverMsg = error.response?.data?.message || 'Unknown Error';
@@ -124,6 +129,13 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
             </div>
 
             <form onSubmit={handleSubmit} style={{ padding: '40px', backgroundColor: '#fcfcfc' }}>
+                {showSuccess && (
+                    <div className="animate-slide-in" style={{ backgroundColor: '#dcfce7', color: '#166534', padding: '16px', marginBottom: '24px', borderLeft: '4px solid #166534', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <span style={{ fontSize: '20px' }}>✅</span>
+                        DATA SAVED SUCCESSFULLY - SYSTEM ARCHIVED
+                    </div>
+                )}
+
                 <div style={{ backgroundColor: '#000', color: '#fff', padding: '12px 20px', marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '15px' }}>
                     <span style={{ fontSize: '20px' }}>ℹ️</span>
                     <p style={{ fontSize: '13px', fontWeight: '600', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
@@ -236,10 +248,10 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
                 {/* Final Action Buttons */}
                 <div style={{ display: 'flex', gap: '20px', marginTop: '50px' }}>
                     <button type="submit" className="primary" style={{ flex: 2, padding: '20px', borderRadius: '0', backgroundColor: '#000', color: '#fff', fontSize: '14px', fontWeight: '900', border: 'none', textTransform: 'uppercase', letterSpacing: '1px', cursor: 'pointer' }} disabled={loading}>
-                        {loading ? 'SYNCING DATA...' : '💾 ARCHIVE LOG ENTRY'}
+                        {loading ? 'SYNCING DATA...' : '💾 SUBMIT'}
                     </button>
                     <button type="button" onClick={onComplete} className="outline" style={{ flex: 1, padding: '20px', borderRadius: '0', backgroundColor: '#fff', color: '#000', border: '2px solid #000', fontSize: '14px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px', cursor: 'pointer' }}>
-                        ABORT CHANGE
+                        CANCEL
                     </button>
                 </div>
             </form>
