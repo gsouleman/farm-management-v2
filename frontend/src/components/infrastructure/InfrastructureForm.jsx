@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import useInfrastructureStore from '../../store/infrastructureStore';
 import useFarmStore from '../../store/farmStore';
+import useUIStore from '../../store/uiStore';
 import FieldMap from '../fields/FieldMap';
 import { INFRASTRUCTURE_TYPES } from '../../constants/agriculturalData';
 import * as turf from '@turf/turf';
@@ -8,6 +9,7 @@ import * as turf from '@turf/turf';
 const InfrastructureForm = ({ farmId, onComplete, initialData = null }) => {
     const { createInfrastructure, updateInfrastructure, infrastructure } = useInfrastructureStore();
     const { currentFarm, fields } = useFarmStore();
+    const { showNotification } = useUIStore();
 
     const [selectedFieldId, setSelectedFieldId] = useState(initialData?.field_id || '');
     const parentField = (fields || []).find(f => f?.id?.toString() === selectedFieldId);
@@ -68,7 +70,7 @@ const InfrastructureForm = ({ farmId, onComplete, initialData = null }) => {
 
         const targetFarmId = farmId || currentFarm?.id;
         if (!targetFarmId) {
-            alert('Selection Error: Please ensure a farm is selected.');
+            showNotification('Selection Error: Please ensure a farm is selected.', 'error');
             setLoading(false);
             return;
         }
@@ -95,10 +97,11 @@ const InfrastructureForm = ({ farmId, onComplete, initialData = null }) => {
                 await createInfrastructure(targetFarmId, submissionData);
             }
             if (onComplete) onComplete();
+            showNotification(initialData ? 'Infrastructure asset updated successfully.' : 'New infrastructure asset registered successfully.', 'success');
         } catch (error) {
             console.error('Registration failed:', error);
             const serverMsg = error.response?.data?.message || 'Failed to save infrastructure asset';
-            alert(`Error: ${serverMsg}`);
+            showNotification(`ERROR: ${serverMsg}`, 'error');
         } finally {
             setLoading(false);
         }

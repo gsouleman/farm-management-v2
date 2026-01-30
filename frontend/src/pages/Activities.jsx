@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import useFarmStore from '../store/farmStore';
 import useActivityStore from '../store/activityStore';
 import useCropStore from '../store/cropStore';
+import useUIStore from '../store/uiStore';
 import useInfrastructureStore from '../store/infrastructureStore';
 import ActivityForm from '../components/activities/ActivityForm';
 import BulkActivityModal from '../components/activities/BulkActivityModal';
@@ -9,6 +10,7 @@ import BulkActivityModal from '../components/activities/BulkActivityModal';
 const Activities = () => {
     const { currentFarm, fields, fetchFields } = useFarmStore();
     const { activities, fetchActivitiesByFarm, deleteActivity, loading } = useActivityStore();
+    const { showNotification } = useUIStore();
     const { crops, fetchCropsByFarm } = useCropStore();
     const { infrastructure, fetchInfrastructure } = useInfrastructureStore();
     const [view, setView] = useState('list'); // list, add, edit
@@ -39,8 +41,9 @@ const Activities = () => {
         if (window.confirm('Are you sure you want to delete this activity? This will also update associated costs.')) {
             try {
                 await deleteActivity(id);
+                showNotification('Activity record deleted successfully.', 'success');
             } catch (error) {
-                alert('Failed to delete activity.');
+                showNotification('Failed to remove activity record.', 'error');
             }
         }
     };

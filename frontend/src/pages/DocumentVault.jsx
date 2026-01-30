@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import useFarmStore from '../store/farmStore';
 import useDocumentStore from '../store/documentStore';
+import useUIStore from '../store/uiStore';
 
 const DocumentVault = () => {
     const { currentFarm } = useFarmStore();
     const { documents, fetchDocuments, uploadDocument, deleteDocument, loading } = useDocumentStore();
+    const { showNotification } = useUIStore();
     const [selectedFile, setSelectedFile] = useState(null);
     const [metadata, setMetadata] = useState({ document_type: 'photo', description: '' });
 
@@ -19,10 +21,11 @@ const DocumentVault = () => {
         if (!selectedFile) return;
         try {
             await uploadDocument(currentFarm.id, selectedFile, metadata);
+            showNotification('Document uploaded successfully to the vault.', 'success');
             setSelectedFile(null);
             setMetadata({ document_type: 'photo', description: '' });
         } catch (error) {
-            alert('Upload failed');
+            showNotification('Document upload failed. Please try again.', 'error');
         }
     };
 

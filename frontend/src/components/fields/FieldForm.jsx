@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import useFarmStore from '../../store/farmStore';
+import useUIStore from '../../store/uiStore';
 import FieldMap from './FieldMap';
 
 const FieldForm = ({ onComplete }) => {
     const { currentFarm, createField } = useFarmStore();
+    const { showNotification } = useUIStore();
     const [formData, setFormData] = useState({
         name: '',
         field_number: '',
@@ -89,7 +91,7 @@ const FieldForm = ({ onComplete }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (formData.boundary_coordinates.length === 0) {
-            alert('Please draw a field boundary on the map first.');
+            showNotification('Please draw a field boundary on the map first.', 'error');
             return;
         }
 
@@ -99,9 +101,11 @@ const FieldForm = ({ onComplete }) => {
                 ...formData,
                 area: calculatedArea
             });
+            showNotification(`Field ${formData.name} established successfully.`, 'success');
             if (onComplete) onComplete();
         } catch (error) {
             console.error(error);
+            showNotification('Failed to establish field definition.', 'error');
         } finally {
             setLoading(false);
         }

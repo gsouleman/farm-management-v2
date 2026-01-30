@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import useActivityStore from '../../store/activityStore';
 import useFarmStore from '../../store/farmStore';
+import useUIStore from '../../store/uiStore';
 import { INFRASTRUCTURE_TYPES } from '../../constants/agriculturalData';
 
 const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData }) => {
     const { logActivity, updateActivity } = useActivityStore();
     const { currentFarm } = useFarmStore();
+    const { showNotification } = useUIStore();
 
     const [formData, setFormData] = useState({
         activity_date: new Date().toISOString().split('T')[0],
@@ -69,7 +71,6 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
     ]);
 
     const [loading, setLoading] = useState(false);
-    const [showSuccess, setShowSuccess] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -92,21 +93,23 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
 
             if (initialData?.id) {
                 await updateActivity(initialData.id, payload);
+                showNotification('Asset operation updated successfully.', 'success');
             } else {
                 await logActivity(payload);
+                showNotification('DATA SAVED SUCCESSFULLY - SYSTEM ARCHIVED', 'success');
             }
 
-            setShowSuccess(true);
-            setTimeout(() => {
-                if (onComplete) onComplete();
-            }, 1500);
+            if (onComplete) onComplete();
         } catch (error) {
             console.error('[InfrastructureActivityForm] Submission error:', error);
             const serverMsg = error.response?.data?.message || 'Unknown Error';
             const serverErr = error.response?.data?.error || '';
             const serverDetail = error.response?.data?.detail || '';
-            const serverHint = error.response?.data?.hint || '';
-            alert(`INFRASTRUCTURE LOG FAILURE\n------------------\nMessage: ${serverMsg}\nError: ${serverErr}\nDetail: ${serverDetail}\nHint: ${serverHint}\n------------------\nCheck your inputs and try again.`);
+
+            showNotification(
+                `INFRASTRUCTURE LOG FAILURE\n------------------\nMessage: ${serverMsg}\nError: ${serverErr}\nDetail: ${serverDetail}`,
+                'error'
+            );
         } finally {
             setLoading(false);
         }
@@ -129,12 +132,6 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
             </div>
 
             <form onSubmit={handleSubmit} style={{ padding: '40px', backgroundColor: '#fcfcfc' }}>
-                {showSuccess && (
-                    <div className="animate-slide-in" style={{ backgroundColor: '#dcfce7', color: '#166534', padding: '16px', marginBottom: '24px', borderLeft: '4px solid #166534', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <span style={{ fontSize: '20px' }}>✅</span>
-                        DATA SAVED SUCCESSFULLY - SYSTEM ARCHIVED
-                    </div>
-                )}
 
                 <div style={{ backgroundColor: '#000', color: '#fff', padding: '12px 20px', marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '15px' }}>
                     <span style={{ fontSize: '20px' }}>ℹ️</span>

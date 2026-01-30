@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import useFarmStore from '../store/farmStore';
 import api from '../services/api';
+import useUIStore from '../store/uiStore';
 
 const Reports = () => {
     const { currentFarm } = useFarmStore();
+    const { showNotification } = useUIStore();
     const [loading, setLoading] = useState(false);
 
     const handleDownload = async (endpoint, filename) => {
-        if (!currentFarm) return alert('Please select a farm first');
+        if (!currentFarm) return showNotification('Please select a farm first', 'error');
         setLoading(true);
         try {
             const response = await api.get(endpoint, {
@@ -23,9 +25,10 @@ const Reports = () => {
             link.click();
             link.remove();
             window.URL.revokeObjectURL(url);
+            showNotification(`Report ${filename} generated successfully.`, 'success');
         } catch (error) {
             console.error('Report generation failed', error);
-            alert('Failed to generate report. Please ensure the backend is running.');
+            showNotification('Failed to generate report. Please ensure the backend server is reachable.', 'error');
         } finally {
             setLoading(false);
         }

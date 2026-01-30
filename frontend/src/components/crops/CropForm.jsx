@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import useFarmStore from '../../store/farmStore';
 import useCropStore from '../../store/cropStore';
 import useInfrastructureStore from '../../store/infrastructureStore';
+import useUIStore from '../../store/uiStore';
 import FieldMap from '../fields/FieldMap';
 import { CROP_CATEGORIES } from '../../constants/agriculturalData';
 import * as turf from '@turf/turf';
@@ -10,6 +11,7 @@ const CropForm = ({ fieldId, onComplete }) => {
     const { createCrop, crops } = useCropStore();
     const { fields } = useFarmStore();
     const { infrastructure } = useInfrastructureStore();
+    const { showNotification } = useUIStore();
 
     const [selectedFieldId, setSelectedFieldId] = useState(fieldId ? fieldId.toString() : '');
 
@@ -60,7 +62,7 @@ const CropForm = ({ fieldId, onComplete }) => {
         });
 
         if (!targetFieldId) {
-            alert('Selection Error: Please select a valid target field.');
+            showNotification('Selection Error: Please select a valid target field.', 'error');
             setLoading(false);
             return;
         }
@@ -86,14 +88,15 @@ const CropForm = ({ fieldId, onComplete }) => {
             console.log('Normalized Data for Submission:', normalizedData);
 
             await createCrop(targetFieldId, normalizedData);
+            showNotification(`Cultivation record for ${selectedCropLabel} saved successfully.`, 'success');
             if (onComplete) onComplete();
         } catch (error) {
             console.error('Submission failed:', error);
             const serverMsg = error.response?.data?.message || 'Failed to save record';
             const serverError = error.response?.data?.error || '';
-            const details = error.response?.data?.details ? `\n- ${error.response.data.details.join('\n- ')}` : '';
+            const details = error.response?.data?.details ? `\n Details: ${error.response.data.details.join(', ')}` : '';
 
-            alert(`Error: ${serverMsg}${serverError ? ` (${serverError})` : ''}${details}`);
+            showNotification(`ERROR: ${serverMsg}${serverError ? ` (${serverError})` : ''}${details}`, 'error');
         } finally {
             setLoading(false);
         }

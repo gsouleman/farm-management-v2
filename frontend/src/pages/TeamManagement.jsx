@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import useFarmStore from '../store/farmStore';
 import useUserStore from '../store/userStore';
+import useUIStore from '../store/uiStore';
 
 const TeamManagement = () => {
     const { currentFarm } = useFarmStore();
     const { teamMembers, fetchTeamMembers, inviteUser, removeMember, loading } = useUserStore();
+    const { showNotification } = useUIStore();
     const [inviteData, setInviteData] = useState({ email: '', role: 'employee' });
     const [showInviteModal, setShowInviteModal] = useState(false);
 
@@ -18,10 +20,11 @@ const TeamManagement = () => {
         e.preventDefault();
         try {
             await inviteUser(currentFarm.id, inviteData);
+            showNotification(`Invitation sent to ${inviteData.email} successfully.`, 'success');
             setInviteData({ email: '', role: 'employee' });
             setShowInviteModal(false);
         } catch (error) {
-            alert('Failed to send invitation');
+            showNotification('Failed to send invitation. Please verify the email address.', 'error');
         }
     };
 

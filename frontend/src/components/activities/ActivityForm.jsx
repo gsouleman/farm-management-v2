@@ -4,11 +4,13 @@ import useInventoryStore from '../../store/inventoryStore';
 import useFarmStore from '../../store/farmStore';
 import useCropStore from '../../store/cropStore';
 import useInfrastructureStore from '../../store/infrastructureStore';
+import useUIStore from '../../store/uiStore';
 import InfrastructureActivityForm from './InfrastructureActivityForm';
 import { INFRASTRUCTURE_TYPES } from '../../constants/agriculturalData';
 
 const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData }) => {
     const { logActivity, updateActivity } = useActivityStore();
+    const { showNotification } = useUIStore();
     const { inputs: inventory, fetchInputs } = useInventoryStore();
     const { crops, fetchCropsByFarm } = useCropStore();
     const { currentFarm, fields, fetchFields } = useFarmStore();
@@ -52,7 +54,6 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
     }, [initialData]);
 
     const [loading, setLoading] = useState(false);
-    const [showSuccess, setShowSuccess] = useState(false);
 
     useEffect(() => {
         if (currentFarm) {
@@ -67,7 +68,7 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
         e.preventDefault();
 
         if (!selectedFieldId) {
-            alert('Please select a target field for this activity.');
+            showNotification('Please select a target field for this activity.', 'error');
             return;
         }
 
@@ -96,21 +97,24 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
 
             if (initialData?.id) {
                 await updateActivity(initialData.id, payload);
+                showNotification('Operation data updated successfully.', 'success');
             } else {
                 await logActivity(payload);
+                showNotification('DATA SAVED SUCCESSFULLY - SYSTEM ARCHIVED', 'success');
             }
 
-            setShowSuccess(true);
-            setTimeout(() => {
-                if (onComplete) onComplete();
-            }, 1500);
+            if (onComplete) onComplete();
         } catch (error) {
             console.error('[ActivityForm] Submission error:', error);
             const serverMsg = error.response?.data?.message || 'Unknown Error';
             const serverErr = error.response?.data?.error || '';
             const serverDetail = error.response?.data?.detail || '';
             const serverHint = error.response?.data?.hint || '';
-            alert(`FAILED TO LOG OPERATION\n------------------\nMessage: ${serverMsg}\nError: ${serverErr}\nDetail: ${serverDetail}\nHint: ${serverHint}\n------------------\nPlease ensure all required fields are correctly filled.`);
+
+            showNotification(
+                `FAILED TO LOG OPERATION\n------------------\nMessage: ${serverMsg}\nError: ${serverErr}\nDetail: ${serverDetail}`,
+                'error'
+            );
         } finally {
             setLoading(false);
         }
@@ -155,13 +159,6 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
             </div>
 
             <form onSubmit={handleSubmit} style={{ padding: '40px', backgroundColor: '#fcfcfc' }}>
-                {showSuccess && (
-                    <div className="animate-slide-in" style={{ backgroundColor: '#dcfce7', color: '#166534', padding: '16px', marginBottom: '24px', borderLeft: '4px solid #166534', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <span style={{ fontSize: '20px' }}>✅</span>
-                        DATA SAVED SUCCESSFULLY - SYSTEM ARCHIVED
-                    </div>
-                )}
-
                 <div style={{ backgroundColor: '#000', color: '#fff', padding: '12px 20px', marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '15px' }}>
                     <span style={{ fontSize: '20px' }}>ℹ️</span>
                     <p style={{ fontSize: '13px', fontWeight: '600', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
