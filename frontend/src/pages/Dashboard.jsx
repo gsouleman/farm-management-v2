@@ -20,7 +20,7 @@ const Dashboard = () => {
     const { fetchFarms, currentFarm, fields, fetchFields, loading } = useFarmStore();
     const { fetchCropsByFarm, crops } = useCropStore();
     const { infrastructure, fetchInfrastructure } = useInfrastructureStore();
-    const { harvests, fetchFarmHarvests } = useHarvestStore();
+    const { harvests, fetchHarvestsByFarm } = useHarvestStore();
     const { activities, fetchActivitiesByFarm } = useActivityStore();
     const { budgetData, fetchCropBudgets } = useReportStore();
 
@@ -43,11 +43,11 @@ const Dashboard = () => {
             fetchFields(currentFarm.id);
             fetchCropsByFarm(currentFarm.id);
             fetchInfrastructure(currentFarm.id);
-            fetchFarmHarvests(currentFarm.id);
+            fetchHarvestsByFarm(currentFarm.id);
             fetchActivitiesByFarm(currentFarm.id);
             fetchCropBudgets(currentFarm.id);
         }
-    }, [currentFarm, fetchFields, fetchCropsByFarm, fetchInfrastructure, fetchFarmHarvests, fetchActivitiesByFarm, fetchCropBudgets]);
+    }, [currentFarm, fetchFields, fetchCropsByFarm, fetchInfrastructure, fetchHarvestsByFarm, fetchActivitiesByFarm, fetchCropBudgets]);
 
     // Derived Statistics
     const totalPlantedArea = useMemo(() => (crops || [])
