@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import useFarmStore from '../store/farmStore';
 import useInfrastructureStore from '../store/infrastructureStore';
 import InfrastructureForm from '../components/infrastructure/InfrastructureForm';
+import FieldMap from '../components/fields/FieldMap';
 import { INFRASTRUCTURE_TYPES } from '../constants/agriculturalData';
 
 const Infrastructure = () => {
