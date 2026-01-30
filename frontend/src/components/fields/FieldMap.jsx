@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, FeatureGroup, Polygon, CircleMarker, Polyline, Popup, Marker, useMap } from 'react-leaflet';
 import { EditControl } from 'react-leaflet-draw';
@@ -108,7 +108,33 @@ const PolygonLabel = ({ coordinates, label, cropType }) => {
 
 const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundary, manualCoordinates, onBoundaryCreate, editable = true, currentLabel }) => {
     const mapRef = useRef();
+    const containerRef = useRef();
     const navigate = useNavigate();
+    const [isFullscreen, setIsFullscreen] = useState(false);
+
+    const toggleFullscreen = () => {
+        if (!document.fullscreenElement) {
+            containerRef.current.requestFullscreen().catch(err => {
+                console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    };
+
+    useEffect(() => {
+        const handleFullscreenChange = () => {
+            setIsFullscreen(!!document.fullscreenElement);
+            // Invalidate map size after fullscreen change to ensure proper rendering
+            if (mapRef.current) {
+                setTimeout(() => {
+                    mapRef.current.invalidateSize();
+                }, 100);
+            }
+        };
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    }, []);
 
     const handleCreated = (e) => {
         const layer = e.layer;
