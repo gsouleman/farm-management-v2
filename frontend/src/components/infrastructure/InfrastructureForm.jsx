@@ -5,32 +5,30 @@ import FieldMap from '../fields/FieldMap';
 import { INFRASTRUCTURE_TYPES } from '../../constants/agriculturalData';
 import * as turf from '@turf/turf';
 
-const InfrastructureForm = ({ farmId, onComplete }) => {
-    const { createInfrastructure, infrastructure } = useInfrastructureStore();
+const InfrastructureForm = ({ farmId, onComplete, initialData = null }) => {
+    const { createInfrastructure, updateInfrastructure, infrastructure } = useInfrastructureStore();
     const { currentFarm, fields } = useFarmStore();
 
-    const [selectedFieldId, setSelectedFieldId] = useState('');
+    const [selectedFieldId, setSelectedFieldId] = useState(initialData?.field_id || '');
     const parentField = (fields || []).find(f => f?.id?.toString() === selectedFieldId);
 
     const [formData, setFormData] = useState({
-        name: '',
-        type: '',
-        status: 'operational',
-        construction_date: new Date().toISOString().split('T')[0],
-        cost: '',
-        notes: '',
-        boundary_coordinates: [],
-        boundary_manual: '',
-        area_sqm: '',
-        perimeter: '',
-        field_id: ''
+        name: initialData?.name || '',
+        type: initialData?.type || '',
+        status: initialData?.status || 'operational',
+        construction_date: initialData?.construction_date || new Date().toISOString().split('T')[0],
+        cost: initialData?.cost || '',
+        notes: initialData?.notes || '',
+        boundary_coordinates: initialData?.boundary?.coordinates?.[0] || [],
+        boundary_manual: initialData?.boundary_manual || (initialData?.boundary?.coordinates?.[0] ? initialData.boundary.coordinates[0].map(c => `${c[1]}, ${c[0]}`).join('\n') : ''),
+        area_sqm: initialData?.area_sqm || '',
+        perimeter: initialData?.perimeter || '',
+        field_id: initialData?.field_id || ''
     });
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (selectedFieldId) {
-            setFormData(prev => ({ ...prev, field_id: selectedFieldId }));
-        }
+        setFormData(prev => ({ ...prev, field_id: selectedFieldId }));
     }, [selectedFieldId]);
 
     const handleManualCoordsChange = (text) => {
@@ -57,7 +55,7 @@ const InfrastructureForm = ({ farmId, onComplete }) => {
                     boundary_manual: text
                 }));
             } else {
-                setFormData(prev => ({ ...prev, boundary_manual: text }));
+                setFormData(prev => ({ ...prev, boundary_manual: text, boundary_coordinates: [] }));
             }
         } catch (err) {
             setFormData(prev => ({ ...prev, boundary_manual: text }));
@@ -91,9 +89,11 @@ const InfrastructureForm = ({ farmId, onComplete }) => {
                 perimeter: parseNum(formData.perimeter)
             };
 
-            console.log('Submitting Infrastructure Data:', submissionData);
-
-            await createInfrastructure(targetFarmId, submissionData);
+            if (initialData) {
+                await updateInfrastructure(initialData.id, submissionData);
+            } else {
+                await createInfrastructure(targetFarmId, submissionData);
+            }
             if (onComplete) onComplete();
         } catch (error) {
             console.error('Registration failed:', error);
@@ -107,7 +107,9 @@ const InfrastructureForm = ({ farmId, onComplete }) => {
     return (
         <div className="card animate-fade-in" style={{ maxWidth: '850px', margin: '0 auto', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
             <div className="card-header" style={{ borderBottomColor: '#edf2f7', padding: '24px' }}>
-                <h3 style={{ margin: 0, fontSize: '20px', color: '#1a365d' }}>Register New Farm Infrastructure</h3>
+                <h3 style={{ margin: 0, fontSize: '20px', color: '#1a365d' }}>
+                    {initialData ? 'Edit Farm Infrastructure' : 'Register New Farm Infrastructure'}
+                </h3>
             </div>
             <form onSubmit={handleSubmit} style={{ padding: '24px' }}>
                 <div style={{ marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid #edf2f7' }}>
@@ -187,7 +189,7 @@ const InfrastructureForm = ({ farmId, onComplete }) => {
                                 center={parentField?.boundary?.coordinates?.[0]?.[0] ? [parentField.boundary.coordinates[0][0][1], parentField.boundary.coordinates[0][0][0]] : (currentFarm?.boundary?.coordinates?.[0]?.[0] ? [currentFarm.boundary.coordinates[0][0][1], currentFarm.boundary.coordinates[0][0][0]] : null)}
                                 farmBoundary={parentField?.boundary || currentFarm?.boundary}
                                 fields={fields}
-                                infrastructure={infrastructure}
+                                infrastructure={infrastructure.filter(i => i.id !== initialData?.id)}
                                 manualCoordinates={formData.boundary_coordinates}
                                 editable={true}
                                 onBoundaryCreate={(data) => {
@@ -246,7 +248,7 @@ const InfrastructureForm = ({ farmId, onComplete }) => {
 
                 <div style={{ display: 'flex', gap: '16px' }}>
                     <button type="submit" className="primary" style={{ flex: 2, padding: '14px', fontSize: '16px' }} disabled={loading}>
-                        {loading ? 'Registering...' : 'Save Infrastructure Asset'}
+                        {loading ? 'Saving...' : initialData ? 'Update Infrastructure Asset' : 'Save Infrastructure Asset'}
                     </button>
                     <button type="button" onClick={onComplete} className="outline" style={{ flex: 1, padding: '14px' }}>Discard</button>
                 </div>
