@@ -16,6 +16,13 @@ const getVal = (row, ...keys) => {
 };
 const path = require('path');
 
+const sanitizeUUID = (val) => (val === '' || val === undefined) ? null : val;
+const sanitizeNum = (val, defaultVal = null) => {
+    if (val === '' || val === undefined || val === null) return defaultVal;
+    const parsed = parseFloat(val);
+    return isNaN(parsed) ? defaultVal : parsed;
+};
+
 const recalculateInfraCost = async (infrastructure_id) => {
     if (!infrastructure_id) return;
     try {
@@ -62,15 +69,23 @@ exports.createActivity = async (req, res) => {
         const activityData = {
             ...req.body,
             performed_by: req.user.id,
-            farm_id: req.body.farm_id, // Ensure farm_id is passed from frontend
+            farm_id: sanitizeUUID(req.body.farm_id),
+            crop_id: sanitizeUUID(req.body.crop_id),
+            field_id: sanitizeUUID(req.body.field_id),
+            infrastructure_id: sanitizeUUID(req.body.infrastructure_id),
+            harvest_id: sanitizeUUID(req.body.harvest_id),
             transaction_type: req.body.transaction_type || 'expense',
-            labor_cost: req.body.labor_cost || 0,
-            material_cost: req.body.material_cost || 0,
-            equipment_cost: req.body.equipment_cost || 0,
-            service_cost: req.body.service_cost || 0,
-            transport_cost: req.body.transport_cost || 0,
-            other_cost: req.body.other_cost || 0,
-            total_cost: req.body.total_cost || 0
+            labor_cost: sanitizeNum(req.body.labor_cost, 0),
+            material_cost: sanitizeNum(req.body.material_cost, 0),
+            equipment_cost: sanitizeNum(req.body.equipment_cost, 0),
+            service_cost: sanitizeNum(req.body.service_cost, 0),
+            transport_cost: sanitizeNum(req.body.transport_cost, 0),
+            other_cost: sanitizeNum(req.body.other_cost, 0),
+            total_cost: sanitizeNum(req.body.total_cost, 0),
+            area_covered: sanitizeNum(req.body.area_covered),
+            duration_hours: sanitizeNum(req.body.duration_hours),
+            temperature: sanitizeNum(req.body.temperature),
+            num_workers: Math.round(sanitizeNum(req.body.num_workers, 0))
         };
         console.log('[CreateActivity] Payload received:', JSON.stringify(activityData, null, 2));
 
@@ -120,7 +135,23 @@ exports.updateActivity = async (req, res) => {
         const oldInfraId = activity.infrastructure_id;
         const updateData = {
             ...req.body,
-            transaction_type: req.body.transaction_type || activity.transaction_type || 'expense'
+            farm_id: sanitizeUUID(req.body.farm_id),
+            crop_id: sanitizeUUID(req.body.crop_id),
+            field_id: sanitizeUUID(req.body.field_id),
+            infrastructure_id: sanitizeUUID(req.body.infrastructure_id),
+            harvest_id: sanitizeUUID(req.body.harvest_id),
+            transaction_type: req.body.transaction_type || activity.transaction_type || 'expense',
+            labor_cost: sanitizeNum(req.body.labor_cost, activity.labor_cost),
+            material_cost: sanitizeNum(req.body.material_cost, activity.material_cost),
+            equipment_cost: sanitizeNum(req.body.equipment_cost, activity.equipment_cost),
+            service_cost: sanitizeNum(req.body.service_cost, activity.service_cost),
+            transport_cost: sanitizeNum(req.body.transport_cost, activity.transport_cost),
+            other_cost: sanitizeNum(req.body.other_cost, activity.other_cost),
+            total_cost: sanitizeNum(req.body.total_cost, activity.total_cost),
+            area_covered: sanitizeNum(req.body.area_covered, activity.area_covered),
+            duration_hours: sanitizeNum(req.body.duration_hours, activity.duration_hours),
+            temperature: sanitizeNum(req.body.temperature, activity.temperature),
+            num_workers: Math.round(sanitizeNum(req.body.num_workers, activity.num_workers || 0))
         };
         await activity.update(updateData);
 

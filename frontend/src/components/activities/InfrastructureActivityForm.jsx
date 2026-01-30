@@ -26,7 +26,7 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
         payment_method: 'cash',
         start_time: '',
         end_time: '',
-        hours_worked: 0,
+        duration_hours: 0,
         num_workers: 1,
         weather_conditions: '',
         next_maintenance: '',
