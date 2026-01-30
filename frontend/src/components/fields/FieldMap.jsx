@@ -167,11 +167,55 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
         farmBoundary.coordinates[0].map(coord => [coord[1], coord[0]]) : null;
 
     return (
-        <div className="glass-card" style={{ height: '500px', padding: '0', overflow: 'hidden' }}>
+        <div
+            ref={containerRef}
+            className={isFullscreen ? "" : "glass-card"}
+            style={{
+                height: isFullscreen ? '100vh' : '500px',
+                padding: '0',
+                overflow: 'hidden',
+                position: 'relative'
+            }}
+        >
+            {/* Fullscreen Toggle Button */}
+            <button
+                onClick={toggleFullscreen}
+                type="button"
+                title={isFullscreen ? 'Exit Full Screen' : 'Enter Full Screen'}
+                style={{
+                    position: 'absolute',
+                    top: '12px',
+                    right: '12px',
+                    zIndex: 1000,
+                    width: '40px',
+                    height: '40px',
+                    backgroundColor: 'white',
+                    color: '#000',
+                    border: '2px solid rgba(0,0,0,0.2)',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+                    transition: 'all 0.2s'
+                }}
+            >
+                {isFullscreen ? (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
+                    </svg>
+                ) : (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M15 3h6v6M9 21H3v-6M21 15v6h-6M3 9V3h6" />
+                    </svg>
+                )}
+            </button>
+
             <MapContainer
                 center={center || [0, 0]}
                 zoom={center ? 13 : 2}
-                style={{ height: '100%', width: '100%' }}
+                style={{ height: '100%', width: '100%', cursor: 'crosshair' }}
                 ref={mapRef}
                 attributionControl={false}
             >
