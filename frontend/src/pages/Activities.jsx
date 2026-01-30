@@ -128,7 +128,6 @@ const Activities = () => {
                         </tbody>
                     </table>
                 </div>
-
                 {activities.length === 0 && (
                     <div style={{ textAlign: 'center', padding: '60px', color: '#64748b' }}>
                         <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
@@ -137,6 +136,11 @@ const Activities = () => {
                     </div>
                 )}
             </div>
+
+            <BulkActivityModal
+                isOpen={isBulkModalOpen}
+                onClose={() => setIsBulkModalOpen(false)}
+            />
         </div>
     );
 };
