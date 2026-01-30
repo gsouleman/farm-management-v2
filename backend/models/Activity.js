@@ -13,7 +13,7 @@ module.exports = (sequelize) => {
         harvest_id: DataTypes.UUID,
         farm_id: {
             type: DataTypes.UUID,
-            allowNull: true
+            allowNull: false
         },
         performed_by: DataTypes.UUID,
         activity_type: {
