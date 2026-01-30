@@ -6,7 +6,7 @@ import FieldMap from '../components/fields/FieldMap';
 import { INFRASTRUCTURE_TYPES } from '../constants/agriculturalData';
 
 const Infrastructure = () => {
-    const { currentFarm } = useFarmStore();
+    const { currentFarm, fields, fetchFields } = useFarmStore();
     const { infrastructure, fetchInfrastructure, deleteInfrastructure, loading } = useInfrastructureStore();
     const [view, setView] = useState('list'); // list, add, edit, view
     const [selectedInfra, setSelectedInfra] = useState(null);
@@ -14,8 +14,9 @@ const Infrastructure = () => {
     useEffect(() => {
         if (currentFarm) {
             fetchInfrastructure(currentFarm.id);
+            fetchFields(currentFarm.id);
         }
-    }, [currentFarm, fetchInfrastructure]);
+    }, [currentFarm, fetchInfrastructure, fetchFields]);
 
     if (!currentFarm) return <div style={{ padding: '24px' }}>Please select a farm to view infrastructure.</div>;
 
@@ -24,6 +25,8 @@ const Infrastructure = () => {
 
     if (view === 'view' && selectedInfra) {
         const typeInfo = INFRASTRUCTURE_TYPES.find(t => t.id === selectedInfra.type);
+        const hostField = fields.find(f => f.id === selectedInfra.field_id);
+
         return (
             <div className="animate-fade-in" style={{ maxWidth: '850px', margin: '0 auto', padding: '24px' }}>
                 <div className="card" style={{ padding: '32px' }}>
@@ -72,6 +75,7 @@ const Infrastructure = () => {
                             <FieldMap
                                 center={[selectedInfra.boundary.coordinates[0][0][1], selectedInfra.boundary.coordinates[0][0][0]]}
                                 infrastructure={[selectedInfra]}
+                                fields={hostField ? [hostField] : []}
                                 farmBoundary={selectedInfra.boundary}
                                 zoom={17}
                                 editable={false}

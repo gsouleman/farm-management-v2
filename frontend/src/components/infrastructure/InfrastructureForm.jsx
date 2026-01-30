@@ -186,12 +186,13 @@ const InfrastructureForm = ({ farmId, onComplete, initialData = null }) => {
                         </div>
                         <div style={{ height: '100%' }}>
                             <FieldMap
-                                center={parentField?.boundary?.coordinates?.[0]?.[0] ? [parentField.boundary.coordinates[0][0][1], parentField.boundary.coordinates[0][0][0]] : (currentFarm?.boundary?.coordinates?.[0]?.[0] ? [currentFarm.boundary.coordinates[0][0][1], currentFarm.boundary.coordinates[0][0][0]] : null)}
+                                center={parentField?.boundary?.coordinates?.[0]?.[0] ? [parentField.boundary.coordinates[0][0][1], parentField.boundary.coordinates[0][0][0]] : (currentFarm?.boundary?.coordinates?.[0]?.[0] ? [currentFarm.boundary.coordinates[0][0][1], currentFarm.boundary.coordinates[0][0][0]] : [3.848, 11.502])}
                                 farmBoundary={parentField?.boundary || currentFarm?.boundary}
                                 fields={fields}
                                 infrastructure={infrastructure.filter(i => i.id !== initialData?.id)}
                                 manualCoordinates={formData.boundary_coordinates}
                                 editable={true}
+                                currentLabel={formData.name}
                                 onBoundaryCreate={(data) => {
                                     setFormData(prev => ({
                                         ...prev,
@@ -226,12 +227,12 @@ const InfrastructureForm = ({ farmId, onComplete, initialData = null }) => {
                     <div>
                         <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Asset Cost (XAF)</label>
                         <input
-                            type="number"
-                            placeholder="e.g. 5000000"
-                            value={formData.cost}
-                            onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
-                            style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
+                            type="text"
+                            value={parseFloat(formData.cost || 0).toLocaleString()}
+                            readOnly
+                            style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%', backgroundColor: '#f8fafc', fontWeight: 'bold' }}
                         />
+                        <p style={{ fontSize: '11px', color: '#718096', marginTop: '4px' }}>Automatic: Sum of all associated infrastructure log operations.</p>
                     </div>
                 </div>
 

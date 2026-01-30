@@ -4,6 +4,7 @@ import useInventoryStore from '../../store/inventoryStore';
 import useFarmStore from '../../store/farmStore';
 import useCropStore from '../../store/cropStore';
 import useInfrastructureStore from '../../store/infrastructureStore';
+import InfrastructureActivityForm from './InfrastructureActivityForm';
 import { INFRASTRUCTURE_TYPES } from '../../constants/agriculturalData';
 
 const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData }) => {
@@ -108,6 +109,24 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
     const filteredCrops = crops.filter(c => c.field_id === selectedFieldId);
     const filteredInfra = infrastructure.filter(i => i.field_id === selectedFieldId || !i.field_id); // Allow farm-wide infra too
 
+    if (associatedOperation.type === 'infrastructure') {
+        const selectedInfra = infrastructure.find(i => i.id === associatedOperation.id);
+        return (
+            <div className="animate-fade-in">
+                <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'flex-start' }}>
+                    <button className="outline" onClick={() => setAssociatedOperation({ type: '', id: '' })}>
+                        ← Back to General Operation Form
+                    </button>
+                </div>
+                <InfrastructureActivityForm
+                    infrastructure={selectedInfra}
+                    onComplete={onComplete}
+                    initialData={initialData}
+                />
+            </div>
+        );
+    }
+
     return (
         <div className="card animate-fade-in" style={{ maxWidth: '850px', margin: '0 auto' }}>
             <div className="card-header">
@@ -186,13 +205,6 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                                 <option value="mulching">Mulching</option>
                                 <option value="soil_sampling">Soil Sampling</option>
                                 <option value="maintenance">General Maintenance</option>
-                            </optgroup>
-                            <optgroup label="Infrastructure Related">
-                                {INFRASTRUCTURE_TYPES.map(type => (
-                                    <option key={type.id} value={type.id}>
-                                        {type.icon} {type.label}
-                                    </option>
-                                ))}
                             </optgroup>
                         </select>
                     </div>

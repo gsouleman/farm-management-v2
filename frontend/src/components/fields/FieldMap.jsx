@@ -288,52 +288,58 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
 
                     {/* Infrastructure Highlight */}
                     {infrastructure?.filter(i => i?.boundary?.coordinates?.[0]).map(infra => (
-                        <Polygon
-                            key={infra.id}
-                            positions={infra.boundary.coordinates[0].map(coord => [coord[1], coord[0]])}
-                            pathOptions={{
-                                color: '#2196f3',
-                                fillColor: '#2196f3',
-                                fillOpacity: 0.5,
-                                weight: 2
-                            }}
-                        >
-                            <Popup>
-                                <div style={{ fontSize: '13px', minWidth: '220px', padding: '5px' }}>
-                                    <div style={{ borderBottom: '2px solid #2196f3', paddingBottom: '8px', marginBottom: '8px' }}>
-                                        <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1a365d' }}>{infra.name}</div>
-                                        <div style={{ fontSize: '12px', color: '#718096' }}>{infra.type}</div>
-                                    </div>
+                        <React.Fragment key={infra.id}>
+                            <Polygon
+                                positions={infra.boundary.coordinates[0].map(coord => [coord[1], coord[0]])}
+                                pathOptions={{
+                                    color: '#2196f3',
+                                    fillColor: '#2196f3',
+                                    fillOpacity: 0.5,
+                                    weight: 2
+                                }}
+                            >
+                                <Popup>
+                                    <div style={{ fontSize: '13px', minWidth: '220px', padding: '5px' }}>
+                                        <div style={{ borderBottom: '2px solid #2196f3', paddingBottom: '8px', marginBottom: '8px' }}>
+                                            <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1a365d' }}>{infra.name}</div>
+                                            <div style={{ fontSize: '12px', color: '#718096' }}>{infra.type}</div>
+                                        </div>
 
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', backgroundColor: '#ebf8ff', padding: '8px', borderRadius: '4px' }}>
-                                        <span style={{ fontWeight: '600' }}>Surface Area:</span>
-                                        <span style={{ color: '#2b6cb0', fontWeight: 'bold' }}>{infra.area_sqm} m²</span>
-                                    </div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', backgroundColor: '#ebf8ff', padding: '8px', borderRadius: '4px' }}>
+                                            <span style={{ fontWeight: '600' }}>Surface Area:</span>
+                                            <span style={{ color: '#2b6cb0', fontWeight: 'bold' }}>{infra.area_sqm} m²</span>
+                                        </div>
 
-                                    <div style={{ fontWeight: '600', fontSize: '11px', color: '#4a5568', textTransform: 'uppercase', marginBottom: '5px' }}>
-                                        Infrastructure Corners (lat, lng):
+                                        <div style={{ fontWeight: '600', fontSize: '11px', color: '#4a5568', textTransform: 'uppercase', marginBottom: '5px' }}>
+                                            Infrastructure Corners (lat, lng):
+                                        </div>
+                                        <div style={{
+                                            backgroundColor: '#f7fafc',
+                                            padding: '10px',
+                                            borderRadius: '4px',
+                                            fontSize: '10.5px',
+                                            maxHeight: '120px',
+                                            overflowY: 'auto',
+                                            fontFamily: 'monospace',
+                                            lineHeight: '1.4',
+                                            border: '1px solid #e2e8f0'
+                                        }}>
+                                            {infra.boundary.coordinates[0].map((c, i) => (
+                                                <div key={i} style={{ borderBottom: i < infra.boundary.coordinates[0].length - 1 ? '1px solid #edf2f7' : 'none', padding: '2px 0' }}>
+                                                    <span style={{ color: '#718096', marginRight: '5px' }}>{i + 1}.</span>
+                                                    {c[1].toFixed(6)}, {c[0].toFixed(6)}
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
-                                    <div style={{
-                                        backgroundColor: '#f7fafc',
-                                        padding: '10px',
-                                        borderRadius: '4px',
-                                        fontSize: '10.5px',
-                                        maxHeight: '120px',
-                                        overflowY: 'auto',
-                                        fontFamily: 'monospace',
-                                        lineHeight: '1.4',
-                                        border: '1px solid #e2e8f0'
-                                    }}>
-                                        {infra.boundary.coordinates[0].map((c, i) => (
-                                            <div key={i} style={{ borderBottom: i < infra.boundary.coordinates[0].length - 1 ? '1px solid #edf2f7' : 'none', padding: '2px 0' }}>
-                                                <span style={{ color: '#718096', marginRight: '5px' }}>{i + 1}.</span>
-                                                {c[1].toFixed(6)}, {c[0].toFixed(6)}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </Popup>
-                        </Polygon>
+                                </Popup>
+                            </Polygon>
+                            <PolygonLabel
+                                coordinates={infra.boundary.coordinates[0]}
+                                label={infra.name}
+                                cropType="infrastructure" // This will use default white style
+                            />
+                        </React.Fragment>
                     ))}
 
                     {/* Manual Entry Highlight */}

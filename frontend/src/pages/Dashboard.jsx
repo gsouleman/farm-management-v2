@@ -4,6 +4,8 @@ import useFarmStore from '../store/farmStore';
 import useCropStore from '../store/cropStore';
 import useInfrastructureStore from '../store/infrastructureStore';
 import useHarvestStore from '../store/harvestStore';
+import useActivityStore from '../store/activityStore';
+import useReportStore from '../store/reportStore';
 import FieldMap from '../components/fields/FieldMap';
 import * as turf from '@turf/turf';
 import FarmForm from '../components/farms/FarmForm';
@@ -18,10 +20,12 @@ const Dashboard = () => {
     const { fetchFarms, currentFarm, fields, fetchFields, loading } = useFarmStore();
     const { fetchCropsByFarm, crops } = useCropStore();
     const { infrastructure, fetchInfrastructure } = useInfrastructureStore();
-    const { fetchHarvestsByFarm, harvests } = useHarvestStore();
+    const { harvests, fetchFarmHarvests } = useHarvestStore();
+    const { activities, fetchActivitiesByFarm } = useActivityStore();
+    const { budgetData, fetchCropBudgets } = useReportStore();
+
     const [view, setView] = useState('overview');
     const [selectedField, setSelectedField] = useState(null);
-    const [budgetData, setBudgetData] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -35,28 +39,31 @@ const Dashboard = () => {
     }, []);
 
     useEffect(() => {
-        if (currentFarm) {
+        if (currentFarm?.id) {
             fetchFields(currentFarm.id);
             fetchCropsByFarm(currentFarm.id);
             fetchInfrastructure(currentFarm.id);
-            fetchHarvestsByFarm(currentFarm.id);
-
-            // Fetch budget for expenses
-            api.get('/reports/crop-budget', { params: { farmId: currentFarm.id } })
-                .then(res => {
-                    setBudgetData(res.data);
-                })
-                .catch(err => console.error('Error fetching budget:', err));
+            fetchFarmHarvests(currentFarm.id);
+            fetchActivitiesByFarm(currentFarm.id);
+            fetchCropBudgets(currentFarm.id);
         }
-    }, [currentFarm, fetchFields, fetchCropsByFarm, fetchInfrastructure, fetchHarvestsByFarm]);
+    }, [currentFarm, fetchFields, fetchCropsByFarm, fetchInfrastructure, fetchFarmHarvests, fetchActivitiesByFarm, fetchCropBudgets]);
 
-    // Derived Statistics and Trends
+    // Derived Statistics
     const totalPlantedArea = useMemo(() => (crops || [])
         .filter(c => c.status === 'planted' || c.status === 'active')
         .reduce((sum, c) => sum + parseFloat(c.planted_area || 0), 0), [crops]);
 
-    const totalRevenue = useMemo(() => (harvests || []).reduce((sum, h) => sum + parseFloat(h.total_revenue || 0), 0), [harvests]);
-    const totalExpenses = useMemo(() => (budgetData || []).reduce((sum, b) => sum + parseFloat(b.actualCosts || 0), 0), [budgetData]);
+    const totalRevenue = useMemo(() =>
+        activities.filter(a => a.transaction_type === 'income' || a.activity_type === 'harvesting')
+            .reduce((sum, a) => sum + parseFloat(a.total_cost || a.labor_cost || 0), 0)
+        , [activities]);
+
+    const totalExpenses = useMemo(() =>
+        activities.filter(a => a.transaction_type === 'expense')
+            .reduce((sum, a) => sum + parseFloat(a.total_cost || a.labor_cost || 0), 0)
+        , [activities]);
+
     const netCashFlow = useMemo(() => totalRevenue - totalExpenses, [totalRevenue, totalExpenses]);
 
     const landUtilization = useMemo(() => currentFarm?.total_area > 0
@@ -76,7 +83,7 @@ const Dashboard = () => {
             clickable: true
         },
         { label: 'Fields', value: fields.length, icon: '🗺️' }
-    ], [totalRevenue, totalExpenses, netCashFlow, landUtilization, currentFarm, totalPlantedArea, fields.length]);
+    ], [totalRevenue, totalExpenses, netCashFlow, currentFarm, totalPlantedArea, fields.length]);
 
     const renderCropBreakdown = () => (
         <div className="animate-fade-in card">
