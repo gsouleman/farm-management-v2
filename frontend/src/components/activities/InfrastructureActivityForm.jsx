@@ -36,6 +36,7 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
         supplier_contact: '',
         invoice_number: '',
         warranty: 'none',
+        transaction_type: 'expense',
         notes: ''
     });
 
@@ -76,8 +77,7 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
             const payload = {
                 ...formData,
                 field_id: infrastructure?.field_id || null, // Inherit field from infrastructure
-                farm_id: currentFarm.id,
-                transaction_type: 'expense' // Log operations are typically expenses
+                farm_id: currentFarm.id
             };
 
             if (initialData?.id) {
@@ -163,12 +163,10 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
                             </select>
                         </div>
                         <div className="form-group">
-                            <label style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Operational Status</label>
-                            <select value={formData.work_status} onChange={e => setFormData({ ...formData, work_status: e.target.value })} required style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px', fontWeight: '700' }}>
-                                <option value="completed">Completed</option>
-                                <option value="in_progress">Active (In Progress)</option>
-                                <option value="scheduled">Scheduled</option>
-                                <option value="pending">Awaiting Approval</option>
+                            <label style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Transaction Protocol</label>
+                            <select value={formData.transaction_type} onChange={e => setFormData({ ...formData, transaction_type: e.target.value })} required style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px', fontWeight: '700', backgroundColor: formData.transaction_type === 'income' ? '#f0fff4' : '#fff5f5' }}>
+                                <option value="expense">📉 Operational Expense</option>
+                                <option value="income">💰 Operational Income</option>
                             </select>
                         </div>
                     </div>

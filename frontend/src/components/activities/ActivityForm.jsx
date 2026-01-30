@@ -32,7 +32,8 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
         notes: '',
         input_id: '',
         quantity_used: '',
-        application_rate: ''
+        application_rate: '',
+        transaction_type: 'expense'
     });
 
     useEffect(() => {
@@ -207,6 +208,17 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                                 <option value="soil_sampling">Soil Sampling</option>
                                 <option value="maintenance">General Maintenance</option>
                             </optgroup>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Transaction Category</label>
+                        <select
+                            value={formData.transaction_type}
+                            onChange={(e) => setFormData({ ...formData, transaction_type: e.target.value })}
+                            required
+                        >
+                            <option value="expense">📉 Expense</option>
+                            <option value="income">💰 Income</option>
                         </select>
                     </div>
                     <div>
