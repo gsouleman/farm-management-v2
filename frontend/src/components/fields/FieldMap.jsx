@@ -147,10 +147,10 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
                 zoom={center ? 13 : 2}
                 style={{ height: '100%', width: '100%' }}
                 ref={mapRef}
+                attributionControl={false}
             >
                 <TileLayer
                     url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
-                    attribution='&copy; Google Maps'
                 />
 
                 <FeatureGroup>
