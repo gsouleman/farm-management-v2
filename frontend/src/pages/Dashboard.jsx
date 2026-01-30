@@ -235,9 +235,10 @@ const Dashboard = () => {
                         <div className="card" style={{ backgroundColor: '#000', color: 'white', padding: '24px', borderLeft: '4px solid #cc0000', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                             <h3 style={{ color: '#cc0000', fontSize: '12px', marginBottom: '16px', fontWeight: '900', letterSpacing: '1px' }}>PRO INSIGHT</h3>
                             <p style={{ fontSize: '13px', margin: 0, color: '#bbb', lineHeight: '1.6', fontStyle: 'italic' }}>
-                                Land utilization is currently at {landUtilization}%.
+                                Strategic Analysis: Land utilization is stabilized at <strong style={{ color: '#fff' }}>{landUtilization}%</strong>.
+                                Current data modeling suggests untapped yield potential in fallow sectors.
                                 <br /><br />
-                                To maximize yields, consider optimizing seasonal rotation and identifying fallow parcels for the next planting campaign.
+                                Recommendation: Initiate soil enrichment protocols on underutilized parcels to maximize station output for the next Production Cycle.
                             </p>
                         </div>
                     </div>
