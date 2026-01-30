@@ -282,7 +282,7 @@ const Activities = () => {
                         <span>📥</span> Export PDF
                     </button>
                     <button className="secondary" onClick={() => setIsBulkModalOpen(true)} style={{ backgroundColor: '#000', color: '#fff', border: 'none' }}>Bulk Log Activities</button>
-                    <button className="primary" onClick={() => setView('add')}>+ Add New Activity</button>
+                    <button className="primary" onClick={() => setView('add')}>+ Add Ledger Entry</button>
                 </div>
             </div>
 
