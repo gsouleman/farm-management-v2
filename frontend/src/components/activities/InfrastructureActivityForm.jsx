@@ -94,192 +94,139 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
     };
 
     return (
-        <div className="card animate-fade-in" style={{ maxWidth: '900px', margin: '0 auto', padding: '0', overflow: 'hidden', border: 'none', boxShadow: '0 10px 40px rgba(0,0,0,0.1)' }}>
-            <div style={{ background: 'linear-gradient(135deg, #1a365d 0%, #2d3748 100%)', padding: '30px 40px', color: 'white' }}>
-                <h2 style={{ margin: 0, fontSize: '24px' }}>🚜 Infrastructure Operations & Cost Log</h2>
-                <p style={{ margin: '8px 0 0 0', opacity: 0.8, fontSize: '14px' }}>
-                    Asset: <strong>{infrastructure?.name}</strong> | Type: {INFRASTRUCTURE_TYPES.find(t => t.id === infrastructure?.type)?.label}
-                </p>
+        <div className="animate-fade-in" style={{ maxWidth: '950px', margin: '0 auto', padding: '0', backgroundColor: '#fff', border: '1px solid #000', boxShadow: '0 20px 50px rgba(0,0,0,0.15)' }}>
+            {/* BBC Style Header Banner */}
+            <div style={{ backgroundColor: '#bb1919', padding: '24px 40px', color: 'white', position: 'relative' }}>
+                <div style={{ position: 'absolute', top: '0', left: '0', height: '100%', width: '4px', backgroundColor: '#000' }}></div>
+                <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '900', letterSpacing: '-1px', textTransform: 'uppercase' }}>
+                    <span style={{ backgroundColor: '#fff', color: '#bb1919', padding: '2px 8px', marginRight: '10px' }}>LOG</span>
+                    Infrastructure Operations
+                </h1>
+                <div style={{ display: 'flex', gap: '20px', marginTop: '12px', fontSize: '13px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    <span>ASSET: {infrastructure?.name}</span>
+                    <span style={{ opacity: 0.6 }}>|</span>
+                    <span>TYPE: {INFRASTRUCTURE_TYPES.find(t => t.id === infrastructure?.type)?.label}</span>
+                </div>
             </div>
 
-            <form onSubmit={handleSubmit} style={{ padding: '40px' }}>
-                <div style={{ background: '#ebf8ff', borderLeft: '4px solid #4299e1', padding: '15px', marginBottom: '30px', borderRadius: '4px' }}>
-                    <p style={{ color: '#2c5282', fontSize: '14px', margin: 0 }}>
-                        <strong>💡 Tip:</strong> All costs entered here will be automatically added to the total asset value of {infrastructure?.name}.
+            <form onSubmit={handleSubmit} style={{ padding: '40px', backgroundColor: '#fcfcfc' }}>
+                <div style={{ backgroundColor: '#000', color: '#fff', padding: '12px 20px', marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    <span style={{ fontSize: '20px' }}>ℹ️</span>
+                    <p style={{ fontSize: '13px', fontWeight: '600', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Operational inputs will be capitalized into the total asset valuation.
                     </p>
                 </div>
 
-                {/* Basic Information */}
-                <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#2d3748', marginTop: '0', marginBottom: '20px', paddingBottom: '10px', borderBottom: '2px solid #e2e8f0' }}>📋 Basic Information</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px' }}>
-                    <div className="form-group">
-                        <label style={{ fontWeight: 600, marginBottom: '8px', color: '#2d3748', fontSize: '14px', display: 'block' }}>Date <span style={{ color: '#e53e3e' }}>*</span></label>
-                        <input type="date" value={formData.activity_date} onChange={e => setFormData({ ...formData, activity_date: e.target.value })} required style={{ width: '100%' }} />
-                    </div>
-                    <div className="form-group">
-                        <label style={{ fontWeight: 600, marginBottom: '8px', color: '#2d3748', fontSize: '14px', display: 'block' }}>Infrastructure Part / Component</label>
-                        <input type="text" placeholder="e.g. Pump, Roof, Circuit" value={formData.component} onChange={e => setFormData({ ...formData, component: e.target.value })} style={{ width: '100%' }} />
-                    </div>
-                </div>
-
-                {/* Activity Details */}
-                <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#2d3748', marginTop: '30px', marginBottom: '20px', paddingBottom: '10px', borderBottom: '2px solid #e2e8f0' }}>🏗️ Infrastructure Activity Details</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-                    <div className="form-group">
-                        <label style={{ fontWeight: 600, marginBottom: '8px', color: '#2d3748', fontSize: '14px', display: 'block' }}>Activity Type <span style={{ color: '#e53e3e' }}>*</span></label>
-                        <select value={formData.activity_type} onChange={e => setFormData({ ...formData, activity_type: e.target.value })} required style={{ width: '100%' }}>
-                            <option value="installation">New Installation</option>
-                            <option value="maintenance">Routine Maintenance</option>
-                            <option value="repair">Repair</option>
-                            <option value="replacement">Replacement</option>
-                            <option value="upgrade">Upgrade/Improvement</option>
-                            <option value="inspection">Inspection</option>
-                            <option value="cleaning">Cleaning</option>
-                            <option value="painting">Painting</option>
-                            <option value="expansion">Expansion</option>
-                            <option value="demolition">Demolition</option>
-                            <option value="emergency">Emergency Fix</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <div className="form-group">
-                        <label style={{ fontWeight: 600, marginBottom: '8px', color: '#2d3748', fontSize: '14px', display: 'block' }}>Priority Level</label>
-                        <select value={formData.priority} onChange={e => setFormData({ ...formData, priority: e.target.value })} style={{ width: '100%' }}>
-                            <option value="low">Low</option>
-                            <option value="medium">Medium</option>
-                            <option value="high">High</option>
-                            <option value="critical">Critical/Urgent</option>
-                        </select>
-                    </div>
-                    <div className="form-group">
-                        <label style={{ fontWeight: 600, marginBottom: '8px', color: '#2d3748', fontSize: '14px', display: 'block' }}>Work Status <span style={{ color: '#e53e3e' }}>*</span></label>
-                        <select value={formData.work_status} onChange={e => setFormData({ ...formData, work_status: e.target.value })} required style={{ width: '100%' }}>
-                            <option value="completed">Completed</option>
-                            <option value="in_progress">In Progress</option>
-                            <option value="scheduled">Scheduled</option>
-                            <option value="pending">Pending</option>
-                            <option value="cancelled">Cancelled</option>
-                        </select>
+                {/* Section: Basic Information */}
+                <div style={{ marginBottom: '40px' }}>
+                    <h3 style={{ fontSize: '14px', fontWeight: '900', color: '#000', textTransform: 'uppercase', letterSpacing: '2px', borderBottom: '4px solid #000', paddingBottom: '8px', marginBottom: '24px' }}>
+                        01. Field Intelligence
+                    </h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
+                        <div className="form-group">
+                            <label style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Operational Date</label>
+                            <input type="date" value={formData.activity_date} onChange={e => setFormData({ ...formData, activity_date: e.target.value })} required style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px' }} />
+                        </div>
+                        <div className="form-group">
+                            <label style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Component / Segment Identifier</label>
+                            <input type="text" placeholder="e.g. CORE-PUMP-01" value={formData.component} onChange={e => setFormData({ ...formData, component: e.target.value })} style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px' }} />
+                        </div>
                     </div>
                 </div>
 
-                <div style={{ marginBottom: '20px' }}>
-                    <label style={{ fontWeight: 600, marginBottom: '8px', color: '#2d3748', fontSize: '14px', display: 'block' }}>Description of Work <span style={{ color: '#e53e3e' }}>*</span></label>
-                    <textarea
-                        value={formData.description}
-                        onChange={e => setFormData({ ...formData, description: e.target.value })}
-                        placeholder="Provide detailed description of the work performed..."
-                        required
-                        style={{ width: '100%', minHeight: '100px' }}
-                    />
-                </div>
-
-                {/* Cost Information */}
-                <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#2d3748', marginTop: '30px', marginBottom: '20px', paddingBottom: '10px', borderBottom: '2px solid #e2e8f0' }}>💰 Cost Information (XAF)</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px', marginBottom: '20px' }}>
-                    <div className="form-group">
-                        <label style={{ fontSize: '12px' }}>Labor Cost</label>
-                        <input type="number" value={formData.labor_cost} onChange={e => setFormData({ ...formData, labor_cost: e.target.value })} style={{ width: '100%' }} />
+                {/* Section: Activity Details */}
+                <div style={{ marginBottom: '40px' }}>
+                    <h3 style={{ fontSize: '14px', fontWeight: '900', color: '#000', textTransform: 'uppercase', letterSpacing: '2px', borderBottom: '4px solid #bb1919', paddingBottom: '8px', marginBottom: '24px' }}>
+                        02. Detailed Activity Log
+                    </h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '30px', marginBottom: '24px' }}>
+                        <div className="form-group">
+                            <label style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Operation Category</label>
+                            <select value={formData.activity_type} onChange={e => setFormData({ ...formData, activity_type: e.target.value })} required style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px', fontWeight: '700' }}>
+                                <option value="installation">New Installation</option>
+                                <option value="maintenance">Routine Maintenance</option>
+                                <option value="repair">Repair</option>
+                                <option value="replacement">Replacement</option>
+                                <option value="upgrade">Upgrade</option>
+                                <option value="inspection">Inspection</option>
+                                <option value="emergency">Emergency Response</option>
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <label style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Priority Matrix</label>
+                            <select value={formData.priority} onChange={e => setFormData({ ...formData, priority: e.target.value })} style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px', fontWeight: '700' }}>
+                                <option value="low">Standard (Low)</option>
+                                <option value="medium">Optimized (Medium)</option>
+                                <option value="high">Urgent (High)</option>
+                                <option value="critical">CRITICAL (Alert)</option>
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <label style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Operational Status</label>
+                            <select value={formData.work_status} onChange={e => setFormData({ ...formData, work_status: e.target.value })} required style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px', fontWeight: '700' }}>
+                                <option value="completed">Completed</option>
+                                <option value="in_progress">Active (In Progress)</option>
+                                <option value="scheduled">Scheduled</option>
+                                <option value="pending">Awaiting Approval</option>
+                            </select>
+                        </div>
                     </div>
                     <div className="form-group">
-                        <label style={{ fontSize: '12px' }}>Material Cost</label>
-                        <input type="number" value={formData.material_cost} onChange={e => setFormData({ ...formData, material_cost: e.target.value })} style={{ width: '100%' }} />
-                    </div>
-                    <div className="form-group">
-                        <label style={{ fontSize: '12px' }}>Equipment Cost</label>
-                        <input type="number" value={formData.equipment_cost} onChange={e => setFormData({ ...formData, equipment_cost: e.target.value })} style={{ width: '100%' }} />
-                    </div>
-                    <div className="form-group">
-                        <label style={{ fontSize: '12px' }}>Service/Contractor</label>
-                        <input type="number" value={formData.service_cost} onChange={e => setFormData({ ...formData, service_cost: e.target.value })} style={{ width: '100%' }} />
-                    </div>
-                    <div className="form-group">
-                        <label style={{ fontSize: '12px' }}>Transportation</label>
-                        <input type="number" value={formData.transport_cost} onChange={e => setFormData({ ...formData, transport_cost: e.target.value })} style={{ width: '100%' }} />
-                    </div>
-                    <div className="form-group">
-                        <label style={{ fontSize: '12px' }}>Other Costs</label>
-                        <input type="number" value={formData.other_cost} onChange={e => setFormData({ ...formData, other_cost: e.target.value })} style={{ width: '100%' }} />
-                    </div>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px', background: '#f8fafc', padding: '20px', borderRadius: '8px' }}>
-                    <div className="form-group">
-                        <label style={{ fontWeight: 700, color: 'var(--primary)' }}>TOTAL COST</label>
-                        <input type="text" value={formData.total_cost} readOnly style={{ width: '100%', fontWeight: 'bold', fontSize: '18px', backgroundColor: '#e2e8f0' }} />
-                    </div>
-                    <div className="form-group">
-                        <label style={{ fontWeight: 600 }}>Payment Method</label>
-                        <select value={formData.payment_method} onChange={e => setFormData({ ...formData, payment_method: e.target.value })} style={{ width: '100%' }}>
-                            <option value="cash">Cash</option>
-                            <option value="check">Check</option>
-                            <option value="bank_transfer">Bank Transfer</option>
-                            <option value="mobile_money">Mobile Money</option>
-                            <option value="credit_card">Credit Card</option>
-                            <option value="account">Farm Account</option>
-                            <option value="pending">Pending Payment</option>
-                        </select>
+                        <label style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Summary of Actions Performed</label>
+                        <textarea
+                            value={formData.description}
+                            onChange={e => setFormData({ ...formData, description: e.target.value })}
+                            placeholder="Detailed technical description..."
+                            required
+                            style={{ width: '100%', minHeight: '120px', borderRadius: '0', border: '2px solid #ddd', padding: '15px' }}
+                        />
                     </div>
                 </div>
 
-                {/* Time Tracking */}
-                <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#2d3748', marginTop: '30px', marginBottom: '20px', paddingBottom: '10px', borderBottom: '2px solid #e2e8f0' }}>⏱️ Time Tracking</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px' }}>
-                    <div className="form-group">
-                        <label style={{ fontSize: '12px' }}>Start Time</label>
-                        <input type="time" value={formData.start_time} onChange={e => setFormData({ ...formData, start_time: e.target.value })} style={{ width: '100%' }} />
+                {/* Section: Financial Ledger */}
+                <div style={{ marginBottom: '40px' }}>
+                    <h3 style={{ fontSize: '14px', fontWeight: '900', color: '#000', textTransform: 'uppercase', letterSpacing: '2px', borderBottom: '4px solid #000', paddingBottom: '8px', marginBottom: '24px' }}>
+                        03. Financial Disbursement Ledger
+                    </h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '32px' }}>
+                        {['labor_cost', 'material_cost', 'equipment_cost', 'service_cost', 'transport_cost', 'other_cost'].map(field => (
+                            <div key={field} className="form-group">
+                                <label style={{ fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', color: '#777', marginBottom: '4px', display: 'block' }}>{field.replace('_', ' ')}</label>
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    <span style={{ backgroundColor: '#f0f0f0', border: '2px solid #ddd', borderRight: 'none', padding: '12px', fontWeight: '900', fontSize: '12px' }}>XAF</span>
+                                    <input type="number" value={formData[field]} onChange={e => setFormData({ ...formData, [field]: e.target.value })} style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px' }} />
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                    <div className="form-group">
-                        <label style={{ fontSize: '12px' }}>End Time</label>
-                        <input type="time" value={formData.end_time} onChange={e => setFormData({ ...formData, end_time: e.target.value })} style={{ width: '100%' }} />
-                    </div>
-                    <div className="form-group">
-                        <label style={{ fontSize: '12px' }}>Hours Worked</label>
-                        <input type="number" step="0.5" value={formData.hours_worked} onChange={e => setFormData({ ...formData, hours_worked: e.target.value })} style={{ width: '100%' }} />
-                    </div>
-                    <div className="form-group">
-                        <label style={{ fontSize: '12px' }}>No. Workers</label>
-                        <input type="number" value={formData.num_workers} onChange={e => setFormData({ ...formData, num_workers: e.target.value })} style={{ width: '100%' }} />
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '30px', backgroundColor: '#fff', border: '2px solid #000', padding: '24px' }}>
+                        <div className="form-group">
+                            <label style={{ fontSize: '14px', fontWeight: '900', textTransform: 'uppercase', color: '#bb1919', marginBottom: '8px', display: 'block' }}>TOTAL AUDITED EXPENDITURE</label>
+                            <div style={{ fontSize: '32px', fontWeight: '900', color: '#000' }}>
+                                {parseFloat(formData.total_cost || 0).toLocaleString()} <span style={{ fontSize: '16px' }}>XAF</span>
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Payment Protocol</label>
+                            <select value={formData.payment_method} onChange={e => setFormData({ ...formData, payment_method: e.target.value })} style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px', fontWeight: '700' }}>
+                                <option value="cash">Cash Settlement</option>
+                                <option value="bank_transfer">Electronic Transfer</option>
+                                <option value="mobile_money">Mobile Payment</option>
+                                <option value="check">Certified Check</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
-                {/* Additional Details */}
-                <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#2d3748', marginTop: '30px', marginBottom: '20px', paddingBottom: '10px', borderBottom: '2px solid #e2e8f0' }}>📝 Additional Details</h3>
-                <div style={{ marginBottom: '20px' }}>
-                    <label style={{ fontSize: '14px', fontWeight: 600 }}>Materials Used & Specifications</label>
-                    <textarea
-                        value={formData.materials_used}
-                        onChange={e => setFormData({ ...formData, materials_used: e.target.value })}
-                        placeholder="List materials, quantities, grades..."
-                        style={{ width: '100%' }}
-                    />
-                </div>
-                <div style={{ marginBottom: '20px' }}>
-                    <label style={{ fontSize: '14px', fontWeight: 600 }}>Issues / Problems Encountered</label>
-                    <textarea
-                        value={formData.issues}
-                        onChange={e => setFormData({ ...formData, issues: e.target.value })}
-                        placeholder="Describe any challenges or unexpected repairs..."
-                        style={{ width: '100%' }}
-                    />
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                    <div className="form-group">
-                        <label style={{ fontSize: '14px', fontWeight: 600 }}>Supplier / Vendor Name</label>
-                        <input type="text" value={formData.supplier_name} onChange={e => setFormData({ ...formData, supplier_name: e.target.value })} style={{ width: '100%' }} />
-                    </div>
-                    <div className="form-group">
-                        <label style={{ fontSize: '14px', fontWeight: 600 }}>Invoice / Receipt #</label>
-                        <input type="text" value={formData.invoice_number} onChange={e => setFormData({ ...formData, invoice_number: e.target.value })} style={{ width: '100%' }} />
-                    </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: '15px', marginTop: '40px' }}>
-                    <button type="submit" className="primary" style={{ flex: 2, padding: '16px', background: 'linear-gradient(135deg, #1a365d 0%, #2d3748 100%)' }} disabled={loading}>
-                        {loading ? 'Logging...' : '💾 Save Infrastructure Log Entry'}
+                {/* Final Action Buttons */}
+                <div style={{ display: 'flex', gap: '20px', marginTop: '50px' }}>
+                    <button type="submit" className="primary" style={{ flex: 2, padding: '20px', borderRadius: '0', backgroundColor: '#000', color: '#fff', fontSize: '14px', fontWeight: '900', border: 'none', textTransform: 'uppercase', letterSpacing: '1px', cursor: 'pointer' }} disabled={loading}>
+                        {loading ? 'SYNCING DATA...' : '💾 ARCHIVE LOG ENTRY'}
                     </button>
-                    <button type="button" onClick={onComplete} className="outline" style={{ flex: 1 }}>Discard Change</button>
+                    <button type="button" onClick={onComplete} className="outline" style={{ flex: 1, padding: '20px', borderRadius: '0', backgroundColor: '#fff', color: '#000', border: '2px solid #000', fontSize: '14px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px', cursor: 'pointer' }}>
+                        ABORT CHANGE
+                    </button>
                 </div>
             </form>
         </div>

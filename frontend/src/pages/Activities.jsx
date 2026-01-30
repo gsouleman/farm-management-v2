@@ -7,10 +7,11 @@ import ActivityForm from '../components/activities/ActivityForm';
 
 const Activities = () => {
     const { currentFarm, fields, fetchFields } = useFarmStore();
-    const { activities, fetchActivitiesByFarm, loading } = useActivityStore();
+    const { activities, fetchActivitiesByFarm, deleteActivity, loading } = useActivityStore();
     const { crops, fetchCropsByFarm } = useCropStore();
     const { infrastructure, fetchInfrastructure } = useInfrastructureStore();
-    const [view, setView] = useState('list'); // list, add
+    const [view, setView] = useState('list'); // list, add, edit
+    const [editData, setEditData] = useState(null);
 
     useEffect(() => {
         if (currentFarm) {
@@ -21,7 +22,23 @@ const Activities = () => {
         }
     }, [currentFarm, fetchActivitiesByFarm, fetchFields, fetchCropsByFarm, fetchInfrastructure]);
 
+    const handleEdit = (activity) => {
+        setEditData(activity);
+        setView('edit');
+    };
+
+    const handleDelete = async (id) => {
+        if (window.confirm('Are you sure you want to delete this activity? This will also update associated costs.')) {
+            try {
+                await deleteActivity(id);
+            } catch (error) {
+                alert('Failed to delete activity.');
+            }
+        }
+    };
+
     if (view === 'add') return <ActivityForm onComplete={() => setView('list')} />;
+    if (view === 'edit') return <ActivityForm initialData={editData} onComplete={() => { setEditData(null); setView('list'); }} />;
 
     return (
         <div className="animate-fade-in" style={{ padding: '24px' }}>
@@ -96,8 +113,8 @@ const Activities = () => {
                                         </td>
                                         <td style={{ padding: '16px', textAlign: 'center' }}>
                                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                                <button className="outline" style={{ padding: '4px 8px', fontSize: '11px' }}>Edit</button>
-                                                <button className="outline" style={{ padding: '4px 8px', fontSize: '11px', color: '#dc3545', borderColor: '#ffccd1' }}>Delete</button>
+                                                <button className="outline" onClick={() => handleEdit(activity)} style={{ padding: '4px 8px', fontSize: '11px' }}>Edit</button>
+                                                <button className="outline" onClick={() => handleDelete(activity.id)} style={{ padding: '4px 8px', fontSize: '11px', color: '#dc3545', borderColor: '#ffccd1' }}>Delete</button>
                                             </div>
                                         </td>
                                     </tr>
