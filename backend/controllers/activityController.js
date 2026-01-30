@@ -28,11 +28,12 @@ exports.getFarmActivities = async (req, res) => {
 
 exports.createActivity = async (req, res) => {
     try {
-        const { crop_id, field_id, activity_type, activity_date, description, inputs, labor_cost } = req.body;
+        const { crop_id, field_id, infrastructure_id, activity_type, activity_date, description, inputs, labor_cost } = req.body;
 
         const activity = await Activity.create({
             crop_id,
             field_id,
+            infrastructure_id,
             performed_by: req.user.id,
             activity_type,
             activity_date,

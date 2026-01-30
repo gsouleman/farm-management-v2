@@ -3,6 +3,7 @@ import useActivityStore from '../../store/activityStore';
 import useInventoryStore from '../../store/inventoryStore';
 import useFarmStore from '../../store/farmStore';
 import useCropStore from '../../store/cropStore';
+import useInfrastructureStore from '../../store/infrastructureStore';
 import { INFRASTRUCTURE_TYPES } from '../../constants/agriculturalData';
 
 const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData }) => {
@@ -10,9 +11,10 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
     const { inputs: inventory, fetchInputs } = useInventoryStore();
     const { crops, fetchCropsByFarm } = useCropStore();
     const { currentFarm, fields, fetchFields } = useFarmStore();
+    const { infrastructure, fetchInfrastructure } = useInfrastructureStore();
 
     const [selectedFieldId, setSelectedFieldId] = useState(initialFieldId || '');
-    const [selectedCropId, setSelectedCropId] = useState(cropId || '');
+    const [associatedOperation, setAssociatedOperation] = useState({ type: '', id: '' });
 
     const [formData, setFormData] = useState({
         activity_type: 'planting',
@@ -42,7 +44,8 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                 application_rate: initialData.Inputs?.[0]?.ActivityInput?.application_rate || ''
             });
             if (initialData.field_id) setSelectedFieldId(initialData.field_id);
-            if (initialData.crop_id) setSelectedCropId(initialData.crop_id);
+            if (initialData.crop_id) setAssociatedOperation({ type: 'crop', id: initialData.crop_id });
+            else if (initialData.infrastructure_id) setAssociatedOperation({ type: 'infrastructure', id: initialData.infrastructure_id });
         }
     }, [initialData]);
 
@@ -53,8 +56,9 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
             fetchInputs(currentFarm.id);
             fetchFields(currentFarm.id);
             fetchCropsByFarm(currentFarm.id);
+            fetchInfrastructure(currentFarm.id);
         }
-    }, [currentFarm, fetchInputs, fetchFields, fetchCropsByFarm]);
+    }, [currentFarm, fetchInputs, fetchFields, fetchCropsByFarm, fetchInfrastructure]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -69,7 +73,8 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
             const payload = {
                 ...formData,
                 field_id: selectedFieldId,
-                crop_id: selectedCropId || null
+                crop_id: associatedOperation.type === 'crop' ? associatedOperation.id : null,
+                infrastructure_id: associatedOperation.type === 'infrastructure' ? associatedOperation.id : null
             };
 
             // Structure inputs array if an item is selected
@@ -99,8 +104,9 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
         }
     };
 
-    // Filter crops based on selected field
+    // Filter crops and infra based on selected field
     const filteredCrops = crops.filter(c => c.field_id === selectedFieldId);
+    const filteredInfra = infrastructure.filter(i => i.field_id === selectedFieldId || !i.field_id); // Allow farm-wide infra too
 
     return (
         <div className="card animate-fade-in" style={{ maxWidth: '850px', margin: '0 auto' }}>
@@ -115,7 +121,7 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                             value={selectedFieldId}
                             onChange={(e) => {
                                 setSelectedFieldId(e.target.value);
-                                setSelectedCropId(''); // Reset crop when field changes
+                                setAssociatedOperation({ type: '', id: '' });
                             }}
                             required
                             style={{ borderColor: '#2c5282' }}
@@ -127,18 +133,33 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                         </select>
                     </div>
                     <div>
-                        <label style={{ color: '#4a5568', fontWeight: 'bold' }}>Associated Crop (Optional)</label>
+                        <label style={{ color: '#4a5568', fontWeight: 'bold' }}>Associated Operation</label>
                         <select
-                            value={selectedCropId}
-                            onChange={(e) => setSelectedCropId(e.target.value)}
+                            value={associatedOperation.type && associatedOperation.id ? `${associatedOperation.type}:${associatedOperation.id}` : ''}
+                            onChange={(e) => {
+                                const [type, id] = e.target.value.split(':');
+                                setAssociatedOperation({ type, id });
+                            }}
                             disabled={!selectedFieldId}
                         >
-                            <option value="">-- No Specific Crop --</option>
-                            {filteredCrops.map(crop => (
-                                <option key={crop.id} value={crop.id}>
-                                    {crop.crop_type} ({crop.variety})
-                                </option>
-                            ))}
+                            <option value="">-- No Specific Association --</option>
+                            <optgroup label="Crops / Cultivations">
+                                {filteredCrops.map(crop => (
+                                    <option key={crop.id} value={`crop:${crop.id}`}>
+                                        🌱 {crop.crop_type} ({crop.variety})
+                                    </option>
+                                ))}
+                            </optgroup>
+                            <optgroup label="Infrastructure & Storage">
+                                {filteredInfra.map(infra => {
+                                    const typeIcon = INFRASTRUCTURE_TYPES.find(t => t.id === infra.type)?.icon || '🏢';
+                                    return (
+                                        <option key={infra.id} value={`infrastructure:${infra.id}`}>
+                                            {typeIcon} {infra.name}
+                                        </option>
+                                    );
+                                })}
+                            </optgroup>
                         </select>
                     </div>
                 </div>

@@ -9,6 +9,7 @@ module.exports = (sequelize) => {
         },
         crop_id: DataTypes.UUID,
         field_id: DataTypes.UUID,
+        infrastructure_id: DataTypes.UUID,
         performed_by: DataTypes.UUID,
         activity_type: {
             type: DataTypes.STRING,
@@ -37,6 +38,7 @@ module.exports = (sequelize) => {
     Activity.associate = (models) => {
         Activity.belongsTo(models.Crop, { foreignKey: 'crop_id' });
         Activity.belongsTo(models.Field, { foreignKey: 'field_id' });
+        Activity.belongsTo(models.Infrastructure, { foreignKey: 'infrastructure_id' });
         Activity.belongsTo(models.User, { foreignKey: 'performed_by' });
         Activity.belongsToMany(models.Input, { through: models.ActivityInput, foreignKey: 'activity_id' });
     };
