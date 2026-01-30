@@ -2,23 +2,29 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import useFarmStore from '../store/farmStore';
 import useInventoryStore from '../store/inventoryStore';
+import useInfrastructureStore from '../store/infrastructureStore';
 import InputForm from '../components/inventory/InputForm';
+import StorageForm from '../components/stores/StorageForm';
 
 const Stores = () => {
     const { currentFarm } = useFarmStore();
-    const { inputs, fetchInputs, adjustStock, loading } = useInventoryStore();
+    const { inputs, fetchInputs, adjustStock, loading: invLoading } = useInventoryStore();
+    const { infrastructure, fetchInfrastructure, deleteInfrastructure, loading: infraLoading } = useInfrastructureStore();
     const [searchParams, setSearchParams] = useSearchParams();
 
     // Default to 'inventory' but respect URL params
     const viewParam = searchParams.get('view') || 'inventory';
     const [filter, setFilter] = useState('all');
     const [internalAddMode, setInternalAddMode] = useState(false);
+    const [infrastructureAddMode, setInfrastructureAddMode] = useState(false);
+    const [editingInfra, setEditingInfra] = useState(null);
 
     useEffect(() => {
         if (currentFarm) {
             fetchInputs(currentFarm.id);
+            fetchInfrastructure(currentFarm.id);
         }
-    }, [currentFarm, fetchInputs]);
+    }, [currentFarm, fetchInputs, fetchInfrastructure]);
 
     if (!currentFarm) return <div style={{ padding: '24px' }}>Please select a farm.</div>;
 
@@ -28,10 +34,30 @@ const Stores = () => {
     }, {});
 
     const filteredInputs = (inputs || []).filter(i => filter === 'all' || i.input_type === filter);
+    const storageUnits = (infrastructure || []).filter(i => i.type === 'Storage');
 
     if (internalAddMode) {
         return <InputForm farmId={currentFarm.id} onComplete={() => setInternalAddMode(false)} />;
     }
+
+    if (infrastructureAddMode || editingInfra) {
+        return (
+            <StorageForm
+                farmId={currentFarm.id}
+                initialData={editingInfra}
+                onComplete={() => {
+                    setInfrastructureAddMode(false);
+                    setEditingInfra(null);
+                }}
+            />
+        );
+    }
+
+    const handleDeleteStorage = async (id) => {
+        if (window.confirm('Are you sure you want to delete this storage unit? This action cannot be undone.')) {
+            await deleteInfrastructure(id);
+        }
+    };
 
     return (
         <div className="animate-fade-in" style={{ padding: '24px' }}>
@@ -53,8 +79,10 @@ const Stores = () => {
                     >
                         Storage Units
                     </button>
-                    {viewParam === 'inventory' && (
+                    {viewParam === 'inventory' ? (
                         <button className="primary" onClick={() => setInternalAddMode(true)}>+ New Input</button>
+                    ) : (
+                        <button className="primary" onClick={() => setInfrastructureAddMode(true)}>+ New Storage</button>
                     )}
                 </div>
             </div>
@@ -139,26 +167,51 @@ const Stores = () => {
             ) : (
                 /* Storage Units View */
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
-                    <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
-                        <div style={{ backgroundColor: '#cc0000', height: '60px', display: 'flex', alignItems: 'center', padding: '0 20px' }}>
-                            <h3 style={{ color: 'white', margin: 0, fontSize: '13px', fontWeight: '900', letterSpacing: '1px' }}>SILO #01 - MAIN</h3>
-                        </div>
-                        <div style={{ padding: '20px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                                <div>
-                                    <div style={{ fontSize: '10px', color: '#888', fontWeight: 'bold' }}>CAPACITY</div>
-                                    <div style={{ fontSize: '18px', fontWeight: '900' }}>500 MT</div>
-                                </div>
-                                <div>
-                                    <div style={{ fontSize: '10px', color: '#888', fontWeight: 'bold', textAlign: 'right' }}>UTILIZATION</div>
-                                    <div style={{ fontSize: '18px', fontWeight: '900', color: '#2e7d32' }}>65%</div>
+                    {storageUnits.map(unit => (
+                        <div key={unit.id} className="card" style={{ padding: '0', overflow: 'hidden', position: 'relative' }}>
+                            <div style={{ backgroundColor: '#cc0000', height: '60px', display: 'flex', alignItems: 'center', padding: '0 20px', justifyContent: 'space-between' }}>
+                                <h3 style={{ color: 'white', margin: 0, fontSize: '13px', fontWeight: '900', letterSpacing: '1px' }}>{unit.name.toUpperCase()}</h3>
+                                <div className="flex gap-8">
+                                    <button
+                                        style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
+                                        onClick={() => setEditingInfra(unit)}
+                                    >
+                                        EDIT
+                                    </button>
+                                    <button
+                                        style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
+                                        onClick={() => handleDeleteStorage(unit.id)}
+                                    >
+                                        DEL
+                                    </button>
                                 </div>
                             </div>
-                            <div style={{ height: '8px', backgroundColor: '#eee', borderRadius: '4px', overflow: 'hidden' }}>
-                                <div style={{ width: '65%', height: '100%', backgroundColor: '#2e7d32' }}></div>
+                            <div style={{ padding: '20px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+                                    <div>
+                                        <div style={{ fontSize: '10px', color: '#888', fontWeight: 'bold' }}>TYPE & STATUS</div>
+                                        <div style={{ fontSize: '16px', fontWeight: '900', textTransform: 'capitalize' }}>{unit.sub_type || 'General'} | {unit.status}</div>
+                                    </div>
+                                    <div>
+                                        <div style={{ fontSize: '10px', color: '#888', fontWeight: 'bold', textAlign: 'right' }}>CAPACITY</div>
+                                        <div style={{ fontSize: '18px', fontWeight: '900' }}>{unit.area_sqm || '0'} MT</div>
+                                    </div>
+                                </div>
+                                {unit.notes && (
+                                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic', marginTop: '12px', borderTop: '1px solid var(--border)', paddingTop: '12px' }}>
+                                        {unit.notes}
+                                    </div>
+                                )}
                             </div>
                         </div>
-                    </div>
+                    ))}
+                    {storageUnits.length === 0 && (
+                        <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '60px', color: '#888' }}>
+                            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏗️</div>
+                            <h3>No storage units found.</h3>
+                            <p>Click "+ New Storage" to create your first storage structure.</p>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

@@ -46,6 +46,23 @@ const useInfrastructureStore = create((set) => ({
         } finally {
             set({ loading: false });
         }
+    },
+
+    updateInfrastructure: async (id, data) => {
+        set({ loading: true, error: null });
+        try {
+            const response = await api.put(`/infrastructure/${id}`, data);
+            set(state => ({
+                infrastructure: state.infrastructure.map(i => i.id === id ? response.data : i)
+            }));
+            return response.data;
+        } catch (error) {
+            console.error('[InfrastructureStore] Update error:', error);
+            set({ error: error.response?.data?.message || 'Failed to update infrastructure' });
+            throw error;
+        } finally {
+            set({ loading: false });
+        }
     }
 
 }));
