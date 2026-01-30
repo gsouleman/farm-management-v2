@@ -72,6 +72,7 @@ exports.createActivity = async (req, res) => {
             other_cost: req.body.other_cost || 0,
             total_cost: req.body.total_cost || 0
         };
+        console.log('[CreateActivity] Payload received:', JSON.stringify(activityData, null, 2));
 
         const activity = await Activity.create(activityData);
 
