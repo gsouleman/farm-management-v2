@@ -1,4 +1,10 @@
 const { Activity, Crop, Field, Input, ActivityInput, Infrastructure } = require('../models');
+const xlsx = require('xlsx');
+const xml2js = require('xml2js');
+const pdf = require('pdf-parse');
+const mammoth = require('mammoth');
+const fs = require('fs');
+const path = require('path');
 
 const recalculateInfraCost = async (infrastructure_id) => {
     if (!infrastructure_id) return;
@@ -130,5 +136,100 @@ exports.deleteActivity = async (req, res) => {
         res.json({ message: 'Activity deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting activity' });
+    }
+};
+
+exports.bulkUploadActivities = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+
+        const farmId = req.params.farmId;
+        const filePath = req.file.path;
+        const fileExt = path.extname(req.file.originalname).toLowerCase();
+        let rawData = [];
+
+        // 1. Parse File based on Extension
+        if (fileExt === '.xlsx' || fileExt === '.xlsm' || fileExt === '.csv') {
+            const workbook = xlsx.readFile(filePath);
+            const sheetName = workbook.SheetNames[0];
+            rawData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+        } else if (fileExt === '.xml') {
+            const xmlContent = fs.readFileSync(filePath, 'utf8');
+            const parser = new xml2js.Parser({ explicitArray: false });
+            const result = await parser.parseStringPromise(xmlContent);
+            // Assuming <activities><activity>...</activity></activities>
+            rawData = result.activities?.activity || [];
+            if (!Array.isArray(rawData)) rawData = [rawData];
+        } else if (fileExt === '.pdf') {
+            const dataBuffer = fs.readFileSync(filePath);
+            const data = await pdf(dataBuffer);
+            // Note: PDF parsing is heuristic. Assuming one line per activity or similar.
+            // For a production app, we'd need more specific layout logic.
+            const lines = data.text.split('\n').filter(l => l.trim());
+            // Attempt to treat each line as a comma-separated activity if possible, or just raw text
+            rawData = lines.map(line => ({ description: line }));
+        } else if (fileExt === '.docx') {
+            const result = await mammoth.extractRawText({ path: filePath });
+            const lines = result.value.split('\n').filter(l => l.trim());
+            rawData = lines.map(line => ({ description: line }));
+        }
+
+        if (rawData.length === 0) {
+            return res.status(400).json({ message: 'No activities found in file' });
+        }
+
+        // 2. Map Names to IDs
+        const [fields, crops, infrastructures] = await Promise.all([
+            Field.findAll({ where: { farm_id: farmId } }),
+            Crop.findAll({ include: [{ model: Field, where: { farm_id: farmId } }] }),
+            Infrastructure.findAll({ where: { farm_id: farmId } })
+        ]);
+
+        const findFieldId = (name) => name ? fields.find(f => f.name?.toLowerCase() === name.toLowerCase())?.id : null;
+        const findCropId = (name) => name ? crops.find(c => c.crop_type?.toLowerCase() === name.toLowerCase())?.id : null;
+        const findInfraId = (name) => name ? infrastructures.find(i => i.name?.toLowerCase() === name.toLowerCase())?.id : null;
+
+        const activitiesToCreate = rawData.map(row => {
+            // Flexible column mapping
+            const activity_date = row.date || row.activity_date || new Date().toISOString().split('T')[0];
+            const activity_type = row.operation || row.activity_type || 'Manual Entry';
+            const description = row.description || `Bulk import: ${activity_type}`;
+            const total_cost = parseFloat(row.cost || row.total_cost || row.financial || 0);
+
+            // Link to assets
+            let field_id = findFieldId(row.field);
+            let crop_id = findCropId(row.crop || row.category);
+            let infrastructure_id = findInfraId(row.infrastructure || row.asset);
+
+            return {
+                activity_date,
+                activity_type,
+                description,
+                total_cost,
+                field_id,
+                crop_id,
+                infrastructure_id,
+                performed_by: req.user.id,
+                transaction_type: row.type?.toLowerCase() === 'income' ? 'income' : 'expense',
+                work_status: row.status || 'completed'
+            };
+        });
+
+        // 3. Batch Create
+        const createdActivities = await Activity.bulkCreate(activitiesToCreate);
+
+        // 4. Cleanup
+        fs.unlinkSync(filePath);
+
+        res.status(201).json({
+            message: `Successfully imported ${createdActivities.length} activities`,
+            count: createdActivities.length
+        });
+
+    } catch (error) {
+        console.error('Bulk Upload Error:', error);
+        res.status(500).json({ message: 'Error processing bulk upload' });
     }
 };

@@ -67,6 +67,24 @@ const useActivityStore = create((set, get) => ({
         } catch (error) {
             throw error;
         }
+    },
+
+    bulkUploadActivities: async (farmId, file) => {
+        set({ loading: true });
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            const response = await api.post(`/activities/bulk-upload/${farmId}`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            // Update local state by fetching fresh data to ensure synchronization
+            const freshActivities = await api.get(`/farms/${farmId}/activities`);
+            set({ activities: freshActivities.data, loading: false });
+            return response.data;
+        } catch (error) {
+            set({ loading: false });
+            throw error;
+        }
     }
 }));
 

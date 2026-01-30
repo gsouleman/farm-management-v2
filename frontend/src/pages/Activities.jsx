@@ -4,6 +4,7 @@ import useActivityStore from '../store/activityStore';
 import useCropStore from '../store/cropStore';
 import useInfrastructureStore from '../store/infrastructureStore';
 import ActivityForm from '../components/activities/ActivityForm';
+import BulkActivityModal from '../components/activities/BulkActivityModal';
 
 const Activities = () => {
     const { currentFarm, fields, fetchFields } = useFarmStore();
@@ -12,6 +13,7 @@ const Activities = () => {
     const { infrastructure, fetchInfrastructure } = useInfrastructureStore();
     const [view, setView] = useState('list'); // list, add, edit
     const [editData, setEditData] = useState(null);
+    const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
 
     useEffect(() => {
         if (currentFarm) {
@@ -47,7 +49,10 @@ const Activities = () => {
                     <h1 style={{ margin: 0, fontSize: '28px', color: '#1a365d' }}>Field Operations Timeline</h1>
                     <p style={{ margin: '4px 0 0 0', color: '#64748b' }}>Historical ledger of activities and financial transactions</p>
                 </div>
-                <button className="primary" onClick={() => setView('add')}>+ Log New Activity</button>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    <button className="secondary" onClick={() => setIsBulkModalOpen(true)} style={{ backgroundColor: '#000', color: '#fff', border: 'none' }}>Bulk Log Activities</button>
+                    <button className="primary" onClick={() => setView('add')}>+ Log New Activity</button>
+                </div>
             </div>
 
             <div className="card" style={{ padding: '0', overflow: 'hidden', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
