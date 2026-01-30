@@ -96,7 +96,7 @@ const Infrastructure = () => {
         <div className="animate-fade-in" style={{ padding: '24px' }}>
             <div className="flex j-between a-center" style={{ marginBottom: '32px' }}>
                 <div>
-                    <h1 style={{ fontSize: '24px', margin: 0 }}>Farm Infrastructure</h1>
+                    <h1 style={{ fontSize: '24px', margin: 0 }}>Infrastructure Assets</h1>
                     <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Manage buildings, storage, and systems at {currentFarm?.name}.</p>
                 </div>
                 <button className="primary" onClick={() => setView('add')}>+ Register Asset</button>

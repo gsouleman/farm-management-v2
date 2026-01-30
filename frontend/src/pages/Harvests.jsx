@@ -72,7 +72,7 @@ const Harvests = () => {
         <div className="animate-fade-in" style={{ padding: '24px' }}>
             <div className="flex j-between a-center" style={{ marginBottom: '32px' }}>
                 <div>
-                    <h1 style={{ fontSize: '24px', margin: 0 }}>Harvest Tracking</h1>
+                    <h1 style={{ fontSize: '24px', margin: 0 }}>Harvest Records</h1>
                     <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Record yields, moisture levels, and quality grades for {currentFarm?.name}.</p>
                 </div>
                 <button className="primary" onClick={() => setView('add')}>+ Record New Harvest</button>

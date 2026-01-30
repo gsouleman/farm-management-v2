@@ -20,7 +20,7 @@ const Fields = () => {
         <div className="animate-fade-in" style={{ padding: '24px' }}>
             <div className="flex j-between a-center" style={{ marginBottom: '32px' }}>
                 <div>
-                    <h1 style={{ fontSize: '24px', margin: 0 }}>Field Management</h1>
+                    <h1 style={{ fontSize: '24px', margin: 0 }}>Land & Fields</h1>
                     <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Overview and boundaries for all parcels in {currentFarm?.name}.</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>

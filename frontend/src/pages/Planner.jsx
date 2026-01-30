@@ -89,7 +89,7 @@ const Planner = () => {
 
             <div className="flex j-between a-center" style={{ marginBottom: '32px' }}>
                 <div>
-                    <h1 style={{ fontSize: '28px', fontWeight: '800', margin: 0, color: '#1a365d' }}>Crop Rotation Planner</h1>
+                    <h1 style={{ fontSize: '28px', fontWeight: '800', margin: 0, color: '#1a365d' }}>Production Planner</h1>
                     <p style={{ color: '#4a5568', fontSize: '15px' }}>Strategic planning for upcoming seasons at <strong>{currentFarm?.name}</strong></p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
