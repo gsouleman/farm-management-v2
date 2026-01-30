@@ -34,6 +34,8 @@ module.exports = (sequelize) => {
         construction_date: DataTypes.DATEONLY,
         cost: DataTypes.DECIMAL(15, 2),
         area_sqm: DataTypes.DECIMAL(10, 2),
+        perimeter: DataTypes.DECIMAL(10, 2),
+        boundary_manual: DataTypes.TEXT,
         boundary: {
             type: DataTypes.GEOMETRY('POLYGON', 4326),
             allowNull: true
