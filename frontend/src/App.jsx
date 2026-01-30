@@ -20,6 +20,7 @@ import Contracts from './pages/Contracts';
 import Stores from './pages/Stores';
 import MainLayout from './components/MainLayout';
 import GlobalNotification from './components/common/GlobalNotification';
+import IdleTimer from './components/common/IdleTimer';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -41,6 +42,7 @@ function App() {
   return (
     <Router>
       <GlobalNotification />
+      <IdleTimer />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
