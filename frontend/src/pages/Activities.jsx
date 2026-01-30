@@ -72,7 +72,7 @@ const Activities = () => {
             doc.setTextColor(255, 255, 255);
             doc.setFontSize(24);
             doc.setFont('helvetica', 'bold');
-            doc.text('ACTIVITY & TRANSACTION JOURNAL', 15, 22);
+            doc.text('FARM JOURNAL', 15, 22);
 
             doc.setFontSize(10);
             doc.setFont('helvetica', 'normal');
@@ -166,15 +166,15 @@ const Activities = () => {
                     doc.setFontSize(8);
                     doc.setTextColor(100, 100, 100);
                     doc.text(str, 275, 200);
-                    doc.text('© ACTIVITY & TRANSACTION JOURNAL - PRODUCED BY GLOBAL INTELLIGENCE SYSTEM', 15, 200);
+                    doc.text('© FARM JOURNAL - PRODUCED BY GLOBAL INTELLIGENCE SYSTEM', 15, 200);
                 }
             });
 
-            doc.save(`ActivityJournal_${currentFarm?.name}_${new Date().toISOString().split('T')[0]}.pdf`);
-            showNotification('Journal Exported Successfully.', 'success');
+            doc.save(`FarmJournal_${currentFarm?.name}_${new Date().toISOString().split('T')[0]}.pdf`);
+            showNotification('Farm Journal Exported Successfully.', 'success');
         } catch (error) {
             console.error('Ledger Error:', error);
-            showNotification('Failed to generate journal report.', 'error');
+            showNotification('Failed to generate Farm Journal.', 'error');
         }
     };
 
@@ -270,7 +270,7 @@ const Activities = () => {
         <div className="animate-fade-in" style={{ padding: '24px' }}>
             <div className="flex j-between a-center" style={{ marginBottom: '32px' }}>
                 <div>
-                    <h1 style={{ margin: 0, fontSize: '28px', color: '#1a365d' }}>Activity & Transaction Journal</h1>
+                    <h1 style={{ margin: 0, fontSize: '28px', color: '#1a365d' }}>Farm Journal</h1>
                     <p style={{ margin: '4px 0 0 0', color: '#64748b' }}>Operational logs and financial transactions registry</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
@@ -282,7 +282,7 @@ const Activities = () => {
                         <span>📥</span> Export PDF
                     </button>
                     <button className="secondary" onClick={() => setIsBulkModalOpen(true)} style={{ backgroundColor: '#000', color: '#fff', border: 'none' }}>Bulk Log Activities</button>
-                    <button className="primary" onClick={() => setView('add')}>+ Log Transaction/Activity</button>
+                    <button className="primary" onClick={() => setView('add')}>+ Log Journal Entry</button>
                 </div>
             </div>
 
