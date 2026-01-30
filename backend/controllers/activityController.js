@@ -102,8 +102,12 @@ exports.createActivity = async (req, res) => {
 
         res.status(201).json(activity);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error creating activity' });
+        console.error('Activity Creation Error:', error);
+        res.status(500).json({
+            message: 'Error creating activity',
+            error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 };
 
