@@ -52,6 +52,19 @@ const startServer = async () => {
         // Sync models (in production, use migrations)
         await sequelize.sync({ alter: true });
 
+        // Backfill farm_id for activities if missing (one-time migration helper)
+        const { Activity, Farm } = require('./models');
+        const firstFarm = await Farm.findOne();
+        if (firstFarm) {
+            const [updatedCount] = await Activity.update(
+                { farm_id: firstFarm.id },
+                { where: { farm_id: null } }
+            );
+            if (updatedCount > 0) {
+                console.log(`[Startup] Backfilled ${updatedCount} activities with farmId: ${firstFarm.id}`);
+            }
+        }
+
         app.listen(PORT, () => {
             console.log(`Server is running on port ${PORT}`);
         });
