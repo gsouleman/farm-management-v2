@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import useInfrastructureStore from '../../store/infrastructureStore';
 import useFarmStore from '../../store/farmStore';
 import FieldMap from '../fields/FieldMap';
@@ -7,7 +7,10 @@ import * as turf from '@turf/turf';
 
 const InfrastructureForm = ({ farmId, onComplete }) => {
     const { createInfrastructure, infrastructure } = useInfrastructureStore();
-    const { currentFarm } = useFarmStore();
+    const { currentFarm, fields } = useFarmStore();
+
+    const [selectedFieldId, setSelectedFieldId] = useState('');
+    const parentField = (fields || []).find(f => f?.id?.toString() === selectedFieldId);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -19,9 +22,16 @@ const InfrastructureForm = ({ farmId, onComplete }) => {
         boundary_coordinates: [],
         boundary_manual: '',
         area_sqm: '',
-        perimeter: ''
+        perimeter: '',
+        field_id: ''
     });
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (selectedFieldId) {
+            setFormData(prev => ({ ...prev, field_id: selectedFieldId }));
+        }
+    }, [selectedFieldId]);
 
     const handleManualCoordsChange = (text) => {
         try {
@@ -57,39 +67,71 @@ const InfrastructureForm = ({ farmId, onComplete }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+
+        const targetFarmId = farmId || currentFarm?.id;
+        if (!targetFarmId) {
+            alert('Selection Error: Please ensure a farm is selected.');
+            setLoading(false);
+            return;
+        }
+
         try {
-            await createInfrastructure(farmId, formData);
+            // Clean up field_id if empty string
+            const submissionData = {
+                ...formData,
+                field_id: formData.field_id || null
+            };
+
+            await createInfrastructure(targetFarmId, submissionData);
             if (onComplete) onComplete();
         } catch (error) {
-            console.error(error);
+            console.error('Registration failed:', error);
+            alert(`Error: ${error.response?.data?.message || 'Failed to save infrastructure asset'}`);
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="card animate-fade-in" style={{ maxWidth: '850px', margin: '0 auto' }}>
-            <div className="card-header">
-                <h3 style={{ margin: 0 }}>Register New Farm Infrastructure</h3>
+        <div className="card animate-fade-in" style={{ maxWidth: '850px', margin: '0 auto', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
+            <div className="card-header" style={{ borderBottomColor: '#edf2f7', padding: '24px' }}>
+                <h3 style={{ margin: 0, fontSize: '20px', color: '#1a365d' }}>Register New Farm Infrastructure</h3>
             </div>
             <form onSubmit={handleSubmit} style={{ padding: '24px' }}>
+                <div style={{ marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid #edf2f7' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>TARGET FIELD (OPTIONAL)</label>
+                    <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '12px' }}>Select a field to center the map and allocate the structure within its boundaries.</p>
+                    <select
+                        value={selectedFieldId}
+                        onChange={(e) => setSelectedFieldId(e.target.value)}
+                        style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
+                    >
+                        <option value="">-- Farm Level (Not specific to a field) --</option>
+                        {(fields || []).map(f => (
+                            <option key={f.id} value={f.id}>{f.name} ({f.area} ha)</option>
+                        ))}
+                    </select>
+                </div>
+
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '24px' }}>
                     <div>
-                        <label>Asset Name</label>
+                        <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Asset Name</label>
                         <input
                             type="text"
                             placeholder="e.g. Main Warehouse"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             required
+                            style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
                         />
                     </div>
                     <div>
-                        <label>Type</label>
+                        <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Type</label>
                         <select
                             value={formData.type}
                             onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                             required
+                            style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
                         >
                             <option value="">-- Select Type --</option>
                             {INFRASTRUCTURE_TYPES.map(type => (
@@ -98,10 +140,11 @@ const InfrastructureForm = ({ farmId, onComplete }) => {
                         </select>
                     </div>
                     <div>
-                        <label>Status</label>
+                        <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Status</label>
                         <select
                             value={formData.status}
                             onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                            style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
                         >
                             <option value="operational">Operational</option>
                             <option value="under_construction">Under Construction</option>
@@ -113,13 +156,13 @@ const InfrastructureForm = ({ farmId, onComplete }) => {
 
                 <div className="card" style={{ backgroundColor: '#fcfcfc', marginBottom: '24px', border: '1px solid #e0e0e0', padding: '0', overflow: 'hidden' }}>
                     <div style={{ padding: '16px 20px', backgroundColor: '#f8f9fa', borderBottom: '1px solid #e0e0e0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <h4 style={{ margin: 0, fontSize: '13px', color: 'var(--primary)', textTransform: 'uppercase' }}>Structure Location Plan</h4>
+                        <h4 style={{ margin: 0, fontSize: '13px', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Structure Location Plan</h4>
                         <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Allocate space for this building on the map</span>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', height: '400px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(240px, 1fr) 2fr', height: '400px' }}>
                         <div style={{ padding: '16px', backgroundColor: '#f1f5f9', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
-                            <label style={{ fontSize: '11px', fontWeight: 'bold', marginBottom: '8px' }}>SURVEY COORDINATES (LAT, LNG)</label>
+                            <label style={{ fontSize: '11px', fontWeight: 'bold', marginBottom: '8px', color: '#4a5568' }}>SURVEY COORDINATES (LAT, LNG)</label>
                             <textarea
                                 value={formData.boundary_manual}
                                 onChange={(e) => handleManualCoordsChange(e.target.value)}
@@ -129,8 +172,9 @@ const InfrastructureForm = ({ farmId, onComplete }) => {
                         </div>
                         <div style={{ height: '100%' }}>
                             <FieldMap
-                                center={currentFarm?.boundary?.coordinates?.[0]?.[0] ? [currentFarm.boundary.coordinates[0][0][1], currentFarm.boundary.coordinates[0][0][0]] : null}
-                                farmBoundary={currentFarm?.boundary}
+                                center={parentField?.boundary?.coordinates?.[0]?.[0] ? [parentField.boundary.coordinates[0][0][1], parentField.boundary.coordinates[0][0][0]] : (currentFarm?.boundary?.coordinates?.[0]?.[0] ? [currentFarm.boundary.coordinates[0][0][1], currentFarm.boundary.coordinates[0][0][0]] : null)}
+                                farmBoundary={parentField?.boundary || currentFarm?.boundary}
+                                fields={fields}
                                 infrastructure={infrastructure}
                                 manualCoordinates={formData.boundary_coordinates}
                                 editable={true}
@@ -157,37 +201,42 @@ const InfrastructureForm = ({ farmId, onComplete }) => {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
                     <div>
-                        <label>Construction Date</label>
+                        <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Construction Date</label>
                         <input
                             type="date"
                             value={formData.construction_date}
                             onChange={(e) => setFormData({ ...formData, construction_date: e.target.value })}
+                            style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
                         />
                     </div>
                     <div>
-                        <label>Asset Cost (XAF)</label>
+                        <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Asset Cost (XAF)</label>
                         <input
                             type="number"
+                            placeholder="e.g. 5000000"
                             value={formData.cost}
                             onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
+                            style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
                         />
                     </div>
                 </div>
 
                 <div style={{ marginBottom: '24px' }}>
-                    <label>Additional Notes</label>
+                    <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Additional Notes</label>
                     <textarea
                         value={formData.notes}
                         onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                        placeholder="Details about building materials, purpose, etc."
                         rows="3"
+                        style={{ padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%', resize: 'vertical' }}
                     />
                 </div>
 
                 <div style={{ display: 'flex', gap: '16px' }}>
-                    <button type="submit" className="primary" style={{ flex: 2 }} disabled={loading}>
+                    <button type="submit" className="primary" style={{ flex: 2, padding: '14px', fontSize: '16px' }} disabled={loading}>
                         {loading ? 'Registering...' : 'Save Infrastructure Asset'}
                     </button>
-                    <button type="button" onClick={onComplete} className="outline" style={{ flex: 1 }}>Discard</button>
+                    <button type="button" onClick={onComplete} className="outline" style={{ flex: 1, padding: '14px' }}>Discard</button>
                 </div>
             </form>
         </div>
