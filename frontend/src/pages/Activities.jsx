@@ -53,40 +53,40 @@ const Activities = () => {
     const handleExportPDF = () => {
         try {
             const doc = new jsPDF({
-                orientation: 'portrait',
+                orientation: 'landscape', // Landscape is better for ledger columns
                 unit: 'mm',
                 format: 'a4'
             });
 
-            // CNN Red Header Color
             const brandRed = [187, 25, 25];
             const brandBlack = [0, 0, 0];
+            const ledgerGray = [241, 245, 249];
 
-            // Add Header Banner
+            // Add Header Banner (Landscape width is 297mm)
             doc.setFillColor(...brandRed);
-            doc.rect(0, 0, 210, 40, 'F');
+            doc.rect(0, 0, 297, 40, 'F');
             doc.setFillColor(...brandBlack);
-            doc.rect(0, 0, 2, 40, 'F');
+            doc.rect(0, 0, 4, 40, 'F');
 
             // Header Text
             doc.setTextColor(255, 255, 255);
-            doc.setFontSize(24);
+            doc.setFontSize(28);
             doc.setFont('helvetica', 'bold');
-            doc.text('FIELD OPERATIONS TIMELINE', 15, 22);
+            doc.text('GENERAL LEDGER', 15, 22);
 
             doc.setFontSize(10);
             doc.setFont('helvetica', 'normal');
-            doc.text('OPERATIONAL INTELLIGENCE LEDGER', 15, 30);
+            doc.text('FINANCIAL TRANSACTION JOURNAL | OPERATIONAL RECORD', 15, 30);
 
             // Farm Info
             doc.setTextColor(255, 255, 255);
             doc.setFontSize(9);
             const dateStr = new Date().toLocaleDateString();
-            doc.text(`STATION: ${currentFarm?.name?.toUpperCase()}`, 150, 18);
-            doc.text(`DATE GENERATED: ${dateStr}`, 150, 24);
-            doc.text(`SECURITY LEVEL: CONFIDENTIAL`, 150, 30);
+            doc.text(`STATION / UNIT: ${currentFarm?.name?.toUpperCase()}`, 220, 18);
+            doc.text(`LEDGER DATE: ${dateStr}`, 220, 24);
+            doc.text(`STATUS: CERTIFIED FINANCIAL RECORD`, 220, 30);
 
-            // Prepared Data
+            // Prepared Data for Ledger
             const tableRows = processedActivities.map(activity => {
                 let opName = 'General Field';
                 if (activity.crop_id) {
@@ -98,58 +98,83 @@ const Activities = () => {
                 }
 
                 const isInc = activity.transaction_type === 'income' || activity.activity_type === 'harvesting';
-                const amt = parseFloat(activity.total_cost || activity.labor_cost || 0).toLocaleString();
+                const amtVal = parseFloat(activity.total_cost || activity.labor_cost || 0);
+                const amtFormatted = amtVal.toLocaleString();
 
                 return [
                     new Date(activity.activity_date).toLocaleDateString(),
                     opName.toUpperCase(),
-                    (isInc ? 'INCOME' : 'EXPENSE'),
                     activity.activity_type.replace('_', ' ').toUpperCase(),
                     activity.description || 'No description',
-                    `${isInc ? '+' : '-'}${amt} XAF`
+                    !isInc ? `${amtFormatted}` : '', // Debit (Expense)
+                    isInc ? `${amtFormatted}` : ''   // Credit (Income)
                 ];
             });
+
+            // Calculate Totals
+            const totalDebit = processedActivities.reduce((acc, act) => {
+                const isInc = act.transaction_type === 'income' || act.activity_type === 'harvesting';
+                return acc + (!isInc ? parseFloat(act.total_cost || act.labor_cost || 0) : 0);
+            }, 0);
+
+            const totalCredit = processedActivities.reduce((acc, act) => {
+                const isInc = act.transaction_type === 'income' || act.activity_type === 'harvesting';
+                return acc + (isInc ? parseFloat(act.total_cost || act.labor_cost || 0) : 0);
+            }, 0);
 
             // Add Table
             autoTable(doc, {
                 startY: 50,
-                head: [['DATE', 'OPERATION', 'TYPE', 'ACTIVITY', 'DESCRIPTION', 'AMOUNT']],
-                body: tableRows,
+                head: [['DATE', 'REF / OPERATION', 'ACCOUNT / TYPE', 'DESCRIPTION', 'DEBIT (EXPENSE)', 'CREDIT (INCOME)']],
+                body: [...tableRows, [
+                    '', '', '', 'TOTALS (XAF)', totalDebit.toLocaleString(), totalCredit.toLocaleString()
+                ]],
                 theme: 'striped',
                 headStyles: {
                     fillColor: brandBlack,
                     textColor: [255, 255, 255],
                     fontSize: 9,
                     fontStyle: 'bold',
-                    cellPadding: 4
+                    cellPadding: 5
                 },
                 bodyStyles: {
                     fontSize: 8,
-                    textColor: [50, 50, 50],
-                    cellPadding: 3
+                    textColor: [40, 40, 40],
+                    cellPadding: 4,
+                    lineColor: [200, 200, 200],
+                    lineWidth: 0.1
                 },
                 columnStyles: {
+                    4: { halign: 'right', fontStyle: 'bold' },
                     5: { halign: 'right', fontStyle: 'bold' }
                 },
                 alternateRowStyles: {
-                    fillColor: [248, 250, 252]
+                    fillColor: ledgerGray
                 },
                 margin: { top: 50, left: 15, right: 15 },
+                didParseCell: (data) => {
+                    // Highlight totals row
+                    if (data.row.index === tableRows.length) {
+                        data.cell.styles.fillColor = brandRed;
+                        data.cell.styles.textColor = [255, 255, 255];
+                        data.cell.styles.fontStyle = 'bold';
+                    }
+                },
                 didDrawPage: (data) => {
                     // Footer
                     const str = 'Page ' + doc.internal.getNumberOfPages();
                     doc.setFontSize(8);
-                    doc.setTextColor(150, 150, 150);
-                    doc.text(str, 185, 285);
-                    doc.text('© FARM MANAGEMENT SYSTEM - INTELLIGENCE DIVISION', 15, 285);
+                    doc.setTextColor(100, 100, 100);
+                    doc.text(str, 275, 200);
+                    doc.text('© FARM GENERAL LEDGER - PRODUCED BY GLOBAL INTELLIGENCE SYSTEM', 15, 200);
                 }
             });
 
-            doc.save(`ActivityReport_${currentFarm?.name}_${new Date().toISOString().split('T')[0]}.pdf`);
-            showNotification('PDF Intelligence Report generated successfully.', 'success');
+            doc.save(`GeneralLedger_${currentFarm?.name}_${new Date().toISOString().split('T')[0]}.pdf`);
+            showNotification('General Ledger Exported Successfully.', 'success');
         } catch (error) {
-            console.error('PDF Error:', error);
-            showNotification('Failed to generate PDF report.', 'error');
+            console.error('Ledger Error:', error);
+            showNotification('Failed to generate General Ledger.', 'error');
         }
     };
 
@@ -249,8 +274,8 @@ const Activities = () => {
         <div className="animate-fade-in" style={{ padding: '24px' }}>
             <div className="flex j-between a-center" style={{ marginBottom: '32px' }}>
                 <div>
-                    <h1 style={{ margin: 0, fontSize: '28px', color: '#1a365d' }}>Field Operations Timeline</h1>
-                    <p style={{ margin: '4px 0 0 0', color: '#64748b' }}>Historical ledger of activities and financial transactions</p>
+                    <h1 style={{ margin: 0, fontSize: '28px', color: '#1a365d' }}>General Ledger</h1>
+                    <p style={{ margin: '4px 0 0 0', color: '#64748b' }}>Certified financial record of field operations and transactions</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
                     <button
@@ -342,17 +367,15 @@ const Activities = () => {
                                     DATE <SortIndicator column="activity_date" />
                                 </th>
                                 <th onClick={() => handleSort('operation')} style={{ padding: '16px', cursor: 'pointer', userSelect: 'none' }}>
-                                    OPERATION <SortIndicator column="operation" />
+                                    REF / OPERATION <SortIndicator column="operation" />
                                 </th>
-                                <th style={{ padding: '16px' }}>TRANSACTION</th>
                                 <th onClick={() => handleSort('activity_type')} style={{ padding: '16px', cursor: 'pointer', userSelect: 'none' }}>
-                                    ACTIVITY TYPE <SortIndicator column="activity_type" />
+                                    ACCOUNT / TYPE <SortIndicator column="activity_type" />
                                 </th>
                                 <th style={{ padding: '16px' }}>DESCRIPTION</th>
-                                <th onClick={() => handleSort('amount')} style={{ padding: '16px', textAlign: 'right', cursor: 'pointer', userSelect: 'none' }}>
-                                    AMOUNT (XAF) <SortIndicator column="amount" />
-                                </th>
-                                <th style={{ padding: '16px', textAlign: 'center' }}>ACTION</th>
+                                <th style={{ padding: '16px', textAlign: 'right' }}>DEBIT</th>
+                                <th style={{ padding: '16px', textAlign: 'right' }}>CREDIT</th>
+                                <th style={{ padding: '16px', textAlign: 'center' }} className="no-print">ACTION</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -376,33 +399,23 @@ const Activities = () => {
                                             {new Date(activity.activity_date).toLocaleDateString()}
                                         </td>
                                         <td style={{ padding: '16px', fontWeight: '700', color: '#1a365d' }}>
-                                            {operationName}
+                                            {operationName.toUpperCase()}
                                         </td>
                                         <td style={{ padding: '16px' }}>
-                                            <span style={{
-                                                padding: '4px 10px',
-                                                borderRadius: '4px',
-                                                fontSize: '11px',
-                                                fontWeight: 'bold',
-                                                backgroundColor: isIncome ? '#dcfce7' : '#fee2e2',
-                                                color: isIncome ? '#166534' : '#991b1b',
-                                                textTransform: 'uppercase'
-                                            }}>
-                                                {isIncome ? 'Income' : 'Expense'}
-                                            </span>
-                                        </td>
-                                        <td style={{ padding: '16px' }}>
-                                            <span style={{ color: '#4a5568', textTransform: 'capitalize' }}>
+                                            <span style={{ color: '#4a5568', textTransform: 'uppercase', fontSize: '12px' }}>
                                                 {activity.activity_type.replace('_', ' ')}
                                             </span>
                                         </td>
                                         <td style={{ padding: '16px', color: '#718096', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                             {activity.description}
                                         </td>
-                                        <td style={{ padding: '16px', textAlign: 'right', fontWeight: '800', color: isIncome ? '#166534' : '#2d3748' }}>
-                                            {isIncome ? '+' : '-'}{parseFloat(amount).toLocaleString()}
+                                        <td style={{ padding: '16px', textAlign: 'right', fontWeight: '800', color: '#991b1b' }}>
+                                            {!isIncome ? parseFloat(amount).toLocaleString() : ''}
                                         </td>
-                                        <td style={{ padding: '16px', textAlign: 'center' }}>
+                                        <td style={{ padding: '16px', textAlign: 'right', fontWeight: '800', color: '#166534' }}>
+                                            {isIncome ? parseFloat(amount).toLocaleString() : ''}
+                                        </td>
+                                        <td style={{ padding: '16px', textAlign: 'center' }} className="no-print">
                                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                                                 <button className="outline" onClick={() => handleEdit(activity)} style={{ padding: '4px 8px', fontSize: '11px' }}>Edit</button>
                                                 <button className="outline" onClick={() => handleDelete(activity.id)} style={{ padding: '4px 8px', fontSize: '11px', color: '#dc3545', borderColor: '#ffccd1' }}>Delete</button>
