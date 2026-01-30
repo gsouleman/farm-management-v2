@@ -145,7 +145,7 @@ const Activities = () => {
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
                     <button className="secondary" onClick={() => setIsBulkModalOpen(true)} style={{ backgroundColor: '#000', color: '#fff', border: 'none' }}>Bulk Log Activities</button>
-                    <button className="primary" onClick={() => setView('add')}>+ Log New Activity</button>
+                    <button className="primary" onClick={() => setView('add')}>+ Add New Activity</button>
                 </div>
             </div>
 
