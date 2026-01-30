@@ -178,10 +178,6 @@ const Activities = () => {
         }
     };
 
-    const handlePrint = () => {
-        window.print();
-    };
-
     const handleSort = (key) => {
         let direction = 'asc';
         if (sortConfig.key === key && sortConfig.direction === 'asc') {
@@ -284,13 +280,6 @@ const Activities = () => {
                         style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                     >
                         <span>📥</span> Export PDF
-                    </button>
-                    <button
-                        className="outline no-print"
-                        onClick={handlePrint}
-                        style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                    >
-                        <span>🖨️</span> Print
                     </button>
                     <button className="secondary" onClick={() => setIsBulkModalOpen(true)} style={{ backgroundColor: '#000', color: '#fff', border: 'none' }}>Bulk Log Activities</button>
                     <button className="primary" onClick={() => setView('add')}>+ Add New Activity</button>
