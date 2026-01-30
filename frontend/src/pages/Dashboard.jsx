@@ -66,14 +66,18 @@ const Dashboard = () => {
 
     const netCashFlow = useMemo(() => totalRevenue - totalExpenses, [totalRevenue, totalExpenses]);
 
+    const formatToXAF = (value) => {
+        return new Intl.NumberFormat('en-US').format(Math.round(value)) + ' XAF';
+    };
+
     const landUtilization = useMemo(() => currentFarm?.total_area > 0
         ? (totalPlantedArea / parseFloat(currentFarm.total_area) * 100).toFixed(1)
         : 0, [currentFarm, totalPlantedArea]);
 
     const stats = useMemo(() => [
-        { label: 'Revenue', value: `${(totalRevenue / 1000).toFixed(1)}k`, icon: '💰', color: '#4caf50' },
-        { label: 'Expenses', value: `${(totalExpenses / 1000).toFixed(1)}k`, icon: '📉', color: '#cc0000' },
-        { label: 'Cash Flow', value: `${(netCashFlow / 1000).toFixed(1)}k`, icon: '⚖️', color: netCashFlow >= 0 ? '#4caf50' : '#cc0000' },
+        { label: 'Revenue', value: formatToXAF(totalRevenue), icon: '💰', color: '#4caf50' },
+        { label: 'Expenses', value: formatToXAF(totalExpenses), icon: '📉', color: '#cc0000' },
+        { label: 'Cash Flow', value: formatToXAF(netCashFlow), icon: '⚖️', color: netCashFlow >= 0 ? '#4caf50' : '#cc0000' },
         { label: 'Total Area', value: `${currentFarm?.total_area || '0.0'} ha`, icon: '📏' },
         {
             label: 'Planted',
