@@ -97,9 +97,11 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
             if (onComplete) onComplete();
         } catch (error) {
             console.error('[InfrastructureActivityForm] Submission error:', error);
-            const serverMsg = error.response?.data?.message || '';
+            const serverMsg = error.response?.data?.message || 'Unknown Error';
+            const serverErr = error.response?.data?.error || '';
             const serverDetail = error.response?.data?.detail || '';
-            alert(`Failed to log infrastructure operation: ${serverMsg} ${serverDetail}`);
+            const serverHint = error.response?.data?.hint || '';
+            alert(`INFRASTRUCTURE LOG FAILURE\n------------------\nMessage: ${serverMsg}\nError: ${serverErr}\nDetail: ${serverDetail}\nHint: ${serverHint}\n------------------\nCheck your inputs and try again.`);
         } finally {
             setLoading(false);
         }

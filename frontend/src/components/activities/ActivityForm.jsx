@@ -101,9 +101,11 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
             if (onComplete) onComplete();
         } catch (error) {
             console.error('[ActivityForm] Submission error:', error);
-            const serverMsg = error.response?.data?.message || '';
+            const serverMsg = error.response?.data?.message || 'Unknown Error';
+            const serverErr = error.response?.data?.error || '';
             const serverDetail = error.response?.data?.detail || '';
-            alert(`Failed to log operation: ${serverMsg} ${serverDetail}\n\nPlease ensure all required fields are filled.`);
+            const serverHint = error.response?.data?.hint || '';
+            alert(`FAILED TO LOG OPERATION\n------------------\nMessage: ${serverMsg}\nError: ${serverErr}\nDetail: ${serverDetail}\nHint: ${serverHint}\n------------------\nPlease ensure all required fields are correctly filled.`);
         } finally {
             setLoading(false);
         }
