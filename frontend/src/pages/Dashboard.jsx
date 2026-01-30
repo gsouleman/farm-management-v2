@@ -173,7 +173,7 @@ const Dashboard = () => {
                 {/* Professional 3-Column Grid */}
                 <div style={{
                     display: 'grid',
-                    gridTemplateColumns: '1fr 300px 300px',
+                    gridTemplateColumns: '1fr 250px 250px',
                     gap: '20px',
                     alignItems: 'start'
                 }}>
@@ -195,57 +195,12 @@ const Dashboard = () => {
                         </div>
                     </div>
 
-                    {/* Middle Column: Utilization & Pro Insight */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                        <div className="card" style={{ textAlign: 'center', padding: '16px' }}>
-                            <h3 style={{ fontSize: '12px', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '800', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>Land Utilization</h3>
-                            <div style={{ height: '180px', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
-                                {landUtilization !== undefined ? (
-                                    <ResponsiveContainer width="100%" height={180}>
-                                        <PieChart>
-                                            <Pie
-                                                data={[
-                                                    { name: 'Planted', value: parseFloat(landUtilization) || 0 },
-                                                    { name: 'Available', value: Math.max(0, 100 - (parseFloat(landUtilization) || 0)) }
-                                                ]}
-                                                cx="50%"
-                                                cy="50%"
-                                                innerRadius={50}
-                                                outerRadius={70}
-                                                paddingAngle={5}
-                                                dataKey="value"
-                                                startAngle={180}
-                                                endAngle={0}
-                                            >
-                                                <Cell fill="#cc0000" />
-                                                <Cell fill="#eee" />
-                                            </Pie>
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                ) : (
-                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Calculating...</div>
-                                )}
-                                <div style={{ position: 'absolute', top: '55%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-                                    <div style={{ fontSize: '24px', fontWeight: '900' }}>{landUtilization}%</div>
-                                    <div style={{ fontSize: '9px', color: '#888', fontWeight: 'bold' }}>OCCUPIED</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="card" style={{ backgroundColor: '#000', color: 'white', padding: '16px', borderLeft: '4px solid #cc0000' }}>
-                            <h3 style={{ color: '#cc0000', fontSize: '12px', marginBottom: '10px', fontWeight: '900', letterSpacing: '1px' }}>PRO INSIGHT</h3>
-                            <p style={{ fontSize: '12px', margin: 0, color: '#bbb', lineHeight: '1.5', fontStyle: 'italic' }}>
-                                Land utilization is at {landUtilization}%. Consider expanding cultivation to optimize seasonal revenue targets.
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Right Column: Recent Operations */}
+                    {/* Middle Column: Recent Operations */}
                     <div className="card" style={{ padding: '16px' }}>
-                        <h3 style={{ marginBottom: '16px', fontSize: '12px', fontWeight: '900', letterSpacing: '1px', textTransform: 'uppercase', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>Recent Operations</h3>
+                        <h3 style={{ marginBottom: '16px', fontSize: '10px', fontWeight: '900', letterSpacing: '1px', textTransform: 'uppercase', borderBottom: '1px solid #eee', paddingBottom: '8px', color: '#888' }}>RECENT OPERATIONS</h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             {activities.length > 0 ? (
-                                activities.slice(0, 4).map(activity => {
+                                activities.slice(0, 5).map(activity => {
                                     const fieldName = fields.find(f => f.id === activity.field_id)?.name || 'General Farm';
                                     const dateObj = new Date(activity.activity_date);
                                     const relativeDate = dateObj.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
@@ -262,6 +217,51 @@ const Dashboard = () => {
                             ) : (
                                 <div style={{ fontSize: '11px', color: '#888', textAlign: 'center', padding: '20px' }}>No operations logged yet.</div>
                             )}
+                        </div>
+                    </div>
+
+                    {/* Right Column: Utilization & Pro Insight */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                        <div className="card" style={{ textAlign: 'center', padding: '16px' }}>
+                            <h3 style={{ fontSize: '10px', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '800', borderBottom: '1px solid #eee', paddingBottom: '8px', color: '#888' }}>LAND UTILIZATION</h3>
+                            <div style={{ height: '140px', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
+                                {landUtilization !== undefined ? (
+                                    <ResponsiveContainer width="100%" height={140}>
+                                        <PieChart>
+                                            <Pie
+                                                data={[
+                                                    { name: 'Planted', value: parseFloat(landUtilization) || 0 },
+                                                    { name: 'Available', value: Math.max(0, 100 - (parseFloat(landUtilization) || 0)) }
+                                                ]}
+                                                cx="50%"
+                                                cy="50%"
+                                                innerRadius={40}
+                                                outerRadius={55}
+                                                paddingAngle={5}
+                                                dataKey="value"
+                                                startAngle={180}
+                                                endAngle={0}
+                                            >
+                                                <Cell fill="#cc0000" />
+                                                <Cell fill="#eee" />
+                                            </Pie>
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                ) : (
+                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Calculating...</div>
+                                )}
+                                <div style={{ position: 'absolute', top: '55%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+                                    <div style={{ fontSize: '20px', fontWeight: '900' }}>{landUtilization}%</div>
+                                    <div style={{ fontSize: '8px', color: '#888', fontWeight: 'bold' }}>OCCUPIED</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="card" style={{ backgroundColor: '#000', color: 'white', padding: '16px', borderLeft: '4px solid #cc0000' }}>
+                            <h3 style={{ color: '#cc0000', fontSize: '10px', marginBottom: '10px', fontWeight: '900', letterSpacing: '1px' }}>PRO INSIGHT</h3>
+                            <p style={{ fontSize: '11px', margin: 0, color: '#bbb', lineHeight: '1.4', fontStyle: 'italic' }}>
+                                Land utilization is at {landUtilization}%. Optimize seasonal targets.
+                            </p>
                         </div>
                     </div>
                 </div>
