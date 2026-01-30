@@ -85,9 +85,9 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                 const selectedInput = inventory.find(i => i.id === formData.input_id);
                 payload.inputs = [{
                     input_id: formData.input_id,
-                    quantity_used: formData.quantity_used,
+                    quantity_used: parseFloat(formData.quantity_used) || 0,
                     unit: selectedInput ? selectedInput.unit : '',
-                    application_rate: formData.application_rate
+                    application_rate: parseFloat(formData.application_rate) || null
                 }];
             } else {
                 payload.inputs = [];

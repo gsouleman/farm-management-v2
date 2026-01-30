@@ -77,7 +77,16 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
             const payload = {
                 ...formData,
                 field_id: infrastructure?.field_id || null, // Inherit field from infrastructure
-                farm_id: currentFarm.id
+                farm_id: currentFarm.id,
+                labor_cost: parseFloat(formData.labor_cost) || 0,
+                material_cost: parseFloat(formData.material_cost) || 0,
+                equipment_cost: parseFloat(formData.equipment_cost) || 0,
+                service_cost: parseFloat(formData.service_cost) || 0,
+                transport_cost: parseFloat(formData.transport_cost) || 0,
+                other_cost: parseFloat(formData.other_cost) || 0,
+                total_cost: parseFloat(formData.total_cost) || 0,
+                duration_hours: parseFloat(formData.duration_hours) || 0,
+                num_workers: parseInt(formData.num_workers) || 1
             };
 
             if (initialData?.id) {

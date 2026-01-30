@@ -16,19 +16,30 @@ const getVal = (row, ...keys) => {
 };
 const path = require('path');
 
-const sanitizeUUID = (val) => (val === '' || val === undefined) ? null : val;
+const sanitizeUUID = (val) => {
+    if (val === '' || val === undefined || val === null || val === 'null' || val === 'undefined') return null;
+    return val;
+};
+
 const sanitizeNum = (val, defaultVal = null) => {
-    if (val === '' || val === undefined || val === null) return defaultVal;
+    if (val === '' || val === undefined || val === null || val === 'null' || val === 'undefined') return defaultVal;
     const parsed = parseFloat(val);
     return isNaN(parsed) ? defaultVal : parsed;
+};
+
+const sanitizeDate = (val) => {
+    if (val === '' || val === undefined || val === null || val === 'null' || val === 'undefined') return null;
+    return val;
 };
 
 const recalculateInfraCost = async (infrastructure_id) => {
     if (!infrastructure_id) return;
     try {
+        console.log(`[RecalculateInfra] Infrastructure ID: ${infrastructure_id}`);
         const total = await Activity.sum('total_cost', {
             where: { infrastructure_id }
         });
+        console.log(`[RecalculateInfra] Total calculated: ${total}`);
         await Infrastructure.update(
             { cost: total || 0 },
             { where: { id: infrastructure_id } }
@@ -74,6 +85,7 @@ exports.createActivity = async (req, res) => {
             field_id: sanitizeUUID(req.body.field_id),
             infrastructure_id: sanitizeUUID(req.body.infrastructure_id),
             harvest_id: sanitizeUUID(req.body.harvest_id),
+            next_maintenance: sanitizeDate(req.body.next_maintenance),
             transaction_type: req.body.transaction_type || 'expense',
             labor_cost: sanitizeNum(req.body.labor_cost, 0),
             material_cost: sanitizeNum(req.body.material_cost, 0),
@@ -91,23 +103,33 @@ exports.createActivity = async (req, res) => {
 
         const activity = await Activity.create(activityData);
 
-        if (req.body.inputs && req.body.inputs.length > 0) {
+        if (req.body.inputs && Array.isArray(req.body.inputs) && req.body.inputs.length > 0) {
+            console.log(`[CreateActivity] Processing ${req.body.inputs.length} inputs...`);
             for (const item of req.body.inputs) {
-                const input = await Input.findByPk(item.input_id);
-                const itemCost = input ? (parseFloat(input.unit_cost || 0) * parseFloat(item.quantity_used || 0)) : 0;
+                if (!item.input_id) continue;
 
-                await ActivityInput.create({
-                    activity_id: activity.id,
-                    input_id: item.input_id,
-                    quantity_used: item.quantity_used,
-                    unit: item.unit || (input ? input.unit : ''),
-                    cost: itemCost
-                });
+                try {
+                    const input = await Input.findByPk(item.input_id);
+                    const quantityUsed = sanitizeNum(item.quantity_used, 0);
+                    const itemCost = input ? (parseFloat(input.unit_cost || 0) * quantityUsed) : 0;
 
-                if (input) {
-                    await input.update({
-                        quantity_in_stock: parseFloat(input.quantity_in_stock) - parseFloat(item.quantity_used)
+                    console.log(`[CreateActivity] Adding ActivityInput: ${item.input_id}, Qty: ${quantityUsed}`);
+                    await ActivityInput.create({
+                        activity_id: activity.id,
+                        input_id: item.input_id,
+                        quantity_used: quantityUsed,
+                        unit: item.unit || (input ? input.unit : 'unit'),
+                        cost: itemCost,
+                        application_rate: sanitizeNum(item.application_rate)
                     });
+
+                    if (input) {
+                        await input.update({
+                            quantity_in_stock: (parseFloat(input.quantity_in_stock) || 0) - quantityUsed
+                        });
+                    }
+                } catch (inputError) {
+                    console.error('[CreateActivity] Failed to process input:', item.input_id, inputError);
                 }
             }
         }
@@ -119,6 +141,17 @@ exports.createActivity = async (req, res) => {
         res.status(201).json(activity);
     } catch (error) {
         console.error('Activity Creation Error:', error);
+        if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+            console.error('Validation Errors:', error.errors.map(e => ({
+                field: e.path,
+                message: e.message,
+                value: e.value
+            })));
+            return res.status(400).json({
+                message: 'Validation error create activity',
+                errors: error.errors.map(e => e.message)
+            });
+        }
         res.status(500).json({
             message: 'Error creating activity',
             error: error.message,
@@ -140,6 +173,7 @@ exports.updateActivity = async (req, res) => {
             field_id: sanitizeUUID(req.body.field_id),
             infrastructure_id: sanitizeUUID(req.body.infrastructure_id),
             harvest_id: sanitizeUUID(req.body.harvest_id),
+            next_maintenance: sanitizeDate(req.body.next_maintenance),
             transaction_type: req.body.transaction_type || activity.transaction_type || 'expense',
             labor_cost: sanitizeNum(req.body.labor_cost, activity.labor_cost),
             material_cost: sanitizeNum(req.body.material_cost, activity.material_cost),
