@@ -100,8 +100,10 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
             }
             if (onComplete) onComplete();
         } catch (error) {
-            console.error(error);
-            alert('Failed to log operation. Please ensure all required fields are filled.');
+            console.error('[ActivityForm] Submission error:', error);
+            const serverMsg = error.response?.data?.message || '';
+            const serverDetail = error.response?.data?.detail || '';
+            alert(`Failed to log operation: ${serverMsg} ${serverDetail}\n\nPlease ensure all required fields are filled.`);
         } finally {
             setLoading(false);
         }

@@ -96,8 +96,10 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
             }
             if (onComplete) onComplete();
         } catch (error) {
-            console.error(error);
-            alert('Failed to log infrastructure operation.');
+            console.error('[InfrastructureActivityForm] Submission error:', error);
+            const serverMsg = error.response?.data?.message || '';
+            const serverDetail = error.response?.data?.detail || '';
+            alert(`Failed to log infrastructure operation: ${serverMsg} ${serverDetail}`);
         } finally {
             setLoading(false);
         }

@@ -17,8 +17,9 @@ const getVal = (row, ...keys) => {
 
 const isValidUUID = (id) => {
     if (!id) return false;
+    const strId = String(id);
     const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    return regex.test(id);
+    return regex.test(strId);
 };
 const path = require('path');
 
@@ -87,9 +88,10 @@ exports.getFarmActivities = async (req, res) => {
 
 exports.createActivity = async (req, res) => {
     try {
+        console.log('[CreateActivity] Initial req.body:', JSON.stringify(req.body, null, 2));
         const activityData = {
             activity_type: req.body.activity_type || 'planting',
-            activity_date: req.body.activity_date || new Date().toISOString().split('T')[0],
+            activity_date: sanitizeDate(req.body.activity_date) || new Date().toISOString().split('T')[0],
             performed_by: req.user.id,
             farm_id: sanitizeUUID(req.body.farm_id),
             crop_id: sanitizeUUID(req.body.crop_id),
@@ -128,7 +130,9 @@ exports.createActivity = async (req, res) => {
         };
         console.log('[CreateActivity] Cleansed payload:', JSON.stringify(activityData, null, 2));
 
+        console.log('[CreateActivity] Attempting Activity.create...');
         const activity = await Activity.create(activityData);
+        console.log('[CreateActivity] Activity created successfully. ID:', activity.id);
 
         if (req.body.inputs && Array.isArray(req.body.inputs) && req.body.inputs.length > 0) {
             console.log(`[CreateActivity] Processing ${req.body.inputs.length} inputs...`);
