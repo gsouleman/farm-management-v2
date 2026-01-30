@@ -4,6 +4,16 @@ const xml2js = require('xml2js');
 const pdf = require('pdf-parse');
 const mammoth = require('mammoth');
 const fs = require('fs');
+
+const getVal = (row, ...keys) => {
+    if (!row) return null;
+    const rowKeys = Object.keys(row);
+    for (const key of keys) {
+        const found = rowKeys.find(k => k.toLowerCase() === key.toLowerCase() || k.toLowerCase().includes(key.toLowerCase()));
+        if (found) return row[found];
+    }
+    return null;
+};
 const path = require('path');
 
 const recalculateInfraCost = async (infrastructure_id) => {
@@ -178,8 +188,11 @@ exports.bulkUploadActivities = async (req, res) => {
         }
 
         if (rawData.length === 0) {
+            console.warn('[BulkUpload] No data parsed from file.');
             return res.status(400).json({ message: 'No activities found in file' });
         }
+
+        console.log(`[BulkUpload] Processing ${rawData.length} rows for farm ${farmId}`);
 
         // 2. Map Names to IDs
         const [fields, crops, infrastructures] = await Promise.all([
@@ -188,60 +201,74 @@ exports.bulkUploadActivities = async (req, res) => {
             Infrastructure.findAll({ where: { farm_id: farmId } })
         ]);
 
-        const getVal = (row, ...keys) => {
-            const rowKeys = Object.keys(row);
-            for (const key of keys) {
-                const found = rowKeys.find(k => k.toLowerCase() === key.toLowerCase() || k.toLowerCase().includes(key.toLowerCase()));
-                if (found) return row[found];
-            }
-            return null;
-        };
-
         const findFieldId = (name) => name ? fields.find(f => f.name?.toLowerCase().includes(String(name).toLowerCase()))?.id : null;
         const findCropId = (name) => name ? crops.find(c => c.crop_type?.toLowerCase().includes(String(name).toLowerCase()))?.id : null;
         const findInfraId = (name) => name ? infrastructures.find(i => i.name?.toLowerCase().includes(String(name).toLowerCase()))?.id : null;
 
-        const activitiesToCreate = rawData.map(row => {
-            // Robust column mapping
-            const activity_date = getVal(row, 'date', 'activity_date') || new Date().toISOString().split('T')[0];
-            const rawType = getVal(row, 'activity type', 'type', 'operation type') || 'General';
-            const activity_type = rawType.toLowerCase().replace(/ /g, '_');
-            const description = getVal(row, 'description', 'notes') || `Bulk import: ${activity_type}`;
+        const activitiesToCreate = rawData
+            .filter(row => Object.values(row).some(v => v !== null && v !== '')) // Filter out empty rows
+            .map((row, index) => {
+                try {
+                    // Robust column mapping
+                    const activity_date = getVal(row, 'date', 'activity_date') || new Date().toISOString().split('T')[0];
+                    const rawType = getVal(row, 'activity type', 'type', 'operation type') || 'General';
+                    const activity_type = rawType.toLowerCase().replace(/ /g, '_');
+                    const description = getVal(row, 'description', 'notes') || `Bulk import: ${activity_type}`;
 
-            // Financials
-            const rawAmount = getVal(row, 'amount', 'cost', 'total_cost', 'financial');
-            const total_cost = parseFloat(String(rawAmount || 0).replace(/,/g, ''));
+                    // Financials
+                    const rawAmount = getVal(row, 'amount', 'cost', 'total_cost', 'financial');
+                    let total_cost = 0;
+                    if (rawAmount) {
+                        // Extract numeric value from string (handling "XAF 1,000" etc)
+                        const numericPart = String(rawAmount).replace(/[^\d.-]/g, '');
+                        total_cost = parseFloat(numericPart) || 0;
+                    }
 
-            // Transaction Type (Income/Expense)
-            const transStr = String(getVal(row, 'transaction', 'type') || '').toLowerCase();
-            const transaction_type = transStr.includes('income') || activity_type.includes('harvest') ? 'income' : 'expense';
+                    // Transaction Type (Income/Expense)
+                    const transStr = String(getVal(row, 'transaction', 'type') || '').toLowerCase();
+                    const transaction_type = (transStr.includes('income') || activity_type.includes('harvest') || transStr.includes('revenue')) ? 'income' : 'expense';
 
-            // Link to assets
-            const opName = String(getVal(row, 'operation', 'asset', 'crop', 'infrastructure') || '');
-            let field_id = findFieldId(getVal(row, 'field', 'location'));
-            let crop_id = findCropId(opName);
-            let infrastructure_id = findInfraId(opName);
+                    // Link to assets
+                    const opName = String(getVal(row, 'operation', 'asset', 'crop', 'infrastructure') || '');
+                    let field_id = findFieldId(getVal(row, 'field', 'location'));
+                    let crop_id = findCropId(opName);
+                    let infrastructure_id = findInfraId(opName);
 
-            return {
-                activity_date,
-                activity_type,
-                description,
-                total_cost,
-                field_id,
-                crop_id,
-                infrastructure_id,
-                farm_id: farmId,
-                performed_by: req.user.id,
-                transaction_type,
-                work_status: 'completed'
-            };
-        });
+                    return {
+                        activity_date,
+                        activity_type,
+                        description,
+                        total_cost,
+                        field_id,
+                        crop_id,
+                        infrastructure_id,
+                        farm_id: farmId,
+                        performed_by: req.user.id,
+                        transaction_type,
+                        work_status: 'completed'
+                    };
+                } catch (err) {
+                    console.error(`[BulkUpload] Error mapping row ${index}:`, err);
+                    return null;
+                }
+            })
+            .filter(Boolean);
+
+        if (activitiesToCreate.length === 0) {
+            console.warn('[BulkUpload] No valid activity records could be mapped.');
+            return res.status(400).json({ message: 'No valid data found in file mapping' });
+        }
+
+        console.log(`[BulkUpload] Inserting ${activitiesToCreate.length} records...`);
 
         // 3. Batch Create
         const createdActivities = await Activity.bulkCreate(activitiesToCreate);
+        console.log(`[BulkUpload] Successfully inserted ${createdActivities.length} records.`);
 
         // 4. Cleanup
-        fs.unlinkSync(filePath);
+        if (req.file?.path && fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+        }
 
         res.status(201).json({
             message: `Successfully imported ${createdActivities.length} activities`,

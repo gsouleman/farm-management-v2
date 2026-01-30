@@ -56,12 +56,12 @@ const Dashboard = () => {
 
     const totalRevenue = useMemo(() =>
         activities.filter(a => a.transaction_type === 'income' || a.activity_type === 'harvesting')
-            .reduce((sum, a) => sum + parseFloat(a.total_cost || a.labor_cost || 0), 0)
+            .reduce((sum, a) => sum + (parseFloat(a.total_cost) || parseFloat(a.labor_cost) || 0), 0)
         , [activities]);
 
     const totalExpenses = useMemo(() =>
         activities.filter(a => a.transaction_type === 'expense')
-            .reduce((sum, a) => sum + parseFloat(a.total_cost || a.labor_cost || 0), 0)
+            .reduce((sum, a) => sum + (parseFloat(a.total_cost) || parseFloat(a.labor_cost) || 0), 0)
         , [activities]);
 
     const netCashFlow = useMemo(() => totalRevenue - totalExpenses, [totalRevenue, totalExpenses]);
@@ -240,10 +240,24 @@ const Dashboard = () => {
                     <div className="card" style={{ padding: '16px' }}>
                         <h3 style={{ marginBottom: '16px', fontSize: '12px', fontWeight: '900', letterSpacing: '1px', textTransform: 'uppercase', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>Recent Operations</h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            <ActivityItem type="Seeding" date="Just now" field="Field A" />
-                            <ActivityItem type="Irrigation" date="2h ago" field="North Field" />
-                            <ActivityItem type="Harvesting" date="Yesterday" field="Field B" />
-                            <ActivityItem type="Maintenance" date="Yesterday" field="Main Road" />
+                            {activities.length > 0 ? (
+                                activities.slice(0, 4).map(activity => {
+                                    const fieldName = fields.find(f => f.id === activity.field_id)?.name || 'General Farm';
+                                    const dateObj = new Date(activity.activity_date);
+                                    const relativeDate = dateObj.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+
+                                    return (
+                                        <ActivityItem
+                                            key={activity.id}
+                                            type={activity.activity_type.replace(/_/g, ' ')}
+                                            date={relativeDate}
+                                            field={fieldName}
+                                        />
+                                    );
+                                })
+                            ) : (
+                                <div style={{ fontSize: '11px', color: '#888', textAlign: 'center', padding: '20px' }}>No operations logged yet.</div>
+                            )}
                         </div>
                     </div>
                 </div>
