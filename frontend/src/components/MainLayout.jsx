@@ -1,12 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
 import useFarmStore from '../store/farmStore';
+import SyncStatus from './common/SyncStatus';
+import syncService from '../services/syncService';
 
 const MainLayout = ({ children }) => {
     const { user, logout } = useAuthStore();
     const { farms, currentFarm, setCurrentFarm } = useFarmStore();
     const navigate = useNavigate();
+
+    // Pull data from network on farm change/focus
+    useEffect(() => {
+        if (currentFarm?.id && navigator.onLine) {
+            syncService.pullFromNetwork(currentFarm.id);
+        }
+    }, [currentFarm?.id]);
 
     // State for collapsible sections
     const [openGroups, setOpenGroups] = useState({
@@ -165,6 +174,8 @@ const MainLayout = ({ children }) => {
                         <SidebarLink to="/team" icon="👥" label="Human Resources" sub />
                     </NavGroup>
                 </nav>
+
+                <SyncStatus />
 
                 {/* Footer User Profile */}
                 <div style={{ padding: '20px', borderTop: '1px solid #222', backgroundColor: '#000' }}>

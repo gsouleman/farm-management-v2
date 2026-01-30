@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { queueForSync } from './db';
 
 const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
@@ -14,13 +15,27 @@ const api = axios.create({
     }
 });
 
-// Add a request interceptor to include the JWT token
+// Add a request interceptor to include the JWT token and handle offline queueing
 api.interceptors.request.use(
-    (config) => {
+    async (config) => {
         const token = localStorage.getItem('token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
+
+        // Offline Queueing Logic
+        if (!navigator.onLine && config.method !== 'get' && !config.skipQueue) {
+            console.warn(`[API] Offline detected. Queuing ${config.method.toUpperCase()} ${config.url}`);
+            await queueForSync(config.method, config.url, config.data);
+
+            // Return a "fake" successful response so the UI doesn't crash
+            // The sync engine will handle the actual server update later
+            return Promise.reject({
+                isOfflineQueue: true,
+                message: 'Request queued for synchronization'
+            });
+        }
+
         return config;
     },
     (error) => Promise.reject(error)

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import api from '../services/api';
+import { getFromLocal, saveToLocal } from '../services/db';
 
 const useFarmStore = create((set, get) => ({
     farms: [],
@@ -9,8 +10,21 @@ const useFarmStore = create((set, get) => ({
 
     fetchFarms: async () => {
         set({ loading: true });
+
+        // Load from local DB first
+        const localData = await getFromLocal('farms');
+        if (localData.length > 0) {
+            set({ farms: localData, loading: false });
+            if (!get().currentFarm) {
+                const firstFarm = localData[0];
+                set({ currentFarm: firstFarm });
+                get().fetchFields(firstFarm.id);
+            }
+        }
+
         try {
             const response = await api.get('/farms');
+            await saveToLocal('farms', response.data);
             set({ farms: response.data, loading: false });
             if (response.data.length > 0 && !get().currentFarm) {
                 const firstFarm = response.data[0];
@@ -29,9 +43,16 @@ const useFarmStore = create((set, get) => ({
 
     fetchFields: async (farmId) => {
         set({ loading: true });
+
+        // Load from local DB
+        const localData = await getFromLocal('fields', { farm_id: farmId });
+        if (localData.length > 0) {
+            set({ fields: localData, loading: false });
+        }
+
         try {
-            // Updated endpoint to match the new schema structure /api/farms/:farmId/fields
             const response = await api.get(`/farms/${farmId}/fields`);
+            await saveToLocal('fields', response.data);
             set({ fields: response.data, loading: false });
         } catch (error) {
             set({ loading: false });
@@ -66,8 +87,20 @@ const useFarmStore = create((set, get) => ({
         try {
             const response = await api.post(`/farms/${farmId}/fields`, fieldData);
             set((state) => ({ fields: [...state.fields, response.data] }));
+            await saveToLocal('fields', response.data);
             return response.data;
         } catch (error) {
+            if (error.isOfflineQueue) {
+                const tempField = {
+                    ...fieldData,
+                    id: `temp-${Date.now()}`,
+                    farm_id: farmId,
+                    status: 'syncing'
+                };
+                set((state) => ({ fields: [...state.fields, tempField] }));
+                await saveToLocal('fields', tempField);
+                return tempField;
+            }
             throw error;
         }
     },

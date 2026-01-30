@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import api from '../services/api';
+import { getFromLocal, saveToLocal } from '../services/db';
 
 const useActivityStore = create((set, get) => ({
     activities: [],
@@ -7,8 +8,16 @@ const useActivityStore = create((set, get) => ({
 
     fetchActivitiesByCrop: async (cropId) => {
         set({ loading: true });
+
+        // Load from local DB first for instant UI
+        const localData = await getFromLocal('activities', { crop_id: cropId });
+        if (localData.length > 0) {
+            set({ activities: localData, loading: false });
+        }
+
         try {
             const response = await api.get(`/crops/${cropId}/activities`);
+            await saveToLocal('activities', response.data);
             set({ activities: response.data, loading: false });
         } catch (error) {
             set({ loading: false });
@@ -17,8 +26,16 @@ const useActivityStore = create((set, get) => ({
 
     fetchActivitiesByFarm: async (farmId) => {
         set({ loading: true });
+
+        // Load from local DB first
+        const localData = await getFromLocal('activities', { farm_id: farmId });
+        if (localData.length > 0) {
+            set({ activities: localData, loading: false });
+        }
+
         try {
             const response = await api.get(`/farms/${farmId}/activities`);
+            await saveToLocal('activities', response.data);
             set({ activities: response.data, loading: false });
         } catch (error) {
             set({ loading: false });
@@ -29,8 +46,21 @@ const useActivityStore = create((set, get) => ({
         try {
             const response = await api.post(`/crops/${cropId}/activities`, activityData);
             set((state) => ({ activities: [...state.activities, response.data] }));
+            await saveToLocal('activities', response.data);
             return response.data;
         } catch (error) {
+            if (error.isOfflineQueue) {
+                // Return a temporary object for the UI
+                const tempActivity = {
+                    ...activityData,
+                    id: `temp-${Date.now()}`,
+                    crop_id: cropId,
+                    status: 'syncing'
+                };
+                set((state) => ({ activities: [...state.activities, tempActivity] }));
+                await saveToLocal('activities', tempActivity);
+                return tempActivity;
+            }
             throw error;
         }
     },
@@ -39,8 +69,19 @@ const useActivityStore = create((set, get) => ({
         try {
             const response = await api.post('/activities', activityData);
             set((state) => ({ activities: [...state.activities, response.data] }));
+            await saveToLocal('activities', response.data);
             return response.data;
         } catch (error) {
+            if (error.isOfflineQueue) {
+                const tempActivity = {
+                    ...activityData,
+                    id: `temp-${Date.now()}`,
+                    status: 'syncing'
+                };
+                set((state) => ({ activities: [...state.activities, tempActivity] }));
+                await saveToLocal('activities', tempActivity);
+                return tempActivity;
+            }
             console.error('[ActivityStore] logActivity error details:', {
                 status: error.response?.status,
                 data: error.response?.data,
