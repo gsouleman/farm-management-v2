@@ -33,10 +33,22 @@ const StorageForm = ({ farmId, onComplete, initialData = null }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            // Normalize numeric fields: empty strings or NaN should be null for the backend
+            const parseNum = (val) => {
+                if (val === '' || val === null || val === undefined) return null;
+                const parsed = parseFloat(val);
+                return isNaN(parsed) ? null : parsed;
+            };
+
+            const submissionData = {
+                ...formData,
+                area_sqm: parseNum(formData.area_sqm)
+            };
+
             if (initialData) {
-                await updateInfrastructure(initialData.id, formData);
+                await updateInfrastructure(initialData.id, submissionData);
             } else {
-                await createInfrastructure(farmId, formData);
+                await createInfrastructure(farmId, submissionData);
             }
             onComplete();
         } catch (err) {

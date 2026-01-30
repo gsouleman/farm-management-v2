@@ -23,6 +23,10 @@ module.exports = (sequelize) => {
             type: DataTypes.STRING, // Farm House, Storage, Poultry, Irrigation, etc.
             allowNull: false
         },
+        sub_type: {
+            type: DataTypes.STRING, // Silo, Warehouse, Cold Storage, etc.
+            allowNull: true
+        },
         status: {
             type: DataTypes.STRING,
             defaultValue: 'operational' // operational, under_construction, maintenance, retired

@@ -76,17 +76,29 @@ const InfrastructureForm = ({ farmId, onComplete }) => {
         }
 
         try {
-            // Clean up field_id if empty string
+            // Normalize numeric fields: empty strings or NaN should be null for the backend
+            const parseNum = (val) => {
+                if (val === '' || val === null || val === undefined) return null;
+                const parsed = parseFloat(val);
+                return isNaN(parsed) ? null : parsed;
+            };
+
             const submissionData = {
                 ...formData,
-                field_id: formData.field_id || null
+                field_id: selectedFieldId || null,
+                cost: parseNum(formData.cost),
+                area_sqm: parseNum(formData.area_sqm),
+                perimeter: parseNum(formData.perimeter)
             };
+
+            console.log('Submitting Infrastructure Data:', submissionData);
 
             await createInfrastructure(targetFarmId, submissionData);
             if (onComplete) onComplete();
         } catch (error) {
             console.error('Registration failed:', error);
-            alert(`Error: ${error.response?.data?.message || 'Failed to save infrastructure asset'}`);
+            const serverMsg = error.response?.data?.message || 'Failed to save infrastructure asset';
+            alert(`Error: ${serverMsg}`);
         } finally {
             setLoading(false);
         }
