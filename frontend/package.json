@@ -17,6 +17,8 @@
     "@turf/turf": "^7.3.3",
     "axios": "^1.13.4",
     "date-fns": "^4.1.0",
+    "jspdf": "^4.0.0",
+    "jspdf-autotable": "^5.0.7",
     "leaflet": "^1.9.4",
     "leaflet-draw": "^1.0.4",
     "react": "^19.2.0",

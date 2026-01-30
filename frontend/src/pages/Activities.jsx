@@ -6,6 +6,8 @@ import useUIStore from '../store/uiStore';
 import useInfrastructureStore from '../store/infrastructureStore';
 import ActivityForm from '../components/activities/ActivityForm';
 import BulkActivityModal from '../components/activities/BulkActivityModal';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const Activities = () => {
     const { currentFarm, fields, fetchFields } = useFarmStore();
@@ -46,6 +48,113 @@ const Activities = () => {
                 showNotification('Failed to remove activity record.', 'error');
             }
         }
+    };
+
+    const handleExportPDF = () => {
+        try {
+            const doc = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+
+            // CNN Red Header Color
+            const brandRed = [187, 25, 25];
+            const brandBlack = [0, 0, 0];
+
+            // Add Header Banner
+            doc.setFillColor(...brandRed);
+            doc.rect(0, 0, 210, 40, 'F');
+            doc.setFillColor(...brandBlack);
+            doc.rect(0, 0, 2, 40, 'F');
+
+            // Header Text
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(24);
+            doc.setFont('helvetica', 'bold');
+            doc.text('FIELD OPERATIONS TIMELINE', 15, 22);
+
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.text('OPERATIONAL INTELLIGENCE LEDGER', 15, 30);
+
+            // Farm Info
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(9);
+            const dateStr = new Date().toLocaleDateString();
+            doc.text(`STATION: ${currentFarm?.name?.toUpperCase()}`, 150, 18);
+            doc.text(`DATE GENERATED: ${dateStr}`, 150, 24);
+            doc.text(`SECURITY LEVEL: CONFIDENTIAL`, 150, 30);
+
+            // Prepared Data
+            const tableRows = processedActivities.map(activity => {
+                let opName = 'General Field';
+                if (activity.crop_id) {
+                    const crop = crops.find(c => c.id === activity.crop_id);
+                    opName = crop ? crop.crop_type : 'Crop Op';
+                } else if (activity.infrastructure_id) {
+                    const infra = infrastructure.find(i => i.id === activity.infrastructure_id);
+                    opName = infra ? infra.name : 'Infra Op';
+                }
+
+                const isInc = activity.transaction_type === 'income' || activity.activity_type === 'harvesting';
+                const amt = parseFloat(activity.total_cost || activity.labor_cost || 0).toLocaleString();
+
+                return [
+                    new Date(activity.activity_date).toLocaleDateString(),
+                    opName.toUpperCase(),
+                    (isInc ? 'INCOME' : 'EXPENSE'),
+                    activity.activity_type.replace('_', ' ').toUpperCase(),
+                    activity.description || 'No description',
+                    `${isInc ? '+' : '-'}${amt} XAF`
+                ];
+            });
+
+            // Add Table
+            autoTable(doc, {
+                startY: 50,
+                head: [['DATE', 'OPERATION', 'TYPE', 'ACTIVITY', 'DESCRIPTION', 'AMOUNT']],
+                body: tableRows,
+                theme: 'striped',
+                headStyles: {
+                    fillColor: brandBlack,
+                    textColor: [255, 255, 255],
+                    fontSize: 9,
+                    fontStyle: 'bold',
+                    cellPadding: 4
+                },
+                bodyStyles: {
+                    fontSize: 8,
+                    textColor: [50, 50, 50],
+                    cellPadding: 3
+                },
+                columnStyles: {
+                    5: { halign: 'right', fontStyle: 'bold' }
+                },
+                alternateRowStyles: {
+                    fillColor: [248, 250, 252]
+                },
+                margin: { top: 50, left: 15, right: 15 },
+                didDrawPage: (data) => {
+                    // Footer
+                    const str = 'Page ' + doc.internal.getNumberOfPages();
+                    doc.setFontSize(8);
+                    doc.setTextColor(150, 150, 150);
+                    doc.text(str, 185, 285);
+                    doc.text('© FARM MANAGEMENT SYSTEM - INTELLIGENCE DIVISION', 15, 285);
+                }
+            });
+
+            doc.save(`ActivityReport_${currentFarm?.name}_${new Date().toISOString().split('T')[0]}.pdf`);
+            showNotification('PDF Intelligence Report generated successfully.', 'success');
+        } catch (error) {
+            console.error('PDF Error:', error);
+            showNotification('Failed to generate PDF report.', 'error');
+        }
+    };
+
+    const handlePrint = () => {
+        window.print();
     };
 
     const handleSort = (key) => {
@@ -144,10 +253,38 @@ const Activities = () => {
                     <p style={{ margin: '4px 0 0 0', color: '#64748b' }}>Historical ledger of activities and financial transactions</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
+                    <button
+                        className="outline no-print"
+                        onClick={handleExportPDF}
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                    >
+                        <span>📥</span> Export PDF
+                    </button>
+                    <button
+                        className="outline no-print"
+                        onClick={handlePrint}
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                    >
+                        <span>🖨️</span> Print
+                    </button>
                     <button className="secondary" onClick={() => setIsBulkModalOpen(true)} style={{ backgroundColor: '#000', color: '#fff', border: 'none' }}>Bulk Log Activities</button>
                     <button className="primary" onClick={() => setView('add')}>+ Add New Activity</button>
                 </div>
             </div>
+
+            <style>
+                {`
+                    @media print {
+                        .no-print { display: none !important; }
+                        body { background: white !important; }
+                        .card { box-shadow: none !important; border: 1px solid #eee !important; }
+                        .animate-fade-in { animation: none !important; }
+                        table { width: 100% !important; border-collapse: collapse !important; }
+                        th, td { border: 1px solid #eee !important; padding: 12px !important; }
+                        header, nav, .filter-bar { display: none !important; }
+                    }
+                `}
+            </style>
 
             {/* Filter Bar */}
             <div style={{
