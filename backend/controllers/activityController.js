@@ -188,21 +188,39 @@ exports.bulkUploadActivities = async (req, res) => {
             Infrastructure.findAll({ where: { farm_id: farmId } })
         ]);
 
-        const findFieldId = (name) => name ? fields.find(f => f.name?.toLowerCase() === name.toLowerCase())?.id : null;
-        const findCropId = (name) => name ? crops.find(c => c.crop_type?.toLowerCase() === name.toLowerCase())?.id : null;
-        const findInfraId = (name) => name ? infrastructures.find(i => i.name?.toLowerCase() === name.toLowerCase())?.id : null;
+        const getVal = (row, ...keys) => {
+            const rowKeys = Object.keys(row);
+            for (const key of keys) {
+                const found = rowKeys.find(k => k.toLowerCase() === key.toLowerCase() || k.toLowerCase().includes(key.toLowerCase()));
+                if (found) return row[found];
+            }
+            return null;
+        };
+
+        const findFieldId = (name) => name ? fields.find(f => f.name?.toLowerCase().includes(String(name).toLowerCase()))?.id : null;
+        const findCropId = (name) => name ? crops.find(c => c.crop_type?.toLowerCase().includes(String(name).toLowerCase()))?.id : null;
+        const findInfraId = (name) => name ? infrastructures.find(i => i.name?.toLowerCase().includes(String(name).toLowerCase()))?.id : null;
 
         const activitiesToCreate = rawData.map(row => {
-            // Flexible column mapping
-            const activity_date = row.date || row.activity_date || new Date().toISOString().split('T')[0];
-            const activity_type = row.operation || row.activity_type || 'Manual Entry';
-            const description = row.description || `Bulk import: ${activity_type}`;
-            const total_cost = parseFloat(row.cost || row.total_cost || row.financial || 0);
+            // Robust column mapping
+            const activity_date = getVal(row, 'date', 'activity_date') || new Date().toISOString().split('T')[0];
+            const rawType = getVal(row, 'activity type', 'type', 'operation type') || 'General';
+            const activity_type = rawType.toLowerCase().replace(/ /g, '_');
+            const description = getVal(row, 'description', 'notes') || `Bulk import: ${activity_type}`;
+
+            // Financials
+            const rawAmount = getVal(row, 'amount', 'cost', 'total_cost', 'financial');
+            const total_cost = parseFloat(String(rawAmount || 0).replace(/,/g, ''));
+
+            // Transaction Type (Income/Expense)
+            const transStr = String(getVal(row, 'transaction', 'type') || '').toLowerCase();
+            const transaction_type = transStr.includes('income') || activity_type.includes('harvest') ? 'income' : 'expense';
 
             // Link to assets
-            let field_id = findFieldId(row.field);
-            let crop_id = findCropId(row.crop || row.category);
-            let infrastructure_id = findInfraId(row.infrastructure || row.asset);
+            const opName = String(getVal(row, 'operation', 'asset', 'crop', 'infrastructure') || '');
+            let field_id = findFieldId(getVal(row, 'field', 'location'));
+            let crop_id = findCropId(opName);
+            let infrastructure_id = findInfraId(opName);
 
             return {
                 activity_date,
@@ -212,10 +230,10 @@ exports.bulkUploadActivities = async (req, res) => {
                 field_id,
                 crop_id,
                 infrastructure_id,
-                farm_id: farmId, // Persist farm_id in bulk upload
+                farm_id: farmId,
                 performed_by: req.user.id,
-                transaction_type: row.type?.toLowerCase() === 'income' ? 'income' : 'expense',
-                work_status: row.status || 'completed'
+                transaction_type,
+                work_status: 'completed'
             };
         });
 
