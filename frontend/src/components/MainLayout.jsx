@@ -17,7 +17,7 @@ const MainLayout = ({ children }) => {
         }
     }, [currentFarm?.id]);
 
-    // State for collapsible sections
+    // State for collapsible sections (Restored fix)
     const [openGroups, setOpenGroups] = useState({
         estate: true,
         cultivation: true,
