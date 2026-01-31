@@ -2,22 +2,36 @@ import React, { useState } from 'react';
 import useHarvestStore from '../../store/harvestStore';
 import useUIStore from '../../store/uiStore';
 
-const HarvestForm = ({ cropId, onComplete }) => {
-    const { createHarvest } = useHarvestStore();
+const HarvestForm = ({ cropId, onComplete, initialData }) => {
+    const { createHarvest, updateHarvest } = useHarvestStore();
     const { showNotification } = useUIStore();
+
+    // Helper to format numbers with commas
+    const formatValue = (val) => {
+        if (val === null || val === undefined || val === '') return '';
+        const parts = val.toString().split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return parts.join('.');
+    };
+
+    // Helper to strip commas for numeric storage
+    const stripCommas = (val) => {
+        return val.toString().replace(/,/g, '');
+    };
+
     const [formData, setFormData] = useState({
-        harvest_date: new Date().toISOString().split('T')[0],
-        area_harvested: '',
-        quantity: '',
-        unit: 'kg',
-        yield_per_area: '',
-        quality_grade: 'A',
-        moisture_content: '',
-        storage_location: '',
-        destination: 'stored',
-        price_per_unit: '',
-        total_revenue: '',
-        notes: ''
+        harvest_date: initialData?.harvest_date || new Date().toISOString().split('T')[0],
+        area_harvested: initialData?.area_harvested || '',
+        quantity: initialData?.quantity || '',
+        unit: initialData?.unit || 'kg',
+        yield_per_area: initialData?.yield_per_area || '',
+        quality_grade: initialData?.quality_grade || 'A',
+        moisture_content: initialData?.moisture_content || '',
+        storage_location: initialData?.storage_location || '',
+        destination: initialData?.destination || 'stored',
+        price_per_unit: initialData?.price_per_unit || '',
+        total_revenue: initialData?.total_revenue || '',
+        notes: initialData?.notes || ''
     });
     const [loading, setLoading] = useState(false);
 
@@ -25,12 +39,26 @@ const HarvestForm = ({ cropId, onComplete }) => {
         e.preventDefault();
         setLoading(true);
         try {
-            await createHarvest(cropId, formData);
-            showNotification('Harvest record archived successfully.', 'success');
+            // Clean payload (ensure numeric values are stripped of commas)
+            const payload = {
+                ...formData,
+                price_per_unit: stripCommas(formData.price_per_unit),
+                total_revenue: stripCommas(formData.total_revenue),
+                quantity: stripCommas(formData.quantity),
+                area_harvested: stripCommas(formData.area_harvested)
+            };
+
+            if (initialData?.id) {
+                await updateHarvest(initialData.id, payload);
+                showNotification('HARVEST RECORD UPDATED SUCCESSFULLY - SYSTEM SYNCED', 'success');
+            } else {
+                await createHarvest(cropId, payload);
+                showNotification('HARVEST RECORD ARCHIVED SUCCESSFULLY - DATA SECURED', 'success');
+            }
             if (onComplete) onComplete();
         } catch (error) {
             console.error(error);
-            const serverMsg = error.response?.data?.message || 'Archiving failure';
+            const serverMsg = error.response?.data?.message || 'Operation failure';
             showNotification(`HARVEST LOG FAILURE\n------------------\n${serverMsg}`, 'error');
         } finally {
             setLoading(false);
@@ -38,16 +66,20 @@ const HarvestForm = ({ cropId, onComplete }) => {
     };
 
     const calculateYield = () => {
-        if (formData.quantity && formData.area_harvested) {
-            const y = (parseFloat(formData.quantity) / parseFloat(formData.area_harvested)).toFixed(2);
-            setFormData({ ...formData, yield_per_area: y });
+        const qty = stripCommas(formData.quantity);
+        const area = stripCommas(formData.area_harvested);
+        if (qty && area) {
+            const y = (parseFloat(qty) / parseFloat(area)).toFixed(2);
+            setFormData(prev => ({ ...prev, yield_per_area: y }));
         }
     };
 
     const calculateRevenue = () => {
-        if (formData.quantity && formData.price_per_unit) {
-            const r = (parseFloat(formData.quantity) * parseFloat(formData.price_per_unit)).toFixed(2);
-            setFormData({ ...formData, total_revenue: r });
+        const qty = stripCommas(formData.quantity);
+        const price = stripCommas(formData.price_per_unit);
+        if (qty && price) {
+            const r = (parseFloat(qty) * parseFloat(price)).toFixed(2);
+            setFormData(prev => ({ ...prev, total_revenue: r }));
         }
     };
 
@@ -57,11 +89,11 @@ const HarvestForm = ({ cropId, onComplete }) => {
             <div style={{ backgroundColor: '#bb1919', padding: '24px 40px', color: 'white', position: 'relative' }}>
                 <div style={{ position: 'absolute', top: '0', left: '0', height: '100%', width: '4px', backgroundColor: '#000' }}></div>
                 <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '900', letterSpacing: '-1px', textTransform: 'uppercase' }}>
-                    <span style={{ backgroundColor: '#fff', color: '#bb1919', padding: '2px 8px', marginRight: '10px' }}>LOG</span>
+                    <span style={{ backgroundColor: '#fff', color: '#bb1919', padding: '2px 8px', marginRight: '10px' }}>{initialData ? 'EDIT' : 'LOG'}</span>
                     Harvest Operation
                 </h1>
                 <div style={{ display: 'flex', gap: '20px', marginTop: '12px', fontSize: '13px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                    <span>CROP ID: {cropId}</span>
+                    <span>CROP ID: {cropId || initialData?.crop_id}</span>
                     <span style={{ opacity: 0.6 }}>|</span>
                     <span>TYPE: YIELD LOGGING</span>
                 </div>
@@ -94,11 +126,10 @@ const HarvestForm = ({ cropId, onComplete }) => {
                         <div>
                             <label style={{ fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Area Harvested (ha)</label>
                             <input
-                                type="number"
-                                step="0.01"
-                                value={formData.area_harvested}
+                                type="text"
+                                value={formatValue(formData.area_harvested)}
                                 onBlur={calculateYield}
-                                onChange={(e) => setFormData({ ...formData, area_harvested: e.target.value })}
+                                onChange={(e) => setFormData({ ...formData, area_harvested: stripCommas(e.target.value) })}
                                 required
                                 style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px' }}
                             />
@@ -107,11 +138,10 @@ const HarvestForm = ({ cropId, onComplete }) => {
                             <label style={{ fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Total Quantity</label>
                             <div style={{ display: 'flex', gap: '8px' }}>
                                 <input
-                                    type="number"
-                                    step="0.01"
-                                    value={formData.quantity}
+                                    type="text"
+                                    value={formatValue(formData.quantity)}
                                     onBlur={() => { calculateYield(); calculateRevenue(); }}
-                                    onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+                                    onChange={(e) => setFormData({ ...formData, quantity: stripCommas(e.target.value) })}
                                     required
                                     style={{ flex: 1, borderRadius: '0', border: '2px solid #ddd', padding: '12px' }}
                                 />
@@ -143,8 +173,8 @@ const HarvestForm = ({ cropId, onComplete }) => {
                         <div>
                             <label style={{ fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Yield Rate (Unit/ha)</label>
                             <input
-                                type="number"
-                                value={formData.yield_per_area}
+                                type="text"
+                                value={formatValue(formData.yield_per_area)}
                                 readOnly
                                 style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px', backgroundColor: '#f0f2f0', fontWeight: '700' }}
                             />
@@ -207,18 +237,18 @@ const HarvestForm = ({ cropId, onComplete }) => {
                         <div>
                             <label style={{ fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Price per Unit (XAF)</label>
                             <input
-                                type="number"
-                                value={formData.price_per_unit}
+                                type="text"
+                                value={formatValue(formData.price_per_unit)}
                                 onBlur={calculateRevenue}
-                                onChange={(e) => setFormData({ ...formData, price_per_unit: e.target.value })}
+                                onChange={(e) => setFormData({ ...formData, price_per_unit: stripCommas(e.target.value) })}
                                 style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px' }}
                             />
                         </div>
                         <div>
                             <label style={{ fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Total Revenue (XAF)</label>
                             <input
-                                type="number"
-                                value={formData.total_revenue}
+                                type="text"
+                                value={formatValue(formData.total_revenue)}
                                 readOnly
                                 style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px', backgroundColor: '#eeeeee', fontWeight: '900' }}
                             />
@@ -239,7 +269,7 @@ const HarvestForm = ({ cropId, onComplete }) => {
 
                 <div style={{ display: 'flex', gap: '20px', marginTop: '50px' }}>
                     <button type="submit" className="primary" style={{ flex: 2, padding: '20px', borderRadius: '0', backgroundColor: '#000', color: '#fff', fontSize: '14px', fontWeight: '900', border: 'none', textTransform: 'uppercase', letterSpacing: '1px', cursor: 'pointer' }} disabled={loading}>
-                        {loading ? 'ARCHIVING DATA...' : '💾 COMPLETE HARVEST RECORD'}
+                        {loading ? 'SYNCING DATA...' : `💾 ${initialData ? 'UPDATE' : 'COMPLETE'} HARVEST RECORD`}
                     </button>
                     <button type="button" onClick={onComplete} className="outline" style={{ flex: 1, padding: '20px', borderRadius: '0', backgroundColor: '#fff', color: '#000', border: '2px solid #000', fontSize: '14px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px', cursor: 'pointer' }}>
                         DISCARD
