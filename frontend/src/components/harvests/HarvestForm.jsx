@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import useHarvestStore from '../../store/harvestStore';
+import useUIStore from '../../store/uiStore';
 
 const HarvestForm = ({ cropId, onComplete }) => {
     const { createHarvest } = useHarvestStore();
+    const { showNotification } = useUIStore();
     const [formData, setFormData] = useState({
         harvest_date: new Date().toISOString().split('T')[0],
         area_harvested: '',
@@ -24,9 +26,12 @@ const HarvestForm = ({ cropId, onComplete }) => {
         setLoading(true);
         try {
             await createHarvest(cropId, formData);
+            showNotification('Harvest record archived successfully.', 'success');
             if (onComplete) onComplete();
         } catch (error) {
             console.error(error);
+            const serverMsg = error.response?.data?.message || 'Archiving failure';
+            showNotification(`HARVEST LOG FAILURE\n------------------\n${serverMsg}`, 'error');
         } finally {
             setLoading(false);
         }
