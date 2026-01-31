@@ -3,7 +3,8 @@ import Dexie from 'dexie';
 export const db = new Dexie('FarmManagementDB');
 
 // Define database schema
-db.version(1).stores({
+db.version(2).stores({
+    farms: 'id, name',
     activities: 'id, farm_id, activity_type, activity_date, status',
     crops: 'id, farm_id, crop_type, status',
     fields: 'id, farm_id, name',
