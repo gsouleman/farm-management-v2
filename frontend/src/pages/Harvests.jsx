@@ -75,7 +75,7 @@ const Harvests = () => {
                     <h1 style={{ fontSize: '24px', margin: 0 }}>Harvest Records</h1>
                     <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Record yields, moisture levels, and quality grades for {currentFarm?.name}.</p>
                 </div>
-                <button className="primary" onClick={() => setView('add')}>+ Record New Harvest</button>
+                <button className="primary" onClick={() => { setView('add'); setSelectedCropId(''); }}>+ Record New Harvest</button>
             </div>
 
             <div className="snapshot-grid" style={{ marginBottom: '32px' }}>
@@ -113,7 +113,7 @@ const Harvests = () => {
                         {harvests.map(harvest => (
                             <tr key={harvest.id} style={{ borderBottom: '1px solid var(--border)', fontSize: '14px' }}>
                                 <td style={{ padding: '16px' }}>{new Date(harvest.harvest_date).toLocaleDateString()}</td>
-                                <td style={{ padding: '16px', fontWeight: '600' }}>{harvest.Crop?.crop_name || 'Unknown'}</td>
+                                <td style={{ padding: '16px', fontWeight: '600' }}>{harvest.Crop?.crop_type || 'Unknown'}</td>
                                 <td style={{ padding: '16px' }}>{harvest.quantity} {harvest.unit}</td>
                                 <td style={{ padding: '16px' }}>
                                     <span style={{
