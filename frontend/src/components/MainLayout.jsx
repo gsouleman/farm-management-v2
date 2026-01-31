@@ -18,6 +18,22 @@ const MainLayout = ({ children }) => {
     }, [currentFarm?.id]);
 
     // State for collapsible sections
+    const [openGroups, setOpenGroups] = useState({
+        estate: true,
+        cultivation: true,
+        finance: false,
+        systems: false
+    });
+
+    const toggleGroup = (group) => {
+        setOpenGroups(prev => ({ ...prev, [group]: !prev[group] }));
+    };
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
+
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const toggleMobileMenu = () => {
