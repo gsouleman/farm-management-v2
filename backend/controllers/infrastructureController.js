@@ -41,9 +41,12 @@ exports.createInfrastructure = async (req, res) => {
 
 exports.getFarmInfrastructure = async (req, res) => {
     try {
-        const { farm_id } = req.params;
+        const farmId = req.params.farm_id || req.query.farm_id;
+        if (!farmId) {
+            return res.status(400).json({ message: 'Farm ID is required' });
+        }
         const infra = await Infrastructure.findAll({
-            where: { farm_id },
+            where: { farm_id: farmId },
             include: [{ model: Field, attributes: ['name'] }]
         });
         res.json(infra);

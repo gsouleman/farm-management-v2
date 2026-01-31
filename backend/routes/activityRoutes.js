@@ -30,6 +30,7 @@ router.use(authMiddleware);
 
 router.get('/crop/:cropId', activityController.getCropActivities);
 router.get('/farm/:farmId', activityController.getFarmActivities);
+router.get('/', activityController.getFarmActivities); // Fallback for ?farm_id=
 router.post('/bulk-upload/:farmId', upload.single('file'), activityController.bulkUploadActivities);
 router.post('/', activityController.createActivity);
 router.put('/:id', activityController.updateActivity);

@@ -72,10 +72,14 @@ exports.getCropsByField = async (req, res) => {
 
 exports.getFarmCrops = async (req, res) => {
     try {
+        const farmId = req.params.farmId || req.query.farm_id;
+        if (!farmId) {
+            return res.status(400).json({ message: 'Farm ID is required' });
+        }
         const crops = await Crop.findAll({
             include: [{
                 model: Field,
-                where: { farm_id: req.params.farmId }
+                where: { farm_id: farmId }
             }]
         });
         res.json(crops);

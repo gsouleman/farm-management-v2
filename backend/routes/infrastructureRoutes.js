@@ -5,6 +5,7 @@ const auth = require('../middleware/authMiddleware');
 
 router.post('/farm/:farm_id', auth, infraController.createInfrastructure);
 router.get('/farm/:farm_id', auth, infraController.getFarmInfrastructure);
+router.get('/', auth, infraController.getFarmInfrastructure); // Fallback for ?farm_id=
 router.put('/:id', auth, infraController.updateInfrastructure);
 router.delete('/:id', auth, infraController.deleteInfrastructure);
 

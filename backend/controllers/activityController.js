@@ -74,8 +74,12 @@ exports.getCropActivities = async (req, res) => {
 
 exports.getFarmActivities = async (req, res) => {
     try {
+        const farmId = req.params.farmId || req.query.farm_id;
+        if (!farmId) {
+            return res.status(400).json({ message: 'Farm ID is required' });
+        }
         const activities = await Activity.findAll({
-            where: { farm_id: req.params.farmId },
+            where: { farm_id: farmId },
             include: [Field, Input, Crop, Infrastructure],
             order: [['activity_date', 'DESC']]
         });
