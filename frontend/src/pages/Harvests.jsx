@@ -22,48 +22,46 @@ const Harvests = () => {
     if (!currentFarm) return <div style={{ padding: '24px' }}>Please select a farm to view harvests.</div>;
 
     if (view === 'add') {
-        if (!selectedCropId) {
-            return (
-                <div className="animate-fade-in" style={{ padding: '24px', maxWidth: '600px', margin: '0 auto' }}>
-                    <div className="card">
-                        <h3 style={{ marginBottom: '20px' }}>Select Crop to Harvest</h3>
-                        <div style={{ marginBottom: '24px' }}>
-                            <label style={{ fontSize: '13px', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>Planted Crops & Agricultural Catalog</label>
-                            <select
-                                value={selectedCropId}
-                                onChange={(e) => setSelectedCropId(e.target.value)}
-                                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e0' }}
-                            >
-                                <option value="">-- Choose a crop to harvest --</option>
-                                <optgroup label="✅ ACTIVE PLANTINGS">
-                                    {crops.map(crop => (
-                                        <option key={crop.id} value={crop.id}>
-                                            {crop.crop_type} - {crop.variety} (Field: {crop.Field?.name}) [PLANTED]
-                                        </option>
-                                    ))}
-                                </optgroup>
-                                {Object.entries(CROP_CATEGORIES).map(([category, items]) => (
-                                    <optgroup key={category} label={category}>
-                                        {items.map(item => {
-                                            const isPlanted = crops.some(c => c.crop_type === item.id);
-                                            return (
-                                                <option key={item.id} value={`TYPE:${item.id}`}>
-                                                    {item.label} {isPlanted ? ' (PLANTED)' : ''}
-                                                </option>
-                                            );
-                                        })}
-                                    </optgroup>
+        return (
+            <div className="animate-fade-in" style={{ padding: '24px', maxWidth: '600px', margin: '0 auto' }}>
+                <div className="card">
+                    <h3 style={{ marginBottom: '20px' }}>Select Crop to Harvest</h3>
+                    <div style={{ marginBottom: '24px' }}>
+                        <label style={{ fontSize: '13px', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>Planted Crops & Agricultural Catalog</label>
+                        <select
+                            value={selectedCropId}
+                            onChange={(e) => setSelectedCropId(e.target.value)}
+                            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e0' }}
+                        >
+                            <option value="">-- Choose a crop to harvest --</option>
+                            <optgroup label="✅ ACTIVE PLANTINGS">
+                                {crops.map(crop => (
+                                    <option key={crop.id} value={crop.id}>
+                                        {crop.crop_type} - {crop.variety} (Field: {crop.Field?.name}) [PLANTED]
+                                    </option>
                                 ))}
-                            </select>
-                        </div>
-                        <div style={{ display: 'flex', gap: '12px' }}>
-                            <button className="primary" style={{ flex: 1 }} disabled={!selectedCropId} onClick={() => setView('add-form')}>Continue</button>
-                            <button className="outline" style={{ flex: 1 }} onClick={() => setView('list')}>Cancel</button>
-                        </div>
+                            </optgroup>
+                            {Object.entries(CROP_CATEGORIES).map(([category, items]) => (
+                                <optgroup key={category} label={category}>
+                                    {items.map(item => {
+                                        const isPlanted = crops.some(c => c.crop_type === item.id);
+                                        return (
+                                            <option key={item.id} value={`TYPE:${item.id}`}>
+                                                {item.label} {isPlanted ? ' (PLANTED)' : ''}
+                                            </option>
+                                        );
+                                    })}
+                                </optgroup>
+                            ))}
+                        </select>
+                    </div>
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                        <button className="primary" style={{ flex: 1 }} disabled={!selectedCropId} onClick={() => setView('add-form')}>Continue</button>
+                        <button className="outline" style={{ flex: 1 }} onClick={() => setView('list')}>Cancel</button>
                     </div>
                 </div>
-            );
-        }
+            </div>
+        );
     }
 
     if (view === 'add-form') return <HarvestForm cropId={selectedCropId} onComplete={() => { setView('list'); setSelectedCropId(''); }} />;
