@@ -55,7 +55,15 @@ exports.getCropHarvests = async (req, res) => {
 
 exports.createHarvest = async (req, res) => {
     try {
+        console.log('[HarvestController] Creating harvest:', req.body);
         const harvest = await Harvest.create(req.body);
+
+        // Fetch Crop and Field to get farm_id
+        const crop = await Crop.findByPk(harvest.crop_id, {
+            include: [{ model: Field }]
+        });
+
+        const farm_id = crop?.Field?.farm_id;
 
         // Create corresponding activity for the timeline
         await Activity.create({
@@ -63,15 +71,22 @@ exports.createHarvest = async (req, res) => {
             activity_type: 'harvesting',
             transaction_type: 'income',
             crop_id: harvest.crop_id,
+            field_id: crop?.field_id,
+            farm_id: farm_id,
             total_cost: harvest.total_revenue,
-            description: `Harvest Log: ${harvest.quantity_harvested} ${harvest.unit} collected.`,
+            description: `Harvest Log: ${harvest.quantity} ${harvest.unit} collected.`,
             performed_by: req.user?.id,
             harvest_id: harvest.id
         });
 
         res.status(201).json(harvest);
     } catch (error) {
-        res.status(500).json({ message: 'Error creating harvest' });
+        console.error('[HarvestController] Create error:', error);
+        res.status(500).json({
+            message: 'Error creating harvest',
+            error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 };
 
@@ -87,7 +102,7 @@ exports.updateHarvest = async (req, res) => {
             await activity.update({
                 activity_date: harvest.harvest_date,
                 total_cost: harvest.total_revenue,
-                description: `Harvest Log: ${harvest.quantity_harvested} ${harvest.unit} collected.`
+                description: `Harvest Log: ${harvest.quantity} ${harvest.unit} collected.`
             });
         }
 
