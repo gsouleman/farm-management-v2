@@ -4,6 +4,10 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 const { sequelize } = require('./models');
+const activityController = require('./controllers/activityController');
+const cropController = require('./controllers/cropController');
+const infraController = require('./controllers/infrastructureController');
+const auth = require('./middleware/authMiddleware');
 
 dotenv.config();
 
@@ -43,6 +47,11 @@ app.use('/api/documents', require('./routes/documentRoutes'));
 app.use('/api/infrastructure', require('./routes/infrastructureRoutes')); // Added infrastructure routes
 app.use('/api/farm-users', require('./routes/teamRoutes'));
 app.use('/api/contracts', require('./routes/contractRoutes'));
+
+// Aggressive fallback routes for sync (handles ?farm_id=)
+app.get('/api/activities', auth, activityController.getFarmActivities);
+app.get('/api/crops', auth, cropController.getFarmCrops);
+app.get('/api/infrastructure', auth, infraController.getFarmInfrastructure);
 
 // Static files for uploads
 const path = require('path');
