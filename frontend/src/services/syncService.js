@@ -46,10 +46,10 @@ const syncService = {
 
             // Parallel fetch for speed
             const [activities, crops, fields, infrastructure] = await Promise.all([
-                api.get(`/activities?farm_id=${farmId}`),
-                api.get(`/crops?farm_id=${farmId}`),
-                api.get(`/fields/farm/${farmId}`),
-                api.get(`/infrastructure?farm_id=${farmId}`)
+                api.get(`/farms/${farmId}/activities`),
+                api.get(`/farms/${farmId}/crops`),
+                api.get(`/farms/${farmId}/fields`),
+                api.get(`/infrastructure/farm/${farmId}`)
             ]);
 
             // Persist to local DB

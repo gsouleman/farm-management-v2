@@ -23,6 +23,7 @@
     "axios": "^1.13.4",
     "date-fns": "^4.1.0",
     "dexie": "^4.3.0",
+    "expo": "^54.0.32",
     "jspdf": "^4.0.0",
     "jspdf-autotable": "^5.0.7",
     "leaflet": "^1.9.4",
