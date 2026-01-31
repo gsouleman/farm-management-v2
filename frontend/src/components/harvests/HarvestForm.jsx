@@ -75,7 +75,7 @@ const HarvestForm = ({ cropId, onComplete }) => {
                     <h3 style={{ fontSize: '14px', fontWeight: '900', color: '#000', textTransform: 'uppercase', letterSpacing: '2px', borderBottom: '4px solid #000', paddingBottom: '8px', marginBottom: '24px' }}>
                         01. Harvest Intelligence
                     </h3>
-                    <div style={{ display: gridTemplateColumns = 'repeat(3, 1fr)', display: 'grid', gap: '20px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
                         <div>
                             <label style={{ fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Harvest Date</label>
                             <input
