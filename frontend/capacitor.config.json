@@ -1,5 +1,13 @@
 {
   "appId": "com.farmintelligence.system",
   "appName": "Farm Intelligence System",
-  "webDir": "dist"
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
 }

@@ -18,26 +18,41 @@ const MainLayout = ({ children }) => {
     }, [currentFarm?.id]);
 
     // State for collapsible sections
-    const [openGroups, setOpenGroups] = useState({
-        estate: true,
-        cultivation: true,
-        finance: false,
-        systems: false
-    });
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-    const toggleGroup = (group) => {
-        setOpenGroups(prev => ({ ...prev, [group]: !prev[group] }));
+    const toggleMobileMenu = () => {
+        setIsMobileMenuOpen(!isMobileMenuOpen);
     };
 
-    const handleLogout = () => {
-        logout();
-        navigate('/login');
+    // Close menu on navigation
+    const handleNavItemClick = () => {
+        if (window.innerWidth < 1024) {
+            setIsMobileMenuOpen(false);
+        }
     };
 
     return (
-        <div style={{ display: 'flex', height: '100vh', backgroundColor: '#f8f9fa' }}>
+        <div style={{ display: 'flex', height: '100vh', backgroundColor: '#f8f9fa', position: 'relative' }}>
+            {/* Mobile Header */}
+            <header className="mobile-header">
+                <div className="hamburger" onClick={toggleMobileMenu}>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div style={{ marginLeft: '15px', fontWeight: '800', fontSize: '18px' }}>
+                    <span style={{ color: '#cc0000' }}>PRO</span>FARMER
+                </div>
+            </header>
+
+            {/* Mobile Overlay */}
+            <div
+                className={`mobile-sidebar-overlay ${isMobileMenuOpen ? 'show' : ''}`}
+                onClick={() => setIsMobileMenuOpen(false)}
+            ></div>
+
             {/* CNN Style Sidebar */}
-            <aside style={{
+            <aside className={`sidebar-container ${isMobileMenuOpen ? 'open' : ''}`} style={{
                 width: '280px',
                 backgroundColor: '#000000',
                 color: 'white',
@@ -70,11 +85,9 @@ const MainLayout = ({ children }) => {
                         <label style={{ fontSize: '11px', color: '#888', fontWeight: 'bold' }}>STATION SELECTOR</label>
                         <button
                             onClick={() => {
-                                // If we're on dashboard, we can use state, but simpler to just navigate with a signifier
                                 navigate('/');
-                                // We'll need a way to tell Dashboard to show the form. 
-                                // For now, I'll add a 'new=true' query param logic in Dashboard or use a simple window event.
                                 window.dispatchEvent(new CustomEvent('open-new-farm'));
+                                handleNavItemClick();
                             }}
                             style={{
                                 backgroundColor: '#cc0000',
@@ -122,7 +135,7 @@ const MainLayout = ({ children }) => {
                         isOpen={true}
                         onToggle={() => { }}
                     >
-                        <SidebarLink to="/" icon="📺" label="DASHBOARD" sub />
+                        <SidebarLink to="/" icon="📺" label="DASHBOARD" sub onClick={handleNavItemClick} />
                     </NavGroup>
 
                     <NavGroup
@@ -130,8 +143,8 @@ const MainLayout = ({ children }) => {
                         isOpen={openGroups.estate}
                         onToggle={() => toggleGroup('estate')}
                     >
-                        <SidebarLink to="/fields" icon="🗺️" label="Land & Fields" sub />
-                        <SidebarLink to="/infrastructure" icon="🏗️" label="Infrastructure Assets" sub />
+                        <SidebarLink to="/fields" icon="🗺️" label="Land & Fields" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/infrastructure" icon="🏗️" label="Infrastructure Assets" sub onClick={handleNavItemClick} />
                     </NavGroup>
 
                     <NavGroup
@@ -139,10 +152,10 @@ const MainLayout = ({ children }) => {
                         isOpen={openGroups.cultivation}
                         onToggle={() => toggleGroup('cultivation')}
                     >
-                        <SidebarLink to="/crops" icon="🌿" label="Crop Management" sub />
-                        <SidebarLink to="/activities" icon="🚜" label="Farm Journal" sub />
-                        <SidebarLink to="/harvests" icon="🌾" label="Harvest Records" sub />
-                        <SidebarLink to="/planner" icon="📅" label="Production Planner" sub />
+                        <SidebarLink to="/crops" icon="🌿" label="Crop Management" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/activities" icon="🚜" label="Farm Journal" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/harvests" icon="🌾" label="Harvest Records" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/planner" icon="📅" label="Production Planner" sub onClick={handleNavItemClick} />
                     </NavGroup>
 
                     <NavGroup
@@ -150,9 +163,9 @@ const MainLayout = ({ children }) => {
                         isOpen={openGroups.finance}
                         onToggle={() => toggleGroup('finance')}
                     >
-                        <SidebarLink to="/contracts" icon="📜" label="Contracts" sub />
-                        <SidebarLink to="/production-costs" icon="💰" label="Cost Analytics" sub />
-                        <SidebarLink to="/reports" icon="📊" label="Performance Insights" sub />
+                        <SidebarLink to="/contracts" icon="📜" label="Contracts" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/production-costs" icon="💰" label="Cost Analytics" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/reports" icon="📊" label="Performance Insights" sub onClick={handleNavItemClick} />
                     </NavGroup>
 
                     <NavGroup
@@ -160,8 +173,8 @@ const MainLayout = ({ children }) => {
                         isOpen={true}
                         onToggle={() => { }}
                     >
-                        <SidebarLink to="/stores?view=structures" icon="🏢" label="Stores & Silos" sub />
-                        <SidebarLink to="/stores?view=inventory" icon="📦" label="Input Stock" sub />
+                        <SidebarLink to="/stores?view=structures" icon="🏢" label="Stores & Silos" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/stores?view=inventory" icon="📦" label="Input Stock" sub onClick={handleNavItemClick} />
                     </NavGroup>
 
                     <NavGroup
@@ -169,9 +182,9 @@ const MainLayout = ({ children }) => {
                         isOpen={openGroups.systems}
                         onToggle={() => toggleGroup('systems')}
                     >
-                        <SidebarLink to="/weather" icon="☁️" label="Forecast Center" sub />
-                        <SidebarLink to="/vault" icon="📂" label="Knowledge Vault" sub />
-                        <SidebarLink to="/team" icon="👥" label="Human Resources" sub />
+                        <SidebarLink to="/weather" icon="☁️" label="Forecast Center" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/vault" icon="📂" label="Knowledge Vault" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/team" icon="👥" label="Human Resources" sub onClick={handleNavItemClick} />
                     </NavGroup>
                 </nav>
 
