@@ -85,7 +85,13 @@ exports.createField = async (req, res) => {
             console.error('Area calculation failed for new field:', areaError);
         }
 
-        res.status(201).json(field);
+        res.status(201).json({
+            data: field,
+            notification: {
+                message: 'FIELD BOUNDARY ESTABLISHED AND ARCHIVED',
+                type: 'success'
+            }
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error creating field' });
@@ -163,7 +169,13 @@ exports.updateField = async (req, res) => {
         }
 
         await field.update(updateData);
-        res.json(field);
+        res.json({
+            data: field,
+            notification: {
+                message: 'FIELD PROFILE UPDATED SUCCESSFULLY',
+                type: 'success'
+            }
+        });
     } catch (error) {
         console.error('Update Field Error:', error);
         res.status(500).json({ message: 'Error updating field' });
@@ -176,7 +188,13 @@ exports.deleteField = async (req, res) => {
         if (!field) return res.status(404).json({ message: 'Field not found' });
 
         await field.destroy();
-        res.json({ message: 'Field deleted successfully' });
+        res.json({
+            message: 'Field deleted successfully',
+            notification: {
+                message: 'FIELD REMOVED FROM OPERATIONAL REGISTRY',
+                type: 'success'
+            }
+        });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting field' });
     }

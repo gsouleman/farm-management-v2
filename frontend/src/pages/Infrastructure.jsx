@@ -4,6 +4,7 @@ import useInfrastructureStore from '../store/infrastructureStore';
 import InfrastructureForm from '../components/infrastructure/InfrastructureForm';
 import FieldMap from '../components/fields/FieldMap';
 import { INFRASTRUCTURE_TYPES } from '../constants/agriculturalData';
+import useUIStore from '../store/uiStore';
 
 const Infrastructure = () => {
     const { currentFarm, fields, fetchFields } = useFarmStore();
@@ -85,7 +86,22 @@ const Infrastructure = () => {
 
                     <div style={{ marginTop: '32px', display: 'flex', gap: '16px' }}>
                         <button className="primary" onClick={() => setView('edit')} style={{ flex: 1 }}>Edit Asset</button>
-                        <button className="outline" onClick={() => { if (window.confirm('Delete this asset?')) { deleteInfrastructure(selectedInfra.id); setView('list'); } }} style={{ flex: 1, color: '#dc3545', borderColor: '#ffccd1' }}>Delete Asset</button>
+                        <button
+                            className="outline"
+                            onClick={async () => {
+                                const { getConfirmation, showNotification } = useUIStore.getState();
+                                const template = getConfirmation('DELETE_INFRA');
+                                const msg = template ? `${template.title}\n------------------\n${template.body}` : 'Delete this asset?';
+                                if (window.confirm(msg)) {
+                                    const resp = await deleteInfrastructure(selectedInfra.id);
+                                    showNotification(resp?.notification?.message || 'Infrastructure deleted', 'success');
+                                    setView('list');
+                                }
+                            }}
+                            style={{ flex: 1, color: '#dc3545', borderColor: '#ffccd1' }}
+                        >
+                            Delete Asset
+                        </button>
                     </div>
                 </div>
             </div>
@@ -141,7 +157,15 @@ const Infrastructure = () => {
                                 <button
                                     className="outline"
                                     style={{ color: '#dc3545', borderColor: '#ffccd1', width: '40px' }}
-                                    onClick={() => { if (window.confirm('Delete this asset?')) deleteInfrastructure(infra.id); }}
+                                    onClick={async () => {
+                                        const { getConfirmation, showNotification } = useUIStore.getState();
+                                        const template = getConfirmation('DELETE_INFRA');
+                                        const msg = template ? `${template.title}\n------------------\n${template.body}` : 'Delete this asset?';
+                                        if (window.confirm(msg)) {
+                                            const resp = await deleteInfrastructure(infra.id);
+                                            showNotification(resp?.notification?.message || 'Infrastructure deleted', 'success');
+                                        }
+                                    }}
                                 >
                                     🗑️
                                 </button>

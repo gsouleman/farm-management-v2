@@ -91,16 +91,18 @@ const InfrastructureForm = ({ farmId, onComplete, initialData = null }) => {
                 perimeter: parseNum(formData.perimeter)
             };
 
+            let response;
             if (initialData) {
-                await updateInfrastructure(initialData.id, submissionData);
+                response = await updateInfrastructure(initialData.id, submissionData);
             } else {
-                await createInfrastructure(targetFarmId, submissionData);
+                response = await createInfrastructure(targetFarmId, submissionData);
             }
+            const msg = response?.notification?.message || (initialData ? 'Infrastructure asset updated successfully.' : 'New infrastructure asset registered successfully.');
+            showNotification(msg, 'success');
             if (onComplete) onComplete();
-            showNotification(initialData ? 'Infrastructure asset updated successfully.' : 'New infrastructure asset registered successfully.', 'success');
         } catch (error) {
             console.error('Registration failed:', error);
-            const serverMsg = error.response?.data?.message || 'Failed to save infrastructure asset';
+            const serverMsg = error.response?.data?.notification?.message || error.response?.data?.message || 'Failed to save infrastructure asset';
             showNotification(`ERROR: ${serverMsg}`, 'error');
         } finally {
             setLoading(false);

@@ -54,7 +54,13 @@ exports.createFarm = async (req, res) => {
             farm_type
         });
 
-        res.status(201).json(farm);
+        res.status(201).json({
+            data: farm,
+            notification: {
+                message: 'AGRICULTURAL ENTERPRISE REGISTERED - SYSTEM ARCHIVED',
+                type: 'success'
+            }
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error creating farm' });
@@ -90,7 +96,13 @@ exports.updateFarm = async (req, res) => {
             coordinates: farm.coordinates
         });
 
-        res.json(farm);
+        res.json({
+            data: farm,
+            notification: {
+                message: 'FARM PROFILE UPDATED - SYNC COMPLETE',
+                type: 'success'
+            }
+        });
     } catch (error) {
         res.status(500).json({ message: 'Error updating farm' });
     }
@@ -104,7 +116,13 @@ exports.deleteFarm = async (req, res) => {
         if (!farm) return res.status(404).json({ message: 'Farm not found' });
 
         await farm.destroy();
-        res.json({ message: 'Farm deleted successfully' });
+        res.json({
+            message: 'Farm deleted successfully',
+            notification: {
+                message: 'ENTERPRISE RECORD PERMANENTLY LIQUIDATED',
+                type: 'success'
+            }
+        });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting farm' });
     }

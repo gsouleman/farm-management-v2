@@ -4,6 +4,7 @@ import useCropStore from '../store/cropStore';
 import useActivityStore from '../store/activityStore';
 import CropForm from '../components/crops/CropForm';
 import ActivityForm from '../components/activities/ActivityForm';
+import useUIStore from '../store/uiStore';
 
 const Crops = () => {
     const { currentFarm } = useFarmStore();
@@ -60,9 +61,18 @@ const Crops = () => {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this crop record?')) {
-            await deleteCrop(id);
-            if (selectedCrop?.id === id) setView('list');
+        const { getConfirmation, showNotification } = useUIStore.getState();
+        const template = getConfirmation('DELETE_CROP');
+        const msg = template ? `${template.title}\n------------------\n${template.body}` : 'Are you sure you want to delete this crop record?';
+
+        if (window.confirm(msg)) {
+            try {
+                const response = await deleteCrop(id);
+                showNotification(response?.notification?.message || 'Crop record deleted', 'success');
+                if (selectedCrop?.id === id) setView('list');
+            } catch (error) {
+                showNotification(error.response?.data?.notification?.message || 'Delete failed', 'error');
+            }
         }
     };
 
@@ -77,9 +87,18 @@ const Crops = () => {
     };
 
     const handleDeleteActivity = async (id) => {
-        if (window.confirm('Delete this activity log?')) {
-            await deleteActivity(id);
-            if (selectedCrop) handleViewDetails(selectedCrop);
+        const { getConfirmation, showNotification } = useUIStore.getState();
+        const template = getConfirmation('DELETE_ACTIVITY');
+        const msg = template ? `${template.title}\n------------------\n${template.body}` : 'Delete this activity log?';
+
+        if (window.confirm(msg)) {
+            try {
+                const response = await deleteActivity(id);
+                showNotification(response?.notification?.message || 'Activity deleted', 'success');
+                if (selectedCrop) handleViewDetails(selectedCrop);
+            } catch (error) {
+                showNotification(error.response?.data?.notification?.message || 'Delete failed', 'error');
+            }
         }
     };
 

@@ -54,8 +54,17 @@ const Stores = () => {
     }
 
     const handleDeleteStorage = async (id) => {
-        if (window.confirm('Are you sure you want to delete this storage unit? This action cannot be undone.')) {
-            await deleteInfrastructure(id);
+        const { getConfirmation, showNotification } = (await import('../store/uiStore')).default.getState();
+        const template = getConfirmation('DELETE_INFRA'); // Storage is a type of infra
+        const msg = template ? `${template.title}\n------------------\n${template.body}` : 'Are you sure you want to delete this storage unit?';
+
+        if (window.confirm(msg)) {
+            try {
+                const response = await deleteInfrastructure(id);
+                showNotification(response?.notification?.message || 'Storage unit deleted', 'success');
+            } catch (error) {
+                showNotification(error.response?.data?.notification?.message || 'Delete failed', 'error');
+            }
         }
     };
 

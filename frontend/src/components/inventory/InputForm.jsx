@@ -24,10 +24,14 @@ const InputForm = ({ farmId, onComplete }) => {
         e.preventDefault();
         setLoading(true);
         try {
-            await createInput(farmId, formData);
+            const response = await createInput(farmId, formData);
+            const { showNotification } = (await import('../../store/uiStore')).default.getState();
+            showNotification(response?.notification?.message || 'Item added to inventory', 'success');
             if (onComplete) onComplete();
         } catch (error) {
             console.error(error);
+            const { showNotification } = (await import('../../store/uiStore')).default.getState();
+            showNotification('Error adding to inventory', 'error');
         } finally {
             setLoading(false);
         }

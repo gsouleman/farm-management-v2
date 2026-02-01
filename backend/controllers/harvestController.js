@@ -97,7 +97,13 @@ exports.createHarvest = async (req, res) => {
             console.error('[HarvestController] Activity auto-creation failed, but harvest was successfully archived:', activityError);
         }
 
-        res.status(201).json(harvest);
+        res.status(201).json({
+            data: harvest,
+            notification: {
+                message: 'HARVEST RECORD ARCHIVED SUCCESSFULLY - DATA SECURED',
+                type: 'success'
+            }
+        });
     } catch (error) {
         console.error('[HarvestController] Create error:', error);
         res.status(500).json({
@@ -137,7 +143,13 @@ exports.updateHarvest = async (req, res) => {
             });
         }
 
-        res.json(harvest);
+        res.json({
+            data: harvest,
+            notification: {
+                message: 'STRATEGIC UPDATE COMPLETE - SYSTEM SYNCED',
+                type: 'success'
+            }
+        });
     } catch (error) {
         console.error('[HarvestController] Update error:', error);
         res.status(500).json({
@@ -156,7 +168,13 @@ exports.deleteHarvest = async (req, res) => {
         await Activity.destroy({ where: { harvest_id: harvest.id } });
 
         await harvest.destroy();
-        res.json({ message: 'Harvest deleted successfully' });
+        res.json({
+            message: 'Harvest deleted successfully',
+            notification: {
+                message: 'RECORD PERMANENTLY REMOVED FROM OPERATIONAL ARCHIVE',
+                type: 'success'
+            }
+        });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting harvest' });
     }

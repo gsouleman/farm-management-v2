@@ -12,7 +12,7 @@ import autoTable from 'jspdf-autotable';
 const Activities = () => {
     const { currentFarm, fields, fetchFields } = useFarmStore();
     const { activities, fetchActivitiesByFarm, deleteActivity, loading } = useActivityStore();
-    const { showNotification } = useUIStore();
+    const { showNotification, getConfirmation } = useUIStore();
     const { crops, fetchCropsByFarm } = useCropStore();
     const { infrastructure, fetchInfrastructure } = useInfrastructureStore();
     const [view, setView] = useState('list'); // list, add, edit
@@ -40,12 +40,19 @@ const Activities = () => {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this activity? This will also update associated costs.')) {
+        const template = getConfirmation('DELETE_ACTIVITY');
+        const confirmMsg = template
+            ? `${template.title}\n----------------------------------\n${template.body}`
+            : 'Are you sure you want to delete this activity? This will also update associated costs.';
+
+        if (window.confirm(confirmMsg)) {
             try {
-                await deleteActivity(id);
-                showNotification('Activity record deleted successfully.', 'success');
+                const response = await deleteActivity(id);
+                const msg = response?.notification?.message || 'Activity record deleted successfully.';
+                showNotification(msg, 'success');
             } catch (error) {
-                showNotification('Failed to remove activity record.', 'error');
+                const msg = error.response?.data?.notification?.message || 'Failed to remove activity record.';
+                showNotification(msg, 'error');
             }
         }
     };

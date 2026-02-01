@@ -175,7 +175,13 @@ exports.createActivity = async (req, res) => {
             await recalculateInfraCost(activity.infrastructure_id);
         }
 
-        res.status(201).json(activity);
+        res.status(201).json({
+            data: activity,
+            notification: {
+                message: 'JOURNAL ENTRY LOGGED SUCCESSFULLY',
+                type: 'success'
+            }
+        });
     } catch (error) {
         console.error('Activity Creation Error:', error);
         if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
@@ -252,7 +258,13 @@ exports.updateActivity = async (req, res) => {
             await recalculateInfraCost(oldInfraId);
         }
 
-        res.json(activity);
+        res.json({
+            data: activity,
+            notification: {
+                message: 'JOURNAL RECORD UPDATED',
+                type: 'success'
+            }
+        });
     } catch (error) {
         res.status(500).json({ message: 'Error updating activity' });
     }
@@ -282,7 +294,13 @@ exports.deleteActivity = async (req, res) => {
             await recalculateInfraCost(infraId);
         }
 
-        res.json({ message: 'Activity deleted successfully' });
+        res.json({
+            message: 'Activity deleted successfully',
+            notification: {
+                message: 'JOURNAL RECORD PERMANENTLY REMOVED',
+                type: 'success'
+            }
+        });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting activity' });
     }

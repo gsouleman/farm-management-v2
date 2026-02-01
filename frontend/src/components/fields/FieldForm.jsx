@@ -97,11 +97,12 @@ const FieldForm = ({ onComplete }) => {
 
         setLoading(true);
         try {
-            await createField(currentFarm.id, {
+            const response = await createField(currentFarm.id, {
                 ...formData,
                 area: calculatedArea
             });
-            showNotification(`Field ${formData.name} established successfully.`, 'success');
+            const msg = response?.notification?.message || `Field ${formData.name} established successfully.`;
+            showNotification(msg, 'success');
             if (onComplete) onComplete();
         } catch (error) {
             console.error(error);

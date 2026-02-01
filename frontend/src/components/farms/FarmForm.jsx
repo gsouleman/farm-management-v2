@@ -89,10 +89,14 @@ const FarmForm = ({ onComplete }) => {
         e.preventDefault();
         setLoading(true);
         try {
-            await createFarm(formData);
+            const response = await createFarm(formData);
+            const { showNotification } = (await import('../../store/uiStore')).default.getState();
+            showNotification(response?.notification?.message || 'Farm registered successfully', 'success');
             if (onComplete) onComplete();
         } catch (error) {
             console.error(error);
+            const { showNotification } = (await import('../../store/uiStore')).default.getState();
+            showNotification('Error registering farm', 'error');
         } finally {
             setLoading(false);
         }

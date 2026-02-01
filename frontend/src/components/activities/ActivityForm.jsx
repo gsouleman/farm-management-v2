@@ -95,12 +95,15 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                 payload.inputs = [];
             }
 
+            let response;
             if (initialData?.id) {
-                await updateActivity(initialData.id, payload);
-                showNotification('Operation data updated successfully.', 'success');
+                response = await updateActivity(initialData.id, payload);
+                const msg = response?.notification?.message || 'Operation data updated successfully.';
+                showNotification(msg, 'success');
             } else {
-                await logActivity(payload);
-                showNotification('DATA SAVED SUCCESSFULLY - SYSTEM ARCHIVED', 'success');
+                response = await logActivity(payload);
+                const msg = response?.notification?.message || 'DATA SAVED SUCCESSFULLY - SYSTEM ARCHIVED';
+                showNotification(msg, 'success');
             }
 
             if (onComplete) onComplete();

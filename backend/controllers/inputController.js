@@ -27,7 +27,13 @@ exports.createInput = async (req, res) => {
             supplier
         });
 
-        res.status(201).json(input);
+        res.status(201).json({
+            data: input,
+            notification: {
+                message: 'INVENTORY ITEM ADDED TO STOCK',
+                type: 'success'
+            }
+        });
     } catch (error) {
         res.status(500).json({ message: 'Error creating input' });
     }
@@ -39,7 +45,13 @@ exports.updateInput = async (req, res) => {
         if (!input) return res.status(404).json({ message: 'Input not found' });
 
         await input.update(req.body);
-        res.json(input);
+        res.json({
+            data: input,
+            notification: {
+                message: 'INVENTORY RECORD UPDATED',
+                type: 'success'
+            }
+        });
     } catch (error) {
         res.status(500).json({ message: 'Error updating input' });
     }
@@ -51,7 +63,13 @@ exports.deleteInput = async (req, res) => {
         if (!input) return res.status(404).json({ message: 'Input not found' });
 
         await input.destroy();
-        res.json({ message: 'Input deleted successfully' });
+        res.json({
+            message: 'Input deleted successfully',
+            notification: {
+                message: 'ITEM REMOVED FROM INVENTORY REGISTRY',
+                type: 'success'
+            }
+        });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting input' });
     }

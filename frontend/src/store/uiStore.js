@@ -2,6 +2,25 @@ import { create } from 'zustand';
 
 const useUIStore = create((set, get) => ({
     notification: null, // { message, type: 'success' | 'error' | 'info', visible: boolean }
+    systemMessages: null,
+
+    fetchSystemMessages: async () => {
+        try {
+            const api = (await import('../services/api')).default;
+            const response = await api.get('/system/messages');
+            set({ systemMessages: response.data });
+        } catch (error) {
+            console.error('[UIStore] Failed to fetch system messages:', error);
+        }
+    },
+
+    getConfirmation: (action) => {
+        const state = get();
+        if (state.systemMessages?.CONFIRMATIONS) {
+            return state.systemMessages.CONFIRMATIONS[action.toUpperCase()];
+        }
+        return null;
+    },
 
     showNotification: (message, type = 'info') => {
         // Clear any existing timeout

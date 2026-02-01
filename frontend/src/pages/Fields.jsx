@@ -4,7 +4,7 @@ import useFarmStore from '../store/farmStore';
 import FieldForm from '../components/fields/FieldForm';
 
 const Fields = () => {
-    const { currentFarm, fields, fetchFields } = useFarmStore();
+    const { currentFarm, fields, fetchFields, deleteField } = useFarmStore();
     const [view, setView] = useState('list'); // list, add
     const navigate = useNavigate();
 
@@ -13,6 +13,21 @@ const Fields = () => {
             fetchFields(currentFarm.id);
         }
     }, [currentFarm, fetchFields]);
+
+    const handleDeleteField = async (id) => {
+        const { getConfirmation, showNotification } = (await import('../store/uiStore')).default.getState();
+        const template = getConfirmation('DELETE_FIELD');
+        const msg = template ? `${template.title}\n------------------\n${template.body}` : 'Are you sure you want to delete this field?';
+
+        if (window.confirm(msg)) {
+            try {
+                const response = await deleteField(id);
+                showNotification(response?.notification?.message || 'Field deleted successfully', 'success');
+            } catch (error) {
+                showNotification(error.response?.data?.notification?.message || 'Delete failed', 'error');
+            }
+        }
+    };
 
     if (view === 'add') return <FieldForm onComplete={() => setView('list')} />;
 
@@ -31,12 +46,20 @@ const Fields = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
                 {fields.map(field => (
-                    <div key={field.id} className="card animate-scale-in" style={{ padding: '20px', cursor: 'pointer' }}>
+                    <div key={field.id} className="card animate-scale-in" style={{ padding: '20px', cursor: 'pointer', position: 'relative' }}>
                         <div className="flex j-between a-start" style={{ marginBottom: '16px' }}>
                             <div style={{ fontSize: '24px' }}>🗺️</div>
-                            <span style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--primary)', backgroundColor: '#e6f4ea', padding: '4px 8px', borderRadius: '4px' }}>
-                                {field.area} {field.area_unit || 'ha'}
-                            </span>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <span style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--primary)', backgroundColor: '#e6f4ea', padding: '4px 8px', borderRadius: '4px' }}>
+                                    {field.area} {field.area_unit || 'ha'}
+                                </span>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); handleDeleteField(field.id); }}
+                                    style={{ background: '#fff5f5', color: '#e53e3e', border: '1px solid #fed7d7', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', cursor: 'pointer' }}
+                                >
+                                    🗑️
+                                </button>
+                            </div>
                         </div>
                         <h3 style={{ margin: '0 0 8px 0', fontSize: '18px' }}>{field.name}</h3>
                         <p style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '16px' }}>Lot #: {field.field_number || 'N/A'}</p>

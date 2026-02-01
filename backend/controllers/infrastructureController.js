@@ -28,7 +28,13 @@ exports.createInfrastructure = async (req, res) => {
             boundary
         });
 
-        res.status(201).json(infra);
+        res.status(201).json({
+            data: infra,
+            notification: {
+                message: 'INFRASTRUCTURE ASSET REGISTERED SUCCESSFULLY',
+                type: 'success'
+            }
+        });
     } catch (error) {
         console.error('[InfrastructureController] Create Error:', error);
         res.status(500).json({
@@ -80,7 +86,13 @@ exports.updateInfrastructure = async (req, res) => {
         }
 
         await infra.update(rest);
-        res.json(infra);
+        res.json({
+            data: infra,
+            notification: {
+                message: 'ASSET CONFIGURATION UPDATED',
+                type: 'success'
+            }
+        });
     } catch (error) {
         console.error('[InfrastructureController] Update Error:', error);
         res.status(500).json({
@@ -94,7 +106,13 @@ exports.deleteInfrastructure = async (req, res) => {
     try {
         const { id } = req.params;
         await Infrastructure.destroy({ where: { id } });
-        res.json({ message: 'Infrastructure deleted' });
+        res.json({
+            message: 'Infrastructure deleted',
+            notification: {
+                message: 'ASSET DECOMMISSIONED AND REMOVED FROM REGISTER',
+                type: 'success'
+            }
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

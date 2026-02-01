@@ -156,7 +156,13 @@ exports.createCrop = async (req, res) => {
             }
         }
 
-        res.status(201).json(crop);
+        res.status(201).json({
+            data: crop,
+            notification: {
+                message: 'CROP PLANTING REGISTERED SUCCESSFULLY',
+                type: 'success'
+            }
+        });
     } catch (error) {
         console.error('CRITICAL CROP CREATION ERROR:', error);
 
@@ -226,7 +232,13 @@ exports.updateCrop = async (req, res) => {
         }
 
         await crop.update(otherData);
-        res.json(crop);
+        res.json({
+            data: crop,
+            notification: {
+                message: 'PLANTING RECORDS UPDATED',
+                type: 'success'
+            }
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error updating crop' });
@@ -239,7 +251,13 @@ exports.deleteCrop = async (req, res) => {
         if (!crop) return res.status(404).json({ message: 'Crop not found' });
 
         await crop.destroy();
-        res.json({ message: 'Crop deleted successfully' });
+        res.json({
+            message: 'Crop deleted successfully',
+            notification: {
+                message: 'CROP ASSET REMOVED FROM OPERATIONAL REGISTRY',
+                type: 'success'
+            }
+        });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting crop' });
     }

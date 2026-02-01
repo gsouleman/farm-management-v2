@@ -10,7 +10,7 @@ const Harvests = () => {
     const { currentFarm } = useFarmStore();
     const { harvests, fetchHarvestsByFarm, deleteHarvest, loading } = useHarvestStore();
     const { crops, fetchCropsByFarm } = useCropStore();
-    const { showNotification } = useUIStore();
+    const { showNotification, getConfirmation } = useUIStore();
     const [view, setView] = useState('list'); // list, add, edit
     const [selectedCropId, setSelectedCropId] = useState('');
     const [selectedHarvest, setSelectedHarvest] = useState(null);
@@ -23,12 +23,19 @@ const Harvests = () => {
     }, [currentFarm, fetchHarvestsByFarm, fetchCropsByFarm]);
 
     const handleDelete = async (id) => {
-        if (window.confirm('CRITICAL ACTION: CONFIRM DATA REMOVAL\n----------------------------------\nAre you sure you want to permanently delete this harvest entry from the operational archive?\n\nThis action cannot be undone.')) {
+        const template = getConfirmation('DELETE_HARVEST');
+        const confirmMsg = template
+            ? `${template.title}\n----------------------------------\n${template.body}`
+            : 'Are you sure you want to delete this harvest record?';
+
+        if (window.confirm(confirmMsg)) {
             try {
-                await deleteHarvest(id);
-                showNotification('HARVEST RECORD DELETED - ARCHIVE UPDATED', 'success');
+                const response = await deleteHarvest(id);
+                const msg = response?.notification?.message || 'HARVEST RECORD DELETED - ARCHIVE UPDATED';
+                showNotification(msg, 'success');
             } catch (error) {
-                showNotification('DELETE FAILED: SYSTEM INTEGRITY ERROR', 'error');
+                const msg = error.response?.data?.notification?.message || 'DELETE FAILED: SYSTEM INTEGRITY ERROR';
+                showNotification(msg, 'error');
             }
         }
     };

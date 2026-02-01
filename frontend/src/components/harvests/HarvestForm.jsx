@@ -49,16 +49,18 @@ const HarvestForm = ({ cropId, onComplete, initialData }) => {
             };
 
             if (initialData?.id) {
-                await updateHarvest(initialData.id, payload);
-                showNotification('HARVEST RECORD UPDATED SUCCESSFULLY - SYSTEM SYNCED', 'success');
+                const response = await updateHarvest(initialData.id, payload);
+                const msg = response?.notification?.message || 'HARVEST RECORD UPDATED SUCCESSFULLY - SYSTEM SYNCED';
+                showNotification(msg, 'success');
             } else {
-                await createHarvest(cropId, payload);
-                showNotification('HARVEST RECORD ARCHIVED SUCCESSFULLY - DATA SECURED', 'success');
+                const response = await createHarvest(cropId, payload);
+                const msg = response?.notification?.message || 'HARVEST RECORD ARCHIVED SUCCESSFULLY - DATA SECURED';
+                showNotification(msg, 'success');
             }
             if (onComplete) onComplete();
         } catch (error) {
             console.error(error);
-            const serverMsg = error.response?.data?.message || 'Operation failure';
+            const serverMsg = error.response?.data?.notification?.message || error.response?.data?.message || 'Operation failure';
             showNotification(`HARVEST LOG FAILURE\n------------------\n${serverMsg}`, 'error');
         } finally {
             setLoading(false);
