@@ -91,7 +91,7 @@ const Reports = () => {
                         title="Crop Budget Analysis"
                         desc="Detailed breakdown of input costs vs expected harvest revenue per hectare."
                         icon="📊"
-                        onClick={() => handleDownload('/reports/crop-budget', `CropBudget_${currentFarm?.name}.json`)}
+                        onClick={() => handleDownload('/reports/crop-budget?simulation=true', `CropBudget_${currentFarm?.name}.pdf`)}
                         loading={loading}
                     />
                 </div>
@@ -112,7 +112,7 @@ const Reports = () => {
                         title="Compliance Audit Log"
                         desc="Complete historical log of all field operations for regulatory compliance."
                         icon="📋"
-                        onClick={() => handleDownload('/reports/activity-log', `ActivityLog_${currentFarm?.name}.json`)}
+                        onClick={() => handleDownload('/reports/activity-log?simulation=true', `ActivityLog_${currentFarm?.name}.pdf`)}
                         loading={loading}
                     />
                 </div>
@@ -133,14 +133,14 @@ const Reports = () => {
                         title="Farm Summary"
                         desc="General overview of fields, active crops, and current season status."
                         icon="🌾"
-                        onClick={() => handleDownload('/reports/farm-summary', `FarmSummary_${currentFarm?.name}.json`)}
+                        onClick={() => handleDownload('/reports/farm-summary?simulation=true', `FarmSummary_${currentFarm?.name}.pdf`)}
                         loading={loading}
                     />
                     <ReportCard
                         title="Inventory Valuation"
                         desc="Current stock levels, valuation, and reorder alerts."
                         icon="📦"
-                        onClick={() => handleDownload('/exports/excel', `Inventory_${currentFarm?.name}.xls`)}
+                        onClick={() => handleDownload('/exports/excel?simulation=true', `Inventory_${currentFarm?.name}.pdf`)}
                         loading={loading}
                     />
                 </div>
