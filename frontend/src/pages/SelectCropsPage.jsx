@@ -42,7 +42,7 @@ const SelectCropsPage = () => {
 
     return (
         <div style={{ padding: '24px' }}>
-            <h1 style={{ fontSize: '24px', fontWeight: '900', marginBottom: '24px', textTransform: 'uppercase' }}>Manage Crops</h1>
+            <h1 style={{ fontSize: '24px', fontWeight: '900', marginBottom: '24px', textTransform: 'uppercase' }}>Manage Cultivation</h1>
             <div style={{ maxWidth: '1000px' }}>
                 <p style={{ marginBottom: '16px', color: '#666' }}>Manage your active cultivation selection here.</p>
                 <CropSelector
