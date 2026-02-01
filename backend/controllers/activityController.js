@@ -228,6 +228,23 @@ exports.updateActivity = async (req, res) => {
         };
         await activity.update(updateData);
 
+        // Sync back to Harvest if linked
+        if (activity.harvest_id) {
+            try {
+                const { Harvest } = require('../models');
+                const harvest = await Harvest.findByPk(activity.harvest_id);
+                if (harvest) {
+                    await harvest.update({
+                        harvest_date: activity.activity_date,
+                        total_revenue: activity.total_cost
+                    });
+                    console.log(`[ActivitySync] Successfully updated linked Harvest record: ${harvest.id}`);
+                }
+            } catch (syncError) {
+                console.error('[ActivitySync] Failed to sync update back to Harvest:', syncError);
+            }
+        }
+
         if (activity.infrastructure_id) {
             await recalculateInfraCost(activity.infrastructure_id);
         }
@@ -247,7 +264,19 @@ exports.deleteActivity = async (req, res) => {
         if (!activity) return res.status(404).json({ message: 'Activity not found' });
 
         const infraId = activity.infrastructure_id;
+        const harvestId = activity.harvest_id;
+
         await activity.destroy();
+
+        if (harvestId) {
+            try {
+                const { Harvest } = require('../models');
+                await Harvest.destroy({ where: { id: harvestId } });
+                console.log(`[ActivitySync] Successfully deleted linked Harvest record: ${harvestId}`);
+            } catch (syncError) {
+                console.error('[ActivitySync] Failed to sync deletion back to Harvest:', syncError);
+            }
+        }
 
         if (infraId) {
             await recalculateInfraCost(infraId);
