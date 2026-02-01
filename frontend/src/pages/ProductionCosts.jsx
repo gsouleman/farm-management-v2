@@ -1,8 +1,13 @@
+import { useLocation } from 'react-router-dom';
 import CostSettings from '../components/finance/CostSettings';
 
 const ProductionCosts = () => {
     const { currentFarm } = useFarmStore();
-    const [view, setView] = useState('overview'); // 'overview' or 'settings'
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const initialView = queryParams.get('view') === 'settings' ? 'settings' : 'overview';
+
+    const [view, setView] = useState(initialView); // 'overview' or 'settings'
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [summary, setSummary] = useState({
@@ -12,6 +17,17 @@ const ProductionCosts = () => {
         totalInput: 0,
         avgCostPerHa: 0
     });
+
+    // Update view when URL parameter changes
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const viewParam = params.get('view');
+        if (viewParam === 'settings') {
+            setView('settings');
+        } else {
+            setView('overview');
+        }
+    }, [location.search]);
 
     useEffect(() => {
         if (currentFarm?.id && view === 'overview') {

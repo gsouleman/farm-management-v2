@@ -205,6 +205,7 @@ const MainLayout = ({ children }) => {
                         onToggle={() => toggleGroup('systems')}
                     >
                         <SidebarLink to="/weather" icon="☁️" label="Forecast Center" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/production-costs?view=settings" icon="⚙️" label="Cost Settings" sub onClick={handleNavItemClick} />
                         <SidebarLink to="/vault" icon="📂" label="Knowledge Vault" sub onClick={handleNavItemClick} />
                         <SidebarLink to="/team" icon="👥" label="Human Resources" sub onClick={handleNavItemClick} />
                     </NavGroup>
