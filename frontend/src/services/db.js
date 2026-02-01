@@ -3,12 +3,14 @@ import Dexie from 'dexie';
 export const db = new Dexie('FarmManagementDB');
 
 // Define database schema
-db.version(2).stores({
+// Define database schema
+db.version(3).stores({
     farms: 'id, name',
     activities: 'id, farm_id, activity_type, activity_date, status',
     crops: 'id, farm_id, crop_type, status',
     fields: 'id, farm_id, name',
     infrastructure: 'id, farm_id, name, type',
+    cost_settings: 'id, farm_id, category, name', // New table
     sync_outbox: '++id, method, url, data, timestamp, status' // status: 'pending', 'failed'
 });
 
