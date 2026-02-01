@@ -25,10 +25,11 @@ const MainLayout = ({ children }) => {
 
     // State for collapsible sections (Restored fix)
     const [openGroups, setOpenGroups] = useState({
-        estate: true,
-        cultivation: true,
+        operations: true,
+        production: true,
         finance: false,
-        systems: false
+        inventory: false,
+        admin: false
     });
 
     const toggleGroup = (group) => {
@@ -158,64 +159,58 @@ const MainLayout = ({ children }) => {
                 </div>
 
                 {/* Navigation */}
-                <nav style={{ flex: 1, overflowY: 'auto', padding: '20px 12px' }}>
+                <nav style={{ flex: 1, overflowY: 'auto', padding: '16px 12px' }}>
+                    <SidebarLink to="/" icon="📊" label="Dashboard" onClick={handleNavItemClick} />
+
                     <NavGroup
-                        label="CONTROL CENTER"
-                        isOpen={true}
-                        onToggle={() => { }}
+                        label="OPERATIONS"
+                        isOpen={openGroups.operations}
+                        onToggle={() => toggleGroup('operations')}
                     >
-                        <SidebarLink to="/" icon="📺" label="DASHBOARD" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/fields" icon="🗺️" label="Map & Fields" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/infrastructure" icon="🏗️" label="Infrastructure" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/weather" icon="☁️" label="Weather" sub onClick={handleNavItemClick} />
                     </NavGroup>
 
                     <NavGroup
-                        label="FARM & INFRASTRUCTURE"
-                        isOpen={openGroups.estate}
-                        onToggle={() => toggleGroup('estate')}
+                        label="PRODUCTION"
+                        isOpen={openGroups.production}
+                        onToggle={() => toggleGroup('production')}
                     >
-                        <SidebarLink to="/fields" icon="🗺️" label="Manage Farm" sub onClick={handleNavItemClick} />
-                        <SidebarLink to="/infrastructure" icon="🏗️" label="Manage Infrastructure" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/select-crops" icon="🌿" label="Active Cultivation" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/activities" icon="🚜" label="Field Journal" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/harvests" icon="🌾" label="Harvest Records" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/planner" icon="📅" label="Crop Planner" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/crop-library" icon="📚" label="Crop Library" sub onClick={handleNavItemClick} />
                     </NavGroup>
 
                     <NavGroup
-                        label="CULTIVATION & OPERATIONS"
-                        isOpen={openGroups.cultivation}
-                        onToggle={() => toggleGroup('cultivation')}
+                        label="INVENTORY & ASSETS"
+                        isOpen={openGroups.inventory}
+                        onToggle={() => toggleGroup('inventory')}
                     >
-                        <SidebarLink to="/select-crops" icon="🌿" label="Manage Cultivation" sub onClick={handleNavItemClick} />
-                        <SidebarLink to="/crop-library" icon="✅" label="Manage Crops" sub onClick={handleNavItemClick} />
-                        <SidebarLink to="/activities" icon="🚜" label="Manage Journal" sub onClick={handleNavItemClick} />
-                        <SidebarLink to="/harvests" icon="🌾" label="Manage Harvest" sub onClick={handleNavItemClick} />
-                        <SidebarLink to="/planner" icon="📅" label="Manage Production" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/input-list" icon="📦" label="Inputs (Seed/Chem)" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/stores?view=structures" icon="🏢" label="Stores & Silos" sub onClick={handleNavItemClick} />
                     </NavGroup>
 
                     <NavGroup
-                        label="FINANCE & CONTRACTS"
+                        label="FINANCIALS"
                         isOpen={openGroups.finance}
                         onToggle={() => toggleGroup('finance')}
                     >
+                        <SidebarLink to="/production-costs" icon="💰" label="Cost Analysis" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/reports" icon="📈" label="Reports" sub onClick={handleNavItemClick} />
                         <SidebarLink to="/contracts" icon="📜" label="Contracts" sub onClick={handleNavItemClick} />
-                        <SidebarLink to="/production-costs" icon="💰" label="Cost Analytics" sub onClick={handleNavItemClick} />
-                        <SidebarLink to="/reports" icon="📊" label="Farm Reports" sub onClick={handleNavItemClick} />
                     </NavGroup>
 
                     <NavGroup
-                        label="LOGISTICS & STORAGE"
-                        isOpen={true}
-                        onToggle={() => { }}
+                        label="ADMINISTRATION"
+                        isOpen={openGroups.admin}
+                        onToggle={() => toggleGroup('admin')}
                     >
-                        <SidebarLink to="/stores?view=structures" icon="🏢" label="Stores & Silos" sub onClick={handleNavItemClick} />
-                        <SidebarLink to="/input-list" icon="📦" label="Input Inventory" sub onClick={handleNavItemClick} />
-                    </NavGroup>
-
-                    <NavGroup
-                        label="SYSTEMS & COMPLIANCE"
-                        isOpen={openGroups.systems}
-                        onToggle={() => toggleGroup('systems')}
-                    >
-                        <SidebarLink to="/weather" icon="☁️" label="Forecast Center" sub onClick={handleNavItemClick} />
-                        <SidebarLink to="/production-costs?view=settings" icon="⚙️" label="Cost Settings" sub onClick={handleNavItemClick} />
-                        <SidebarLink to="/vault" icon="📂" label="Knowledge Vault" sub onClick={handleNavItemClick} />
-                        <SidebarLink to="/team" icon="👥" label="Human Resources" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/team" icon="👥" label="Team & Roles" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/production-costs?view=settings" icon="⚙️" label="Settings" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/vault" icon="📂" label="Documents" sub onClick={handleNavItemClick} />
                     </NavGroup>
                 </nav>
 
@@ -257,58 +252,85 @@ const MainLayout = ({ children }) => {
     );
 };
 
-const NavGroup = ({ label, children, isOpen, onToggle }) => (
-    <div style={{ marginBottom: '8px' }}>
-        <button
-            onClick={onToggle}
-            style={{
-                width: '100%',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '10px 16px',
-                background: 'none',
-                color: '#888',
-                fontSize: '11px',
-                fontWeight: '800',
-                letterSpacing: '1px',
-                cursor: 'pointer',
-                textAlign: 'left',
-                border: 'none',
-                fontFamily: 'inherit'
-            }}
-        >
-            {label}
-            <span>{isOpen ? '−' : '+'}</span>
-        </button>
-        {isOpen && <div style={{ paddingLeft: '8px' }}>{children}</div>}
-    </div>
-);
-
-const SidebarLink = ({ to, icon, label, sub, nested, onClick }) => (
+const SidebarLink = ({ to, icon, label, sub, onClick }) => (
     <NavLink
         to={to}
         onClick={onClick}
+        className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
         style={({ isActive }) => ({
             display: 'flex',
             alignItems: 'center',
-            gap: isActive && !sub ? '12px' : '12px',
-            padding: sub ? (nested ? '8px 16px 8px 32px' : '8px 16px') : '12px 16px',
-            color: isActive ? 'white' : '#aaa',
+            padding: sub ? '10px 12px 10px 44px' : '12px 16px',
+            color: isActive ? 'var(--primary-light)' : '#ccc',
             textDecoration: 'none',
-            backgroundColor: isActive ? 'var(--primary)' : 'transparent',
-            margin: sub ? '2px 0' : '4px 0',
-            fontSize: nested ? '13px' : (sub ? '14px' : '15px'),
-            fontWeight: sub ? '400' : '600',
+            fontSize: sub ? '13px' : '14px',
+            fontWeight: isActive ? '600' : '400',
+            borderLeft: isActive ? '3px solid var(--primary-light)' : '3px solid transparent',
+            backgroundColor: isActive ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
             transition: 'all 0.2s',
-            borderRadius: '6px',
-            borderLeft: 'none'
+            marginBottom: '2px',
+            borderRadius: '0 4px 4px 0'
         })}
     >
-        {!sub && <span style={{ fontSize: '18px' }}>{icon}</span>}
-        {sub && icon && <span style={{ fontSize: nested ? '12px' : '14px', marginRight: '4px' }}>{icon}</span>}
-        <span>{label.toUpperCase()}</span>
+        <span style={{ marginRight: '12px', fontSize: '16px', opacity: sub ? 0.8 : 1 }}>{icon}</span>
+        {label}
     </NavLink>
+);
+
+const NavGroup = ({ label, children, isOpen, onToggle }) => (
+    <div style={{ marginBottom: '8px' }}>
+        <div
+            onClick={onToggle}
+            style={{
+                padding: '12px 16px',
+                color: '#888',
+                fontSize: '11px',
+                fontWeight: '700',
+                letterSpacing: '1px',
+                cursor: 'pointer',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                userSelect: 'none',
+                textTransform: 'uppercase'
+            }}
+        >
+            {label}
+            <span style={{ fontSize: '10px', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>▼</span>
+        </div>
+        <div style={{
+            height: isOpen ? 'auto' : '0',
+            overflow: 'hidden',
+            transition: 'height 0.3s ease'
+        }}>
+            {children}
+        </div>
+    </div>
+);
+
+<NavLink
+    to={to}
+    onClick={onClick}
+    style={({ isActive }) => ({
+        display: 'flex',
+        alignItems: 'center',
+        gap: isActive && !sub ? '12px' : '12px',
+        padding: sub ? (nested ? '8px 16px 8px 32px' : '8px 16px') : '12px 16px',
+        color: isActive ? 'white' : '#aaa',
+        textDecoration: 'none',
+        backgroundColor: isActive ? 'var(--primary)' : 'transparent',
+        margin: sub ? '2px 0' : '4px 0',
+        fontSize: nested ? '13px' : (sub ? '14px' : '15px'),
+        fontWeight: sub ? '400' : '600',
+        transition: 'all 0.2s',
+        borderRadius: '6px',
+        borderLeft: 'none'
+    })}
+>
+    {!sub && <span style={{ fontSize: '18px' }}>{icon}</span>}
+    {sub && icon && <span style={{ fontSize: nested ? '12px' : '14px', marginRight: '4px' }}>{icon}</span>}
+    <span>{label.toUpperCase()}</span>
+</NavLink>
 );
 
 export default MainLayout;
