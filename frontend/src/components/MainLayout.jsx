@@ -175,7 +175,7 @@ const MainLayout = ({ children }) => {
                         onToggle={() => toggleGroup('cultivation')}
                     >
                         <SidebarLink to="/select-crops" icon="🌿" label="Manage Crops" sub onClick={handleNavItemClick} />
-                        <SidebarLink to="/crop-library" icon="✅" label="Select your crops" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/crop-library" icon="✅" label="Create New Crops" sub onClick={handleNavItemClick} />
                         <SidebarLink to="/activities" icon="🚜" label="Farm Journal" sub onClick={handleNavItemClick} />
                         <SidebarLink to="/harvests" icon="🌾" label="Harvest Records" sub onClick={handleNavItemClick} />
                         <SidebarLink to="/planner" icon="📅" label="Production Planner" sub onClick={handleNavItemClick} />

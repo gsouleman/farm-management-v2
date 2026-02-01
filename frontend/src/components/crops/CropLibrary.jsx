@@ -53,12 +53,12 @@ const CropLibrary = () => {
     if (loading && definitions.length === 0) return <div style={{ padding: '20px', textAlign: 'center' }}>Loading library...</div>;
 
     return (
-        <div className="card animate-fade-in" style={{ padding: '0', border: '1px solid #000', borderRadius: '0', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+        <div className="card animate-fade-in" style={{ padding: '0', border: '1px solid #000', borderRadius: '0', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', width: '100%', minHeight: '600px', display: 'flex', flexDirection: 'column' }}>
             {/* Header: AgriXP Red Theme */}
             <div style={{ backgroundColor: '#bb1919', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                     <h3 style={{ margin: 0, color: '#fff', fontSize: '14px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                        SELECT YOUR CROPS
+                        CREATE NEW CROPS
                     </h3>
                     <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', marginTop: '4px' }}>
                         Master Library • {definitions.length} Available Crops
