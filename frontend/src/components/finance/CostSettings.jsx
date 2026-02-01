@@ -88,30 +88,27 @@ const CostSettings = () => {
 
     if (isFormOpen) {
         return (
-            <div className="animate-fade-in" style={{ maxWidth: '800px', margin: '0 auto', backgroundColor: '#fff', border: '1px solid #000', boxShadow: '0 20px 50px rgba(0,0,0,0.15)' }}>
-                {/* Header - Harvest Record Style */}
-                <div style={{ backgroundColor: 'var(--primary)', padding: '24px 40px', color: 'white', position: 'relative' }}>
-                    <div style={{ position: 'absolute', top: '0', left: '0', height: '100%', width: '4px', backgroundColor: '#000' }}></div>
-                    <h1 style={{ margin: 0, fontSize: '28px', fontWeight: '900', letterSpacing: '-1px', textTransform: 'uppercase' }}>
-                        <span style={{ backgroundColor: '#fff', color: 'var(--primary)', padding: '2px 8px', marginRight: '10px' }}>{editingId ? 'EDIT' : 'NEW'}</span>
-                        Cost Parameter
+            <div className="animate-fade-in" style={{ maxWidth: '800px', margin: '0 auto', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
+                <div style={{ backgroundColor: 'var(--primary)', padding: '24px 40px', color: 'white' }}>
+                    <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '700' }}>
+                        {editingId ? 'Edit' : 'New'} Cost Parameter
                     </h1>
                 </div>
 
-                <form onSubmit={handleSubmit} style={{ padding: '40px', backgroundColor: '#fcfcfc' }}>
+                <form onSubmit={handleSubmit} style={{ padding: '40px' }}>
 
                     {/* Section 01: Identification */}
                     <div style={{ marginBottom: '30px' }}>
-                        <h3 style={{ fontSize: '14px', fontWeight: '900', color: '#000', textTransform: 'uppercase', letterSpacing: '2px', borderBottom: '4px solid #000', paddingBottom: '8px', marginBottom: '24px' }}>
+                        <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', textTransform: 'uppercase', marginBottom: '24px' }}>
                             01. Parameter Details
                         </h3>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                             <div>
-                                <label style={{ fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Category</label>
+                                <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>Category</label>
                                 <select
                                     value={formData.category}
                                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                    style={{ width: '100%', padding: '12px', borderRadius: '0', border: '2px solid #ddd', fontWeight: '700' }}
+                                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '14px', outline: 'none' }}
                                 >
                                     <option value="Labor">Labor (Manual/Skilled)</option>
                                     <option value="Machinery">Machinery & Equipment</option>
@@ -121,14 +118,14 @@ const CostSettings = () => {
                                 </select>
                             </div>
                             <div>
-                                <label style={{ fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Item Name</label>
+                                <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>Item Name</label>
                                 <input
                                     type="text"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     placeholder="e.g. Casual Weeding"
                                     required
-                                    style={{ width: '100%', padding: '12px', borderRadius: '0', border: '2px solid #ddd' }}
+                                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '14px', outline: 'none' }}
                                 />
                             </div>
                         </div>
@@ -136,37 +133,37 @@ const CostSettings = () => {
 
                     {/* Section 02: Valuation */}
                     <div style={{ marginBottom: '30px' }}>
-                        <h3 style={{ fontSize: '14px', fontWeight: '900', color: '#000', textTransform: 'uppercase', letterSpacing: '2px', borderBottom: '4px solid #bb1919', paddingBottom: '8px', marginBottom: '24px' }}>
+                        <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', textTransform: 'uppercase', marginBottom: '24px' }}>
                             02. Valuation Metrics
                         </h3>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
                             <div>
-                                <label style={{ fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Unit of Measure</label>
+                                <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>Unit of Measure</label>
                                 <input
                                     type="text"
                                     value={formData.unit}
                                     onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
                                     placeholder="e.g. Day, Ha, Liter"
                                     required
-                                    style={{ width: '100%', padding: '12px', borderRadius: '0', border: '2px solid #ddd' }}
+                                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '14px', outline: 'none' }}
                                 />
                             </div>
                             <div>
-                                <label style={{ fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Default Unit Cost (XAF)</label>
+                                <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>Default Unit Cost (XAF)</label>
                                 <input
                                     type="number"
                                     value={formData.unit_cost}
                                     onChange={(e) => setFormData({ ...formData, unit_cost: e.target.value })}
                                     placeholder="0.00"
-                                    style={{ width: '100%', padding: '12px', borderRadius: '0', border: '2px solid #ddd' }}
+                                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '14px', outline: 'none' }}
                                 />
                             </div>
                             <div>
-                                <label style={{ fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Billing Type</label>
+                                <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>Billing Type</label>
                                 <select
                                     value={formData.billing_frequency}
                                     onChange={(e) => setFormData({ ...formData, billing_frequency: e.target.value })}
-                                    style={{ width: '100%', padding: '12px', borderRadius: '0', border: '2px solid #ddd', fontWeight: '700' }}
+                                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '14px', outline: 'none' }}
                                 >
                                     <option value="per_unit">Variable (Per Unit)</option>
                                     <option value="fixed">Fixed Cost (Flat)</option>
@@ -177,10 +174,10 @@ const CostSettings = () => {
                     </div>
 
                     <div style={{ display: 'flex', gap: '15px', marginTop: '40px' }}>
-                        <button type="submit" className="primary" style={{ flex: 2, backgroundColor: '#000', color: '#fff', border: 'none', padding: '15px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px', cursor: 'pointer' }}>
+                        <button type="submit" className="primary" style={{ flex: 2, padding: '14px' }}>
                             {editingId ? 'UPDATE PARAMETER' : 'SAVE CONFIGURATION'}
                         </button>
-                        <button type="button" onClick={closeForm} className="outline" style={{ flex: 1, border: '2px solid #000', padding: '15px', fontWeight: '900', textTransform: 'uppercase', cursor: 'pointer', backgroundColor: '#fff' }}>
+                        <button type="button" onClick={closeForm} className="outline" style={{ flex: 1, padding: '14px' }}>
                             CANCEL
                         </button>
                     </div>
@@ -191,52 +188,52 @@ const CostSettings = () => {
 
     // List View
     return (
-        <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+        <div className="animate-fade-in">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                 <div>
-                    <h2 style={{ fontSize: '24px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '-1px', margin: 0 }}>Operational Cost Matrix</h2>
-                    <p style={{ fontSize: '13px', color: '#666', marginTop: '5px' }}>Standardize operational expenses for accurate budget forecasting.</p>
+                    <h2 style={{ fontSize: '24px', fontWeight: '800', margin: 0, color: 'var(--text-primary)' }}>Operational Cost Matrix</h2>
+                    <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '4px' }}>Standardize operational expenses for accurate budget forecasting.</p>
                 </div>
                 <button
+                    className="primary"
                     onClick={() => setIsFormOpen(true)}
-                    style={{ backgroundColor: '#cc0000', color: '#fff', border: 'none', padding: '12px 24px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', cursor: 'pointer' }}
                 >
                     + Define New Cost
                 </button>
             </div>
 
-            <div style={{ border: '2px solid #000', backgroundColor: '#fff' }}>
-                <div style={{ backgroundColor: '#000', color: '#fff', padding: '12px 20px', fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                    Active Cost Configurations
+            <div style={{ border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden', backgroundColor: '#fff', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+                <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border)', backgroundColor: '#f8fafc' }}>
+                    <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)' }}>ACTIVE COST CONFIGURATIONS</div>
                 </div>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
-                        <tr style={{ textAlign: 'left', fontSize: '11px', color: '#000', textTransform: 'uppercase', letterSpacing: '1px', borderBottom: '2px solid #000', backgroundColor: '#f4f4f4' }}>
-                            <th style={{ padding: '15px 20px', fontWeight: '900' }}>Category</th>
-                            <th style={{ padding: '15px 20px', fontWeight: '900' }}>Item Name</th>
-                            <th style={{ padding: '15px 20px', fontWeight: '900' }}>Billing</th>
-                            <th style={{ padding: '15px 20px', fontWeight: '900', textAlign: 'right' }}>Default Rate (XAF)</th>
-                            <th style={{ padding: '15px 20px', fontWeight: '900', textAlign: 'center' }}>Action</th>
+                        <tr style={{ textAlign: 'left', fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid var(--border)' }}>
+                            <th style={{ padding: '16px 24px', fontWeight: '600' }}>Category</th>
+                            <th style={{ padding: '16px 24px', fontWeight: '600' }}>Item Name</th>
+                            <th style={{ padding: '16px 24px', fontWeight: '600' }}>Billing</th>
+                            <th style={{ padding: '16px 24px', fontWeight: '600', textAlign: 'right' }}>Default Rate (XAF)</th>
+                            <th style={{ padding: '16px 24px', fontWeight: '600', textAlign: 'center' }}>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         {costSettings.map(setting => (
-                            <tr key={setting.id} style={{ borderBottom: '1px solid #eee', fontSize: '13px' }}>
-                                <td style={{ padding: '15px 20px', fontWeight: '700', color: 'var(--primary)' }}>{setting.category}</td>
-                                <td style={{ padding: '15px 20px', fontWeight: '700' }}>{setting.name}</td>
-                                <td style={{ padding: '15px 20px' }}>{setting.billing_frequency === 'per_unit' ? `Per ${setting.unit}` : setting.billing_frequency.toUpperCase()}</td>
-                                <td style={{ padding: '15px 20px', fontWeight: '900', textAlign: 'right' }}>{formatNumber(setting.unit_cost)}</td>
-                                <td style={{ padding: '15px 20px', textAlign: 'center' }}>
+                            <tr key={setting.id} style={{ borderBottom: '1px solid var(--border)', fontSize: '14px' }}>
+                                <td style={{ padding: '16px 24px', fontWeight: '600', color: 'var(--primary)' }}>{setting.category}</td>
+                                <td style={{ padding: '16px 24px', fontWeight: '500' }}>{setting.name}</td>
+                                <td style={{ padding: '16px 24px', color: 'var(--text-secondary)' }}>{setting.billing_frequency === 'per_unit' ? `Per ${setting.unit}` : setting.billing_frequency.toUpperCase()}</td>
+                                <td style={{ padding: '16px 24px', fontWeight: '700', textAlign: 'right' }}>{formatNumber(setting.unit_cost)}</td>
+                                <td style={{ padding: '16px 24px', textAlign: 'center' }}>
                                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                        <button onClick={() => handleEdit(setting)} style={{ border: '1px solid #000', background: '#fff', padding: '5px 10px', cursor: 'pointer', fontSize: '10px', fontWeight: '900' }}>EDIT</button>
-                                        <button onClick={() => handleDelete(setting.id)} style={{ border: 'none', background: 'var(--error)', color: '#fff', padding: '5px 10px', cursor: 'pointer', fontSize: '10px', fontWeight: '900' }}>DEL</button>
+                                        <button onClick={() => handleEdit(setting)} className="outline" style={{ padding: '6px 12px', fontSize: '11px' }}>EDIT</button>
+                                        <button onClick={() => handleDelete(setting.id)} className="outline" style={{ padding: '6px 12px', fontSize: '11px', color: 'var(--error)', borderColor: 'var(--error)' }}>DEL</button>
                                     </div>
                                 </td>
                             </tr>
                         ))}
                         {costSettings.length === 0 && (
                             <tr>
-                                <td colSpan="5" style={{ textAlign: 'center', padding: '40px', color: '#999', fontSize: '12px', fontStyle: 'italic' }}>No cost parameters defined. Click "Define New Cost" to start.</td>
+                                <td colSpan="5" style={{ textAlign: 'center', padding: '60px', color: 'var(--text-muted)', fontSize: '14px' }}>No cost parameters defined. Click "+ Define New Cost" to start.</td>
                             </tr>
                         )}
                     </tbody>

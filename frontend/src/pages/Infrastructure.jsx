@@ -135,8 +135,8 @@ const Infrastructure = () => {
                                     fontSize: '10px',
                                     fontWeight: 'bold',
                                     textTransform: 'uppercase',
-                                    backgroundColor: infra.status === 'operational' ? '#e6f4ea' : (infra.status === 'under_construction' ? '#e8f0fe' : '#fef7e0'),
-                                    color: infra.status === 'operational' ? '#1e7e34' : (infra.status === 'under_construction' ? '#1967d2' : '#b05d22')
+                                    backgroundColor: infra.status === 'operational' ? 'var(--bg-success)' : (infra.status === 'under_construction' ? '#e8f0fe' : '#fef7e0'),
+                                    color: infra.status === 'operational' ? 'var(--success)' : (infra.status === 'under_construction' ? '#1967d2' : '#b05d22')
                                 }}>
                                     {infra.status.replace('_', ' ')}
                                 </span>
@@ -160,7 +160,7 @@ const Infrastructure = () => {
                                 <button className="outline" style={{ width: '40px' }} onClick={() => { setSelectedInfra(infra); setView('edit'); }}>✏️</button>
                                 <button
                                     className="outline"
-                                    style={{ color: '#dc3545', borderColor: '#ffccd1', width: '40px' }}
+                                    style={{ color: 'var(--error)', borderColor: 'var(--error)', width: '40px' }}
                                     onClick={async () => {
                                         const { getConfirmation, showNotification } = useUIStore.getState();
                                         const template = getConfirmation('DELETE_INFRA');

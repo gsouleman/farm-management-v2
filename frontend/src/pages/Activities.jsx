@@ -277,8 +277,8 @@ const Activities = () => {
         <div className="animate-fade-in" style={{ padding: '24px' }}>
             <div className="flex j-between a-center" style={{ marginBottom: '32px' }}>
                 <div>
-                    <h1 style={{ margin: 0, fontSize: '28px', color: '#1a365d' }}>Farm Journal</h1>
-                    <p style={{ margin: '4px 0 0 0', color: '#64748b' }}>Operational logs and financial transactions registry</p>
+                    <h1 style={{ margin: 0, fontSize: '28px', fontWeight: '800', color: 'var(--text-primary)' }}>Farm Journal</h1>
+                    <p style={{ margin: '4px 0 0 0', color: 'var(--text-secondary)', fontSize: '14px' }}>Operational logs and financial transactions registry</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
                     <button
@@ -288,7 +288,7 @@ const Activities = () => {
                     >
                         <span>📥</span> Export PDF
                     </button>
-                    <button className="secondary" onClick={() => setIsBulkModalOpen(true)} style={{ backgroundColor: '#000', color: '#fff', border: 'none' }}>Bulk Log Activities</button>
+                    <button className="secondary" onClick={() => setIsBulkModalOpen(true)}>Bulk Log Activities</button>
                     <button className="primary" onClick={() => setView('add')}>+ Log Journal Entry</button>
                 </div>
             </div>
@@ -310,13 +310,14 @@ const Activities = () => {
             {/* Filter Bar */}
             <div style={{
                 display: 'grid',
-                gridTemplateColumns: '1.5fr 1fr 1fr',
+                gridTemplateColumns: 'minmax(300px, 1.5fr) 1fr 1fr',
                 gap: '16px',
                 marginBottom: '24px',
-                backgroundColor: '#fff',
-                padding: '20px',
-                borderRadius: '8px',
-                boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
+                backgroundColor: 'white',
+                padding: '24px',
+                borderRadius: '12px',
+                boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+                border: '1px solid var(--border)'
             }}>
                 <div style={{ position: 'relative' }}>
                     <input
@@ -326,17 +327,19 @@ const Activities = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                         style={{
                             width: '100%',
-                            padding: '10px 15px',
-                            borderRadius: '6px',
-                            border: '1px solid #e2e8f0',
-                            fontSize: '14px'
+                            padding: '12px 16px',
+                            borderRadius: '8px',
+                            border: '1px solid var(--border)',
+                            fontSize: '14px',
+                            outline: 'none',
+                            transition: 'border-color 0.2s'
                         }}
                     />
                 </div>
                 <select
                     value={filterType}
                     onChange={(e) => setFilterType(e.target.value)}
-                    style={{ padding: '10px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '14px' }}
+                    style={{ padding: '12px', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '14px', outline: 'none' }}
                 >
                     <option value="all">All Transactions</option>
                     <option value="income">Income Only</option>
@@ -345,7 +348,7 @@ const Activities = () => {
                 <select
                     value={filterCategory}
                     onChange={(e) => setFilterCategory(e.target.value)}
-                    style={{ padding: '10px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '14px' }}
+                    style={{ padding: '12px', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '14px', outline: 'none' }}
                 >
                     <option value="all">All Categories</option>
                     <option value="crop">Crop Operations</option>
@@ -354,24 +357,24 @@ const Activities = () => {
                 </select>
             </div>
 
-            <div className="card" style={{ padding: '0', overflow: 'hidden', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
+            <div className="card" style={{ padding: '0', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', borderRadius: '12px' }}>
                 <div style={{ overflowX: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: 'white' }}>
                         <thead>
-                            <tr style={{ textAlign: 'left', backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0', color: '#64748b', fontSize: '12px', fontWeight: '800' }}>
-                                <th onClick={() => handleSort('activity_date')} style={{ padding: '16px', cursor: 'pointer', userSelect: 'none' }}>
+                            <tr style={{ textAlign: 'left', backgroundColor: '#f8fafc', borderBottom: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                <th onClick={() => handleSort('activity_date')} style={{ padding: '16px 24px', cursor: 'pointer', userSelect: 'none' }}>
                                     DATE <SortIndicator column="activity_date" />
                                 </th>
-                                <th onClick={() => handleSort('operation')} style={{ padding: '16px', cursor: 'pointer', userSelect: 'none' }}>
+                                <th onClick={() => handleSort('operation')} style={{ padding: '16px 24px', cursor: 'pointer', userSelect: 'none' }}>
                                     REF / OPERATION <SortIndicator column="operation" />
                                 </th>
-                                <th onClick={() => handleSort('activity_type')} style={{ padding: '16px', cursor: 'pointer', userSelect: 'none' }}>
+                                <th onClick={() => handleSort('activity_type')} style={{ padding: '16px 24px', cursor: 'pointer', userSelect: 'none' }}>
                                     ACCOUNT / TYPE <SortIndicator column="activity_type" />
                                 </th>
-                                <th style={{ padding: '16px' }}>DESCRIPTION</th>
-                                <th style={{ padding: '16px', textAlign: 'right' }}>DEBIT</th>
-                                <th style={{ padding: '16px', textAlign: 'right' }}>CREDIT</th>
-                                <th style={{ padding: '16px', textAlign: 'center' }} className="no-print">ACTION</th>
+                                <th style={{ padding: '16px 24px' }}>DESCRIPTION</th>
+                                <th style={{ padding: '16px 24px', textAlign: 'right' }}>DEBIT</th>
+                                <th style={{ padding: '16px 24px', textAlign: 'right' }}>CREDIT</th>
+                                <th style={{ padding: '16px 24px', textAlign: 'center' }} className="no-print">ACTION</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -390,31 +393,31 @@ const Activities = () => {
                                 const amount = activity.total_cost || activity.labor_cost || 0;
 
                                 return (
-                                    <tr key={activity.id} style={{ borderBottom: '1px solid #f1f5f9', fontSize: '14px', transition: 'background 0.2s' }}>
-                                        <td style={{ padding: '16px', whiteSpace: 'nowrap' }}>
+                                    <tr key={activity.id} style={{ borderBottom: '1px solid var(--border)', fontSize: '14px', transition: 'background 0.2s' }}>
+                                        <td style={{ padding: '16px 24px', whiteSpace: 'nowrap', fontWeight: '500' }}>
                                             {new Date(activity.activity_date).toLocaleDateString()}
                                         </td>
-                                        <td style={{ padding: '16px', fontWeight: '700', color: '#1a365d' }}>
+                                        <td style={{ padding: '16px 24px', fontWeight: '600', color: 'var(--primary)' }}>
                                             {operationName.toUpperCase()}
                                         </td>
-                                        <td style={{ padding: '16px' }}>
-                                            <span style={{ color: '#4a5568', textTransform: 'uppercase', fontSize: '12px' }}>
+                                        <td style={{ padding: '16px 24px' }}>
+                                            <span style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '12px', fontWeight: '500' }}>
                                                 {activity.activity_type.replace('_', ' ')}
                                             </span>
                                         </td>
-                                        <td style={{ padding: '16px', color: '#718096', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                        <td style={{ padding: '16px 24px', color: 'var(--text-secondary)', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                             {activity.description}
                                         </td>
-                                        <td style={{ padding: '16px', textAlign: 'right', fontWeight: '800', color: '#991b1b' }}>
+                                        <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '700', color: 'var(--error)' }}>
                                             {!isIncome ? parseFloat(amount).toLocaleString() : ''}
                                         </td>
-                                        <td style={{ padding: '16px', textAlign: 'right', fontWeight: '800', color: '#166534' }}>
+                                        <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '700', color: 'var(--success)' }}>
                                             {isIncome ? parseFloat(amount).toLocaleString() : ''}
                                         </td>
-                                        <td style={{ padding: '16px', textAlign: 'center' }} className="no-print">
+                                        <td style={{ padding: '16px 24px', textAlign: 'center' }} className="no-print">
                                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                                <button className="outline" onClick={() => handleEdit(activity)} style={{ padding: '4px 8px', fontSize: '11px' }}>Edit</button>
-                                                <button className="outline" onClick={() => handleDelete(activity.id)} style={{ padding: '4px 8px', fontSize: '11px', color: '#dc3545', borderColor: '#ffccd1' }}>Delete</button>
+                                                <button className="outline" onClick={() => handleEdit(activity)} style={{ padding: '6px 12px', fontSize: '11px' }}>Edit</button>
+                                                <button className="outline" onClick={() => handleDelete(activity.id)} style={{ padding: '6px 12px', fontSize: '11px', color: 'var(--error)', borderColor: 'var(--error)' }}>Delete</button>
                                             </div>
                                         </td>
                                     </tr>
@@ -424,10 +427,10 @@ const Activities = () => {
                     </table>
                 </div>
                 {processedActivities.length === 0 && (
-                    <div style={{ textAlign: 'center', padding: '60px', color: '#64748b' }}>
+                    <div style={{ textAlign: 'center', padding: '60px', color: 'var(--text-muted)' }}>
                         <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
-                        <h3>No matching operations found</h3>
-                        <p>Adjust your filters or search terms to see more results.</p>
+                        <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: '600' }}>No matching operations found</h3>
+                        <p style={{ margin: 0, fontSize: '14px' }}>Adjust your filters or search terms to see more results.</p>
                     </div>
                 )}
             </div>

@@ -50,36 +50,36 @@ const Harvests = () => {
 
     if (view === 'view-details' && selectedHarvest) {
         return (
-            <div className="animate-fade-in" style={{ maxWidth: '800px', margin: '40px auto', backgroundColor: '#fff', border: '1px solid #000', boxShadow: '0 20px 50px rgba(0,0,0,0.15)' }}>
-                <div style={{ backgroundColor: '#000', padding: '24px 40px', color: 'white', position: 'relative' }}>
-                    <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '900', textTransform: 'uppercase' }}>Harvest Intelligence Report</h1>
+            <div className="animate-fade-in" style={{ maxWidth: '800px', margin: '40px auto', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
+                <div style={{ backgroundColor: 'var(--primary)', padding: '24px 40px', color: 'white' }}>
+                    <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '700' }}>Harvest Intelligence Report</h1>
                 </div>
                 <div style={{ padding: '40px' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', marginBottom: '30px' }}>
                         <div>
-                            <label style={{ fontSize: '11px', fontWeight: '900', color: '#777' }}>CROP TYPE</label>
-                            <div style={{ fontSize: '18px', fontWeight: '900', color: '#bb1919' }}>{selectedHarvest.Crop?.crop_type}</div>
+                            <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase' }}>CROP TYPE</label>
+                            <div style={{ fontSize: '18px', fontWeight: '700', color: 'var(--primary)' }}>{selectedHarvest.Crop?.crop_type}</div>
                         </div>
                         <div>
-                            <label style={{ fontSize: '11px', fontWeight: '900', color: '#777' }}>HARVEST DATE</label>
-                            <div style={{ fontSize: '18px', fontWeight: '700' }}>{new Date(selectedHarvest.harvest_date).toLocaleDateString()}</div>
+                            <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase' }}>HARVEST DATE</label>
+                            <div style={{ fontSize: '18px', fontWeight: '600' }}>{new Date(selectedHarvest.harvest_date).toLocaleDateString()}</div>
                         </div>
                         <div>
-                            <label style={{ fontSize: '11px', fontWeight: '900', color: '#777' }}>QUANTITY COLLECTED</label>
-                            <div style={{ fontSize: '18px', fontWeight: '700' }}>{parseFloat(selectedHarvest.quantity).toLocaleString()} {selectedHarvest.unit}</div>
+                            <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase' }}>QUANTITY COLLECTED</label>
+                            <div style={{ fontSize: '18px', fontWeight: '600' }}>{parseFloat(selectedHarvest.quantity).toLocaleString()} {selectedHarvest.unit}</div>
                         </div>
                         <div>
-                            <label style={{ fontSize: '11px', fontWeight: '900', color: '#777' }}>TOTAL REVENUE</label>
-                            <div style={{ fontSize: '18px', fontWeight: '900' }}>{parseFloat(selectedHarvest.total_revenue).toLocaleString()} XAF</div>
+                            <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase' }}>TOTAL REVENUE</label>
+                            <div style={{ fontSize: '18px', fontWeight: '700' }}>{parseFloat(selectedHarvest.total_revenue).toLocaleString()} XAF</div>
                         </div>
                     </div>
-                    <div style={{ borderTop: '1px solid #eee', paddingTop: '20px' }}>
-                        <label style={{ fontSize: '11px', fontWeight: '900', color: '#777' }}>TECHNICAL NOTES</label>
-                        <p style={{ fontSize: '14px', lineHeight: '1.6' }}>{selectedHarvest.notes || 'No operational notes provided.'}</p>
+                    <div style={{ borderTop: '1px solid var(--border)', paddingTop: '20px' }}>
+                        <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase' }}>TECHNICAL NOTES</label>
+                        <p style={{ fontSize: '14px', lineHeight: '1.6', color: 'var(--text-secondary)' }}>{selectedHarvest.notes || 'No operational notes provided.'}</p>
                     </div>
                     <div style={{ marginTop: '40px', display: 'flex', gap: '15px' }}>
-                        <button className="primary" onClick={() => setView('edit')} style={{ flex: 1, backgroundColor: '#000', color: '#fff', border: 'none', padding: '15px', fontWeight: '900', cursor: 'pointer' }}>EDIT RECORD</button>
-                        <button className="outline" onClick={() => setView('list')} style={{ flex: 1, border: '2px solid #000', padding: '15px', fontWeight: '900', cursor: 'pointer' }}>CLOSE REPORT</button>
+                        <button className="primary" onClick={() => setView('edit')} style={{ flex: 1, padding: '12px', fontWeight: '600' }}>EDIT RECORD</button>
+                        <button className="outline" onClick={() => setView('list')} style={{ flex: 1, padding: '12px', fontWeight: '600' }}>CLOSE REPORT</button>
                     </div>
                 </div>
             </div>
@@ -88,32 +88,27 @@ const Harvests = () => {
 
     if (view === 'add') {
         return (
-            <div className="animate-fade-in" style={{ maxWidth: '800px', margin: '40px auto', backgroundColor: '#fff', border: '1px solid #000', boxShadow: '0 20px 50px rgba(0,0,0,0.15)' }}>
-                {/* BBC/CNN Style Header Banner */}
-                <div style={{ backgroundColor: '#bb1919', padding: '24px 40px', color: 'white', position: 'relative' }}>
-                    <div style={{ position: 'absolute', top: '0', left: '0', height: '100%', width: '4px', backgroundColor: '#000' }}></div>
-                    <h1 style={{ margin: 0, fontSize: '28px', fontWeight: '900', letterSpacing: '-1px', textTransform: 'uppercase' }}>
-                        <span style={{ backgroundColor: '#fff', color: '#bb1919', padding: '2px 8px', marginRight: '10px' }}>SELECT</span>
-                        Harvest Operation
-                    </h1>
+            <div className="animate-fade-in" style={{ maxWidth: '800px', margin: '40px auto', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
+                <div style={{ backgroundColor: 'var(--primary)', padding: '24px 40px', color: 'white' }}>
+                    <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '700' }}>Select Harvest Operation</h1>
                 </div>
 
-                <div style={{ padding: '40px', backgroundColor: '#fcfcfc' }}>
-                    <div style={{ backgroundColor: '#000', color: '#fff', padding: '12px 20px', marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '15px' }}>
+                <div style={{ padding: '40px' }}>
+                    <div style={{ backgroundColor: '#f0f9ff', color: '#1e3a8a', padding: '16px', marginBottom: '32px', borderRadius: '8px', border: '1px solid #bfdbfe', display: 'flex', alignItems: 'center', gap: '15px' }}>
                         <span style={{ fontSize: '20px' }}>🌱</span>
-                        <p style={{ fontSize: '12px', fontWeight: '600', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        <p style={{ fontSize: '13px', fontWeight: '500', margin: 0 }}>
                             Identify the active planting or agricultural asset for harvest logging.
                         </p>
                     </div>
 
                     <div style={{ marginBottom: '32px' }}>
-                        <label style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '10px', display: 'block', letterSpacing: '1px' }}>
+                        <label style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '10px', display: 'block' }}>
                             Target Cultivation / Planted Area
                         </label>
                         <select
                             value={selectedCropId}
                             onChange={(e) => setSelectedCropId(e.target.value)}
-                            style={{ width: '100%', padding: '15px', borderRadius: '0', border: '2px solid #000', fontSize: '14px', fontWeight: '700', backgroundColor: '#fff' }}
+                            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '14px' }}
                         >
                             <option value="">-- ARCHIVE LOOKUP: CHOOSE ACTIVE PLANTING --</option>
                             {crops.length > 0 ? (
@@ -141,16 +136,16 @@ const Harvests = () => {
                                     showAlert('INVALID_CROP');
                                 }
                             }}
-                            style={{ flex: 2, padding: '18px', borderRadius: '0', backgroundColor: (selectedCropId && !selectedCropId.startsWith('TYPE:')) ? '#000' : '#ccc', color: '#fff', fontSize: '13px', fontWeight: '900', border: 'none', textTransform: 'uppercase', letterSpacing: '1px', cursor: (selectedCropId && !selectedCropId.startsWith('TYPE:')) ? 'pointer' : 'not-allowed' }}
+                            style={{ flex: 2, padding: '14px' }}
                         >
                             Initialize Harvest Ledger
                         </button>
                         <button
                             className="outline"
                             onClick={() => setView('list')}
-                            style={{ flex: 1, padding: '18px', borderRadius: '0', backgroundColor: '#fff', color: '#000', border: '2px solid #000', fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px', cursor: 'pointer' }}
+                            style={{ flex: 1, padding: '14px' }}
                         >
-                            Abort
+                            Cancel
                         </button>
                     </div>
                 </div>
@@ -162,111 +157,99 @@ const Harvests = () => {
     if (view === 'edit' && selectedHarvest) return <HarvestForm initialData={selectedHarvest} onComplete={() => { setView('list'); setSelectedHarvest(null); }} />;
 
     return (
-        <div className="animate-fade-in" style={{ maxWidth: '1300px', margin: '0 auto', padding: '0 0 40px 0', backgroundColor: '#fff', border: '1px solid #000', boxShadow: '0 20px 50px rgba(0,0,0,0.1)' }}>
-            {/* BBC/CNN Style Header Banner */}
-            <div style={{ backgroundColor: '#bb1919', padding: '32px 40px', color: 'white', position: 'relative', marginBottom: '32px' }}>
-                <div style={{ position: 'absolute', top: '0', left: '0', height: '100%', width: '4px', backgroundColor: '#000' }}></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                        <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '900', letterSpacing: '-1px', textTransform: 'uppercase' }}>
-                            <span style={{ backgroundColor: '#fff', color: '#bb1919', padding: '2px 8px', marginRight: '10px' }}>LOG</span>
-                            Harvest Records
-                        </h1>
-                        <div style={{ display: 'flex', gap: '20px', marginTop: '12px', fontSize: '13px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                            <span>STATION: {currentFarm?.name}</span>
-                            <span style={{ opacity: 0.6 }}>|</span>
-                            <span>DEPT: YIELD INTELLIGENCE</span>
-                        </div>
+        <div className="animate-fade-in" style={{ maxWidth: '1300px', margin: '0 auto', padding: '0 0 40px 0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', padding: '0 24px' }}>
+                <div>
+                    <h1 style={{ margin: 0, fontSize: '28px', fontWeight: '800', color: 'var(--text-primary)' }}>
+                        Harvest Records
+                    </h1>
+                    <div style={{ display: 'flex', gap: '20px', marginTop: '8px', fontSize: '13px', color: 'var(--text-secondary)', fontWeight: '500' }}>
+                        <span>STATION: {currentFarm?.name}</span>
+                        <span style={{ opacity: 0.3 }}>|</span>
+                        <span>DEPT: YIELD INTELLIGENCE</span>
                     </div>
-                    <button
-                        className="primary"
-                        onClick={() => { setView('add'); setSelectedCropId(''); }}
-                        style={{ backgroundColor: '#000', color: '#fff', border: 'none', padding: '12px 24px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px', cursor: 'pointer' }}
-                    >
-                        + Record New Harvest
-                    </button>
                 </div>
+                <button
+                    className="primary"
+                    onClick={() => { setView('add'); setSelectedCropId(''); }}
+                >
+                    + Record New Harvest
+                </button>
             </div>
 
-            <div style={{ padding: '0 40px' }}>
-                <div style={{ backgroundColor: '#000', color: '#fff', padding: '15px 25px', marginBottom: '40px', display: 'flex', alignItems: 'center', gap: '20px' }}>
-                    <span style={{ fontSize: '24px' }}>📊</span>
-                    <div>
-                        <p style={{ fontSize: '14px', fontWeight: '800', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                            Yield Analytics & Revenue Tracking
-                        </p>
-                        <p style={{ fontSize: '12px', opacity: 0.7, margin: 0 }}>Real-time data synchronization with global farm intelligence protocols.</p>
+            <div style={{ padding: '0 24px' }}>
+                <div style={{ display: 'flex', gap: '20px', marginBottom: '32px' }}>
+                    {/* Summary Cards */}
+                    <div style={{ flex: 1, backgroundColor: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', border: '1px solid var(--border)' }}>
+                        <div style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '8px' }}>Total Net Weight</div>
+                        <div style={{ fontSize: '28px', fontWeight: '800', color: 'var(--text-primary)' }}>{harvests.reduce((acc, h) => acc + parseFloat(h.quantity || 0), 0).toLocaleString()} <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>KG</span></div>
                     </div>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2px', backgroundColor: '#000', border: '2px solid #000', marginBottom: '48px' }}>
-                    <div style={{ backgroundColor: '#fff', padding: '24px' }}>
-                        <div style={{ fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', color: '#777', letterSpacing: '2px', marginBottom: '8px' }}>Total Net Weight</div>
-                        <div style={{ fontSize: '32px', fontWeight: '900', color: '#000' }}>{harvests.reduce((acc, h) => acc + parseFloat(h.quantity || 0), 0).toLocaleString()} <span style={{ fontSize: '14px', color: '#bb1919' }}>KG</span></div>
+                    <div style={{ flex: 1, backgroundColor: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', border: '1px solid var(--border)' }}>
+                        <div style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '8px' }}>Audit Revenue</div>
+                        <div style={{ fontSize: '28px', fontWeight: '800', color: 'var(--success)' }}>{harvests.reduce((acc, h) => acc + parseFloat(h.total_revenue || 0), 0).toLocaleString()} <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>XAF</span></div>
                     </div>
-                    <div style={{ backgroundColor: '#fff', padding: '24px' }}>
-                        <div style={{ fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', color: '#777', letterSpacing: '2px', marginBottom: '8px' }}>Audit Revenue</div>
-                        <div style={{ fontSize: '32px', fontWeight: '900', color: '#000' }}>{harvests.reduce((acc, h) => acc + parseFloat(h.total_revenue || 0), 0).toLocaleString()} <span style={{ fontSize: '14px', color: '#bb1919' }}>XAF</span></div>
-                    </div>
-                    <div style={{ backgroundColor: '#fff', padding: '24px' }}>
-                        <div style={{ fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', color: '#777', letterSpacing: '2px', marginBottom: '8px' }}>Quality Average</div>
-                        <div style={{ fontSize: '32px', fontWeight: '900', color: '#000' }}>
+                    <div style={{ flex: 1, backgroundColor: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', border: '1px solid var(--border)' }}>
+                        <div style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '8px' }}>Quality Average</div>
+                        <div style={{ fontSize: '28px', fontWeight: '800', color: 'var(--text-primary)' }}>
                             {harvests.length > 0
                                 ? (harvests.reduce((acc, h) => acc + parseFloat(h.moisture_content || 0), 0) / harvests.length).toFixed(1)
-                                : 0}<span style={{ fontSize: '14px', color: '#bb1919' }}>% MOISTURE</span>
+                                : 0}<span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>% MOISTURE</span>
                         </div>
                     </div>
                 </div>
 
-                <div style={{ border: '2px solid #000' }}>
-                    <div style={{ backgroundColor: '#000', color: '#fff', padding: '12px 20px', fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                        Operational Harvest Ledger
+                <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)', border: '1px solid var(--border)', overflow: 'hidden' }}>
+                    <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#f8fafc' }}>
+                        <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)' }}>OPERATIONAL HARVEST LEDGER</div>
                     </div>
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead>
-                            <tr style={{ textAlign: 'left', fontSize: '11px', color: '#000', textTransform: 'uppercase', letterSpacing: '1px', borderBottom: '2px solid #000', backgroundColor: '#f4f4f4' }}>
-                                <th style={{ padding: '15px 20px', fontWeight: '900' }}>Date</th>
-                                <th style={{ padding: '15px 20px', fontWeight: '900' }}>Crop Intelligence</th>
-                                <th style={{ padding: '15px 20px', fontWeight: '900' }}>Log Quantity</th>
-                                <th style={{ padding: '15px 20px', fontWeight: '900' }}>Grade</th>
-                                <th style={{ padding: '15px 20px', fontWeight: '900' }}>Moist. Index</th>
-                                <th style={{ padding: '15px 20px', fontWeight: '900' }}>Revenue (XAF)</th>
-                                <th style={{ padding: '15px 20px', fontWeight: '900', textAlign: 'center' }}>Action</th>
+                            <tr style={{ textAlign: 'left', fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid var(--border)' }}>
+                                <th style={{ padding: '16px 24px', fontWeight: '600' }}>Date</th>
+                                <th style={{ padding: '16px 24px', fontWeight: '600' }}>Crop Intelligence</th>
+                                <th style={{ padding: '16px 24px', fontWeight: '600' }}>Log Quantity</th>
+                                <th style={{ padding: '16px 24px', fontWeight: '600' }}>Grade</th>
+                                <th style={{ padding: '16px 24px', fontWeight: '600' }}>Moist. Index</th>
+                                <th style={{ padding: '16px 24px', fontWeight: '600' }}>Revenue (XAF)</th>
+                                <th style={{ padding: '16px 24px', fontWeight: '600', textAlign: 'center' }}>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             {harvests.map(harvest => (
-                                <tr key={harvest.id} style={{ borderBottom: '1px solid #eee', fontSize: '13px' }}>
-                                    <td style={{ padding: '15px 20px', fontWeight: '700' }}>{new Date(harvest.harvest_date).toLocaleDateString()}</td>
-                                    <td style={{ padding: '15px 20px', fontWeight: '900', color: '#bb1919' }}>{harvest.Crop?.crop_type || 'Unknown'}</td>
-                                    <td style={{ padding: '15px 20px', fontWeight: '700' }}>{parseFloat(harvest.quantity || 0).toLocaleString()} {harvest.unit}</td>
-                                    <td style={{ padding: '15px 20px' }}>
+                                <tr key={harvest.id} style={{ borderBottom: '1px solid var(--border)', fontSize: '14px' }}>
+                                    <td style={{ padding: '16px 24px', fontWeight: '500' }}>{new Date(harvest.harvest_date).toLocaleDateString()}</td>
+                                    <td style={{ padding: '16px 24px', fontWeight: '600', color: 'var(--primary)' }}>{harvest.Crop?.crop_type || 'Unknown'}</td>
+                                    <td style={{ padding: '16px 24px', fontWeight: '500' }}>{parseFloat(harvest.quantity || 0).toLocaleString()} {harvest.unit}</td>
+                                    <td style={{ padding: '16px 24px' }}>
                                         <span style={{
                                             padding: '4px 8px',
-                                            backgroundColor: '#000',
-                                            color: '#fff',
-                                            fontSize: '10px',
-                                            fontWeight: '900',
+                                            backgroundColor: '#f1f5f9',
+                                            color: 'var(--text-secondary)',
+                                            borderRadius: '4px',
+                                            fontSize: '11px',
+                                            fontWeight: '600',
                                             textTransform: 'uppercase'
                                         }}>
                                             {harvest.quality_grade || 'N/A'}
                                         </span>
                                     </td>
-                                    <td style={{ padding: '15px 20px', fontWeight: '700' }}>{harvest.moisture_content}%</td>
-                                    <td style={{ padding: '15px 20px', fontWeight: '900' }}>{parseFloat(harvest.total_revenue || 0).toLocaleString()}</td>
-                                    <td style={{ padding: '15px 20px', textAlign: 'center' }}>
+                                    <td style={{ padding: '16px 24px', fontWeight: '500' }}>{harvest.moisture_content}%</td>
+                                    <td style={{ padding: '16px 24px', fontWeight: '600' }}>{parseFloat(harvest.total_revenue || 0).toLocaleString()}</td>
+                                    <td style={{ padding: '16px 24px', textAlign: 'center' }}>
                                         <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                                             <button
+                                                className="outline"
                                                 onClick={() => handleView(harvest)}
-                                                style={{ border: '1px solid #777', background: '#f4f4f4', padding: '4px 8px', cursor: 'pointer', fontSize: '11px', fontWeight: '900' }}
+                                                style={{ padding: '6px 12px', fontSize: '11px' }}
                                             >VIEW</button>
                                             <button
+                                                className="outline"
                                                 onClick={() => handleEdit(harvest)}
-                                                style={{ border: '1px solid #000', background: '#fff', padding: '4px 8px', cursor: 'pointer', fontSize: '11px', fontWeight: '900' }}
+                                                style={{ padding: '6px 12px', fontSize: '11px' }}
                                             >EDIT</button>
                                             <button
                                                 onClick={() => handleDelete(harvest.id)}
-                                                style={{ border: '1px solid #bb1919', background: '#bb1919', color: '#fff', padding: '4px 8px', cursor: 'pointer', fontSize: '11px', fontWeight: '900' }}
+                                                style={{ border: '1px solid var(--error)', background: 'white', color: 'var(--error)', padding: '6px 12px', cursor: 'pointer', fontSize: '11px', fontWeight: '600', borderRadius: '4px' }}
                                             >DEL</button>
                                         </div>
                                     </td>
@@ -274,7 +257,10 @@ const Harvests = () => {
                             ))}
                             {harvests.length === 0 && !loading && (
                                 <tr>
-                                    <td colSpan="7" style={{ textAlign: 'center', padding: '60px', color: '#777', textTransform: 'uppercase', fontSize: '11px', fontWeight: '900', letterSpacing: '2px' }}>No operational data found in archive.</td>
+                                    <td colSpan="7" style={{ textAlign: 'center', padding: '60px', color: 'var(--text-muted)' }}>
+                                        <div style={{ fontSize: '32px', marginBottom: '16px' }}>🌾</div>
+                                        <div style={{ fontSize: '14px', fontWeight: '500' }}>No operational data found in archive.</div>
+                                    </td>
                                 </tr>
                             )}
                         </tbody>
