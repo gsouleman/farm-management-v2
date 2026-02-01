@@ -3,7 +3,7 @@ import useFarmStore from '../store/farmStore';
 import api from '../services/api';
 import useUIStore from '../store/uiStore';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 const Reports = () => {
     const { currentFarm } = useFarmStore();
@@ -170,7 +170,7 @@ const Reports = () => {
             ];
         }
 
-        doc.autoTable({
+        autoTable(doc, {
             startY: tableStartY,
             head: head,
             body: body,
@@ -195,6 +195,7 @@ const Reports = () => {
         if (!currentFarm) return showNotification('Please select a farm first', 'error');
         setLoading(true);
 
+        // Infer Category and Title from filename or endpoint
         let title = "General Report";
         let category = "Operations";
 
