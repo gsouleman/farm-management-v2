@@ -180,9 +180,7 @@ function App() {
         } />
         <Route path="/mobile" element={
           <ProtectedRoute>
-            <MainLayout>
-              <MobileApp />
-            </MainLayout>
+            <MobileApp />
           </ProtectedRoute>
         } />
       </Routes>
