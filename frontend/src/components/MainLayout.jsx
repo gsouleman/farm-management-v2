@@ -56,15 +56,23 @@ const MainLayout = ({ children }) => {
     return (
         <div style={{ display: 'flex', height: '100vh', backgroundColor: '#f8f9fa', position: 'relative' }}>
             {/* Mobile Header */}
-            <header className="mobile-header">
-                <div className="hamburger" onClick={toggleMobileMenu}>
-                    <span></span>
-                    <span></span>
-                    <span></span>
+            {/* Mobile Header */}
+            <header className="mobile-header" style={{ backgroundColor: '#fff', borderBottom: '1px solid #eee', color: '#111', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    <div className="hamburger" onClick={toggleMobileMenu}>
+                        <span style={{ backgroundColor: '#111' }}></span>
+                        <span style={{ backgroundColor: '#111' }}></span>
+                        <span style={{ backgroundColor: '#111' }}></span>
+                    </div>
+                    <div>
+                        <div style={{ fontSize: '18px', fontWeight: '900', letterSpacing: '-0.5px' }}>
+                            <span style={{ color: '#cc0000' }}>PRO</span>FARMER
+                        </div>
+                    </div>
                 </div>
-                <div style={{ marginLeft: '15px', fontWeight: '800', fontSize: '18px' }}>
-                    <span style={{ color: '#cc0000' }}>PRO</span>FARMER
-                </div>
+                <button onClick={() => navigate('/mobile')} style={{ fontSize: '10px', fontWeight: 'bold', padding: '6px 12px', background: '#f5f5f5', borderRadius: '20px', color: '#333' }}>
+                    HOME
+                </button>
             </header>
 
             {/* Mobile Overlay */}
