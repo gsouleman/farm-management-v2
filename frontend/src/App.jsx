@@ -22,6 +22,8 @@ import Infrastructure from './pages/Infrastructure';
 import ProductionCosts from './pages/ProductionCosts';
 import Contracts from './pages/Contracts';
 import Stores from './pages/Stores';
+import AgriCalendar from './pages/AgriCalendar';
+import AdvancedFeatures from './pages/AdvancedFeatures';
 
 import MainLayout from './components/MainLayout';
 import GlobalNotification from './components/common/GlobalNotification';
@@ -178,6 +180,20 @@ function App() {
           <ProtectedRoute>
             <MainLayout>
               <InputListPage />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/agri-calendar" element={
+          <ProtectedRoute>
+            <MainLayout>
+              <AgriCalendar />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/advanced-features" element={
+          <ProtectedRoute>
+            <MainLayout>
+              <AdvancedFeatures />
             </MainLayout>
           </ProtectedRoute>
         } />
