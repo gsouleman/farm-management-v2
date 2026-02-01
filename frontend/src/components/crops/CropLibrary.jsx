@@ -73,19 +73,19 @@ const CropLibrary = () => {
     if (loading && definitions.length === 0) return <div style={{ padding: '20px', textAlign: 'center' }}>Loading library...</div>;
 
     return (
-        <div className="card animate-fade-in" style={{ padding: '0', border: '1px solid #000', borderRadius: '0', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', width: '100%', minHeight: '600px', display: 'flex', flexDirection: 'column' }}>
-            {/* Header: AgriXP Red Theme */}
-            <div style={{ backgroundColor: '#bb1919', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="card animate-fade-in" style={{ padding: '0', border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', width: '100%', minHeight: '600px', display: 'flex', flexDirection: 'column' }}>
+            {/* Header: AgTech Modern Theme */}
+            <div style={{ backgroundColor: '#fff', padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)' }}>
                 <div>
-                    <h3 style={{ margin: 0, color: '#fff', fontSize: '14px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                        CROP MASTER LIBRARY
+                    <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '18px', fontWeight: '700' }}>
+                        Crop Master Library
                     </h3>
-                    <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', marginTop: '4px' }}>
+                    <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
                         {definitions.length} Available Crops
                     </div>
                 </div>
                 <div style={{ position: 'relative', width: '250px' }}>
-                    <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: '12px' }}>🔍</span>
+                    <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '14px', opacity: 0.5 }}>🔍</span>
                     <input
                         type="text"
                         placeholder="Search library..."
@@ -93,20 +93,21 @@ const CropLibrary = () => {
                         onChange={e => setSearchQuery(e.target.value)}
                         style={{
                             width: '100%',
-                            padding: '6px 10px 6px 30px',
-                            borderRadius: '4px',
-                            border: '1px solid rgba(255,255,255,0.3)',
-                            background: 'rgba(0,0,0,0.2)',
-                            color: '#fff',
-                            fontSize: '12px',
-                            outline: 'none'
+                            padding: '10px 10px 10px 36px',
+                            borderRadius: '8px',
+                            border: '1px solid var(--border)',
+                            background: '#f8f9fa',
+                            color: 'var(--text-primary)',
+                            fontSize: '13px',
+                            outline: 'none',
+                            transition: 'all 0.2s'
                         }}
                     />
                 </div>
             </div>
 
             {/* Table Header */}
-            <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr 100px 80px 120px', backgroundColor: '#fff', borderBottom: '2px solid #000', padding: '14px 20px', fontWeight: '900', fontSize: '11px', color: '#666', textTransform: 'uppercase' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr 100px 80px 120px', backgroundColor: '#f8f9fa', borderBottom: '1px solid var(--border)', padding: '16px 24px', fontWeight: '700', fontSize: '12px', color: 'var(--text-secondary)' }}>
                 <div>Active</div>
                 <div>Crop Details</div>
                 <div style={{ textAlign: 'center' }}>Color</div>
@@ -120,29 +121,28 @@ const CropLibrary = () => {
                     <div key={def.id} style={{
                         display: 'grid',
                         gridTemplateColumns: '80px 1fr 100px 80px 120px',
-                        padding: '12px 20px',
-                        borderBottom: '1px solid #eaeaea',
+                        padding: '16px 24px',
+                        borderBottom: '1px solid var(--border)',
                         alignItems: 'center',
                         backgroundColor: '#fff',
-                        transition: 'background-color 0.2s'
+                        transition: 'background-color 0.1s'
                     }}
-                        onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f9f9f9'}
-                        onMouseLeave={e => e.currentTarget.style.backgroundColor = '#fff'}
+                        className="hover-row"
                     >
                         <div>
                             <input
                                 type="checkbox"
                                 checked={def.is_active}
                                 onChange={() => toggleStatus(def.id)}
-                                style={{ transform: 'scale(1.2)', cursor: 'pointer', accentColor: '#bb1919' }}
+                                style={{ transform: 'scale(1.2)', cursor: 'pointer', accentColor: 'var(--primary)' }}
                             />
                         </div>
                         <div>
-                            <div style={{ fontWeight: '800', color: '#2d3748', fontSize: '14px' }}>{def.name}</div>
-                            <div style={{ fontSize: '11px', color: '#718096', marginTop: '2px' }}>{def.category}</div>
+                            <div style={{ fontWeight: '600', color: 'var(--text-primary)', fontSize: '14px' }}>{def.name}</div>
+                            <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>{def.category}</div>
                         </div>
                         <div style={{ textAlign: 'center' }}>
-                            <div style={{ width: '24px', height: '24px', backgroundColor: def.color, margin: '0 auto', borderRadius: '4px', border: '1px solid #e2e8f0', boxShadow: '0 1px 2px rgba(0,0,0,0.1)' }}></div>
+                            <div style={{ width: '20px', height: '20px', backgroundColor: def.color, margin: '0 auto', borderRadius: '50%', border: '2px solid #fff', boxShadow: '0 0 0 1px var(--border)' }}></div>
                         </div>
                         <div style={{ textAlign: 'center', fontSize: '20px' }}>
                             {def.icon}
@@ -151,9 +151,11 @@ const CropLibrary = () => {
                             <button
                                 onClick={() => handleOpenModal(def)}
                                 title="Edit"
+                                className="icon-btn"
                                 style={{
-                                    border: '1px solid #2b6cb030', background: '#2b6cb010', color: '#2b6cb0',
-                                    width: '32px', height: '32px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                    border: '1px solid var(--border)', background: '#fff', color: 'var(--text-secondary)',
+                                    width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    transition: 'all 0.2s'
                                 }}
                             >
                                 ✏️
@@ -161,9 +163,11 @@ const CropLibrary = () => {
                             <button
                                 onClick={() => handleDelete(def.id)}
                                 title="Delete"
+                                className="icon-btn-danger"
                                 style={{
-                                    border: '1px solid #c5303030', background: '#c5303010', color: '#c53030',
-                                    width: '32px', height: '32px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                    border: '1px solid var(--border)', background: '#fff', color: 'var(--error)',
+                                    width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    transition: 'all 0.2s'
                                 }}
                             >
                                 🗑️
@@ -174,25 +178,25 @@ const CropLibrary = () => {
             </div>
 
             {/* Footer */}
-            <div style={{ padding: '16px 24px', backgroundColor: '#f9f9f9', borderTop: '1px solid #e0e0e0', textAlign: 'right' }}>
+            <div style={{ padding: '20px 24px', backgroundColor: '#f8f9fa', borderTop: '1px solid var(--border)', textAlign: 'right' }}>
                 <button
                     onClick={() => handleOpenModal(null)}
                     style={{
-                        backgroundColor: '#fff',
-                        color: '#bb1919',
-                        fontWeight: '800',
+                        backgroundColor: 'var(--primary)',
+                        color: '#fff',
+                        fontWeight: '600',
                         border: 'none',
-                        fontSize: '11px',
-                        textTransform: 'uppercase',
-                        padding: '8px 16px',
+                        fontSize: '13px',
+                        padding: '10px 20px',
                         cursor: 'pointer',
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '8px',
+                        borderRadius: '8px',
                         boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                     }}
                 >
-                    <span style={{ fontSize: '14px', fontWeight: 'bold' }}>+</span> Add New Crop to Library
+                    <span style={{ fontSize: '16px', fontWeight: 'bold' }}>+</span> Add New Crop to Library
                 </button>
             </div>
 
