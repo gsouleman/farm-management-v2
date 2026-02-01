@@ -3,7 +3,7 @@ import useInventoryStore from '../../store/inventoryStore';
 import useFarmStore from '../../store/farmStore';
 import useUIStore from '../../store/uiStore';
 
-const InputList = () => {
+const InputList = ({ onAdd }) => {
     const { currentFarm } = useFarmStore();
     const { inputs, fetchInputs } = useInventoryStore(); // Assuming fetchInputs exists in inventoryStore
     const { showNotification } = useUIStore();
@@ -41,7 +41,7 @@ const InputList = () => {
                         fontWeight: '800',
                         textTransform: 'uppercase'
                     }}
-                    onClick={() => showNotification('Opening Inventory Form...', 'info')}
+                    onClick={onAdd}
                 >
                     + NEW STOCK
                 </button>
