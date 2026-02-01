@@ -11,9 +11,11 @@ import * as turf from '@turf/turf';
 import FarmForm from '../components/farms/FarmForm';
 import FieldForm from '../components/fields/FieldForm';
 import FieldDetails from '../components/fields/FieldDetails';
-import {
-    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell
-} from 'recharts';
+import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import CropSelector from '../components/crops/CropSelector';
+import InputList from '../components/inventory/InputList';
+import WeatherWidget from '../components/weather/WeatherWidget';
+import QuickLinks from '../components/dashboard/QuickLinks';
 import api from '../services/api';
 
 const Dashboard = () => {
@@ -133,118 +135,86 @@ const Dashboard = () => {
 
         return (
             <div className="animate-fade-in">
-                {/* Intelligence KPI Bar - Condensed */}
-                <div style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: '12px',
-                    marginBottom: '24px',
-                    backgroundColor: '#fff',
-                    padding: '12px',
-                    border: '1px solid var(--border)',
-                    boxShadow: 'var(--shadow-sm)'
-                }}>
-                    {stats.map((stat, i) => (
-                        <div
-                            key={i}
-                            onClick={stat.onClick}
-                            style={{
-                                flex: '1 1 120px',
-                                padding: '8px 16px',
-                                borderRight: i < stats.length - 1 ? '1px solid var(--border)' : 'none',
-                                cursor: stat.clickable ? 'pointer' : 'default',
-                                transition: 'all 0.2s ease',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: '2px'
-                            }}
-                        >
-                            <span style={{ fontSize: '10px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                {stat.label}
-                            </span>
-                            <div style={{ fontSize: '18px', fontWeight: '800', color: stat.color || 'inherit', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                <span>{stat.value}</span>
-                                <span style={{ fontSize: '14px', opacity: 0.6 }}>{stat.icon}</span>
-                            </div>
-                        </div>
-                    ))}
+                {/* Section 1: Top Widgets (Clones) */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginBottom: '24px' }}>
+                    <WeatherWidget />
+                    <QuickLinks />
+                    <div className="card" style={{ padding: '0', border: '1px solid #000', borderRadius: '0', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#bb1919', color: 'white' }}>
+                        <div style={{ fontSize: '42px', fontWeight: '900' }}>{new Date().toLocaleDateString('en-US', { day: 'numeric' })}</div>
+                        <div style={{ fontSize: '14px', fontWeight: '900', textTransform: 'uppercase' }}>{new Date().toLocaleDateString('en-US', { month: 'long' })}</div>
+                        <div style={{ fontSize: '10px', marginTop: '8px', opacity: 0.8 }}>CY: 2026-Q1</div>
+                    </div>
                 </div>
 
-                {/* Professional 2-Column Grid */}
+                {/* Section 2: Main Operations (Map + Lists) */}
                 <div style={{
                     display: 'grid',
-                    gridTemplateColumns: '1fr 520px',
+                    gridTemplateColumns: '1.5fr 1fr',
                     gap: '20px',
-                    alignItems: 'stretch'
+                    alignItems: 'start'
                 }}>
-                    {/* Left Column: Map Visualize (Expanded) */}
-                    <div className="card" style={{ padding: '0', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                        <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fafafa' }}>
-                            <h3 style={{ margin: 0, fontSize: '14px', fontWeight: '800', letterSpacing: '0.5px' }}>FARM VISUALIZER</h3>
-                            <button className="outline" style={{ padding: '4px 10px', fontSize: '10px', fontWeight: '800' }} onClick={() => setView('add-field')}>+ BOUNDARY</button>
-                        </div>
-                        <div style={{ height: '450px' }}>
-                            <FieldMap
-                                center={currentFarm?.coordinates?.coordinates ? [currentFarm.coordinates.coordinates[1], currentFarm.coordinates.coordinates[0]] : [37.7749, -122.4194]}
-                                fields={fields}
-                                crops={crops}
-                                infrastructure={infrastructure}
-                                farmBoundary={currentFarm?.boundary}
-                                editable={false}
-                            />
-                        </div>
-                    </div>
+                    {/* Left: Map & Stats */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-                    {/* Right Column: Utilization & Pro Insight (Side by Side) */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '20px' }}>
-                        <div className="card" style={{ textAlign: 'center', padding: '16px', display: 'flex', flexDirection: 'column' }}>
-                            <h3 style={{ fontSize: '10px', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '800', borderBottom: '1px solid #eee', paddingBottom: '8px', color: '#888' }}>LAND UTILIZATION</h3>
-                            <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
-                                {landUtilization !== undefined ? (
-                                    <ResponsiveContainer width="100%" height={240}>
-                                        <PieChart>
-                                            <Pie
-                                                data={[
-                                                    { name: 'Planted', value: parseFloat(landUtilization) || 0 },
-                                                    { name: 'Available', value: Math.max(0, 100 - (parseFloat(landUtilization) || 0)) }
-                                                ]}
-                                                cx="50%"
-                                                cy="50%"
-                                                innerRadius={60}
-                                                outerRadius={85}
-                                                paddingAngle={5}
-                                                dataKey="value"
-                                                startAngle={180}
-                                                endAngle={0}
-                                            >
-                                                <Cell fill="#cc0000" />
-                                                <Cell fill="#eee" />
-                                            </Pie>
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                ) : (
-                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Calculating...</div>
-                                )}
-                                <div style={{ position: 'absolute', top: '60%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-                                    <div style={{ fontSize: '32px', fontWeight: '900' }}>{landUtilization}%</div>
-                                    <div style={{ fontSize: '10px', color: '#888', fontWeight: 'bold' }}>OCCUPIED</div>
+                        {/* KPI Bar */}
+                        <div style={{
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            gap: '12px',
+                            backgroundColor: '#fff',
+                            padding: '12px',
+                            border: '1px solid var(--border)',
+                            boxShadow: 'var(--shadow-sm)'
+                        }}>
+                            {stats.map((stat, i) => (
+                                <div
+                                    key={i}
+                                    onClick={stat.onClick}
+                                    style={{
+                                        flex: '1 1 100px',
+                                        padding: '8px 12px',
+                                        borderRight: i < stats.length - 1 ? '1px solid var(--border)' : 'none',
+                                        cursor: stat.clickable ? 'pointer' : 'default',
+                                        transition: 'all 0.2s ease',
+                                    }}
+                                >
+                                    <span style={{ fontSize: '9px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                                        {stat.label}
+                                    </span>
+                                    <div style={{ fontSize: '16px', fontWeight: '800', color: stat.color || 'inherit', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <span>{stat.value}</span>
+                                    </div>
                                 </div>
+                            ))}
+                        </div>
+
+                        <div className="card" style={{ padding: '0', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                            <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fafafa' }}>
+                                <h3 style={{ margin: 0, fontSize: '14px', fontWeight: '800', letterSpacing: '0.5px' }}>FARM VISUALIZER</h3>
+                                <button className="outline" style={{ padding: '4px 10px', fontSize: '10px', fontWeight: '800' }} onClick={() => setView('add-field')}>+ BOUNDARY</button>
+                            </div>
+                            <div style={{ height: '400px' }}>
+                                <FieldMap
+                                    center={currentFarm?.coordinates?.coordinates ? [currentFarm.coordinates.coordinates[1], currentFarm.coordinates.coordinates[0]] : [37.7749, -122.4194]}
+                                    fields={fields}
+                                    crops={crops}
+                                    infrastructure={infrastructure}
+                                    farmBoundary={currentFarm?.boundary}
+                                    editable={false}
+                                />
                             </div>
                         </div>
 
-                        <div className="card" style={{ backgroundColor: '#000', color: 'white', padding: '24px', borderLeft: '4px solid #cc0000', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                            <h3 style={{ color: '#cc0000', fontSize: '12px', marginBottom: '16px', fontWeight: '900', letterSpacing: '1px' }}>PRO INSIGHT</h3>
-                            <p style={{ fontSize: '13px', margin: 0, color: '#bbb', lineHeight: '1.6', fontStyle: 'italic' }}>
-                                Strategic Analysis: Land utilization is stabilized at <strong style={{ color: '#fff' }}>{landUtilization}%</strong>.
-                                Current data modeling suggests untapped yield potential in fallow sectors.
-                                <br /><br />
-                                Recommendation: Initiate soil enrichment protocols on underutilized parcels to maximize station output for the next Production Cycle.
-                            </p>
-                        </div>
+                    </div>
+
+                    {/* Right: Lists (Crops & Inputs) */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                        <CropSelector />
+                        <InputList />
                     </div>
                 </div>
 
-                {/* Full Width Table Registry - High Density */}
+                {/* Section 3: Field Registry */}
                 <div className="card" style={{ marginTop: '24px', padding: '0' }}>
                     <div style={{ padding: '12px 16px', borderBottom: '2px solid var(--primary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff' }}>
                         <h3 style={{ margin: 0, fontSize: '14px', fontWeight: '900', letterSpacing: '0.5px' }}>FIELD REGISTRY & SOIL ANALYTICS</h3>
@@ -319,16 +289,5 @@ const Dashboard = () => {
         </div>
     );
 };
-
-
-const ActivityItem = ({ type, date, field }) => (
-    <div style={{ display: 'flex', gap: '12px', alignItems: 'start' }}>
-        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--primary)', marginTop: '6px' }} />
-        <div>
-            <div style={{ fontSize: '14px', fontWeight: '600' }}>{type} on {field}</div>
-            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{date}</div>
-        </div>
-    </div>
-);
 
 export default Dashboard;
