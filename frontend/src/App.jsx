@@ -22,6 +22,7 @@ import Infrastructure from './pages/Infrastructure';
 import ProductionCosts from './pages/ProductionCosts';
 import Contracts from './pages/Contracts';
 import Stores from './pages/Stores';
+import MobileApp from './pages/MobileApp';
 import MainLayout from './components/MainLayout';
 import GlobalNotification from './components/common/GlobalNotification';
 import IdleTimer from './components/common/IdleTimer';
@@ -174,6 +175,13 @@ function App() {
           <ProtectedRoute>
             <MainLayout>
               <InputListPage />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/mobile" element={
+          <ProtectedRoute>
+            <MainLayout>
+              <MobileApp />
             </MainLayout>
           </ProtectedRoute>
         } />
