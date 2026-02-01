@@ -161,12 +161,12 @@ const MainLayout = ({ children }) => {
                     </NavGroup>
 
                     <NavGroup
-                        label="ESTATE & INFRASTRUCTURE"
+                        label="FARM & INFRASTRUCTURE"
                         isOpen={openGroups.estate}
                         onToggle={() => toggleGroup('estate')}
                     >
-                        <SidebarLink to="/fields" icon="🗺️" label="Land & Fields" sub onClick={handleNavItemClick} />
-                        <SidebarLink to="/infrastructure" icon="🏗️" label="Infrastructure Assets" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/fields" icon="🗺️" label="Farm" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/infrastructure" icon="🏗️" label="Infrastructure" sub onClick={handleNavItemClick} />
                     </NavGroup>
 
                     <NavGroup
