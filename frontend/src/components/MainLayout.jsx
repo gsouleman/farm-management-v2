@@ -196,7 +196,7 @@ const MainLayout = ({ children }) => {
                         onToggle={() => { }}
                     >
                         <SidebarLink to="/stores?view=structures" icon="🏢" label="Stores & Silos" sub onClick={handleNavItemClick} />
-                        <SidebarLink to="/input-list" icon="📦" label="Input List" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/input-list" icon="📦" label="Input Inventory" sub onClick={handleNavItemClick} />
                     </NavGroup>
 
                     <NavGroup

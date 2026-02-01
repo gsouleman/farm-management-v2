@@ -12,8 +12,6 @@ import FarmForm from '../components/farms/FarmForm';
 import FieldForm from '../components/fields/FieldForm';
 import FieldDetails from '../components/fields/FieldDetails';
 import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import CropSelector from '../components/crops/CropSelector';
-import InputList from '../components/inventory/InputList';
 import WeatherWidget from '../components/weather/WeatherWidget';
 import QuickLinks from '../components/dashboard/QuickLinks';
 import api from '../services/api';
@@ -148,8 +146,7 @@ const Dashboard = () => {
 
                 {/* Section 2: Main Operations (Map + Lists) */}
                 <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1.5fr 1fr',
+                    display: 'block',
                     gap: '20px',
                     alignItems: 'start'
                 }}>
@@ -207,11 +204,6 @@ const Dashboard = () => {
 
                     </div>
 
-                    {/* Right: Lists (Crops & Inputs) */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                        <CropSelector />
-                        <InputList />
-                    </div>
                 </div>
 
                 {/* Section 3: Field Registry */}
