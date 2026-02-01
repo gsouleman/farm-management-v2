@@ -38,11 +38,13 @@ const useInfrastructureStore = create((set) => ({
     deleteInfrastructure: async (id) => {
         set({ loading: true, error: null });
         try {
-            await api.delete(`/infrastructure/${id}`);
+            const response = await api.delete(`/infrastructure/${id}`);
             set(state => ({ infrastructure: state.infrastructure.filter(i => i.id !== id) }));
+            return response.data;
         } catch (error) {
             console.error('[InfrastructureStore] Delete error:', error);
             set({ error: error.response?.data?.message || 'Failed to delete infrastructure' });
+            throw error;
         } finally {
             set({ loading: false });
         }

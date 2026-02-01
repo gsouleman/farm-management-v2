@@ -119,10 +119,11 @@ const useFarmStore = create((set, get) => ({
 
     deleteField: async (id) => {
         try {
-            await api.delete(`/fields/${id}`);
+            const response = await api.delete(`/fields/${id}`);
             set((state) => ({
                 fields: state.fields.filter(f => f.id !== id)
             }));
+            return response.data;
         } catch (error) {
             throw error;
         }

@@ -100,11 +100,12 @@ const useCropStore = create((set, get) => ({
     deleteCrop: async (id) => {
         set({ loading: true, error: null });
         try {
-            await api.delete(`/crops/${id}`);
+            const response = await api.delete(`/crops/${id}`);
             set((state) => ({
                 crops: state.crops.filter(c => c.id !== id),
                 currentCrop: state.currentCrop?.id === id ? null : state.currentCrop
             }));
+            return response.data;
         } catch (error) {
             console.error('[CropStore] Delete error:', error);
             set({ error: error.response?.data?.message || 'Failed to delete crop' });

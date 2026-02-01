@@ -69,6 +69,17 @@ exports.createHarvest = async (req, res) => {
             total_revenue: req.body.total_revenue ? (parseFloat(req.body.total_revenue) || 0) : 0
         };
 
+        // UUID Validation
+        if (!cleanedData.crop_id || cleanedData.crop_id === 'undefined') {
+            return res.status(400).json({
+                message: 'Internal Error: Invalid Crop UUID',
+                notification: {
+                    message: 'SYSTEM PROTOCOL ALERT: INVALID CROP REFERENCE',
+                    type: 'error'
+                }
+            });
+        }
+
         const harvest = await Harvest.create(cleanedData);
 
         // Fetch Crop and Field to get farm_id
@@ -108,9 +119,11 @@ exports.createHarvest = async (req, res) => {
         console.error('[HarvestController] Create error:', error);
         res.status(500).json({
             message: 'Error creating harvest: ' + error.message,
-            error: error.message,
-            detail: error.original ? error.original.detail : undefined,
-            hint: error.original ? error.original.hint : undefined
+            notification: {
+                message: `LOG FAILURE: ${error.message.toUpperCase()}`,
+                type: 'error'
+            },
+            error: error.message
         });
     }
 };
@@ -154,6 +167,10 @@ exports.updateHarvest = async (req, res) => {
         console.error('[HarvestController] Update error:', error);
         res.status(500).json({
             message: 'Error updating harvest: ' + error.message,
+            notification: {
+                message: `UPDATE FAILURE: ${error.message.toUpperCase()}`,
+                type: 'error'
+            },
             error: error.message
         });
     }
@@ -176,6 +193,12 @@ exports.deleteHarvest = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({ message: 'Error deleting harvest' });
+        res.status(500).json({
+            message: 'Error deleting harvest',
+            notification: {
+                message: 'DELETE FAILURE: SYSTEM INTEGRITY ERROR',
+                type: 'error'
+            }
+        });
     }
 };

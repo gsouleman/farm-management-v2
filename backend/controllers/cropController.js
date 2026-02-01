@@ -167,21 +167,16 @@ exports.createCrop = async (req, res) => {
         console.error('CRITICAL CROP CREATION ERROR:', error);
 
         // Handle specific validation/database errors
-        if (error.name === 'SequelizeValidationError') {
-            return res.status(400).json({
-                message: 'Validation Error',
-                details: error.errors.map(e => e.message)
-            });
-        }
-
-        if (error.name === 'SequelizeDatabaseError' && error.message.includes('uuid')) {
-            return res.status(400).json({ message: 'Invalid Field selected. Please ensure a valid field is chosen.' });
-        }
+        const isUuidError = error.name === 'SequelizeDatabaseError' && error.message.includes('uuid');
+        const errorMsg = isUuidError ? 'Invalid Field selected. Please ensure a valid field is chosen.' : 'Internal Server Error';
 
         res.status(500).json({
-            message: 'Internal Server Error',
-            error: error.message,
-            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+            message: errorMsg,
+            notification: {
+                message: `CROP REGISTRATION FAILED: ${error.message.toUpperCase()}`,
+                type: 'error'
+            },
+            error: error.message
         });
     }
 };
@@ -241,7 +236,13 @@ exports.updateCrop = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Error updating crop' });
+        res.status(500).json({
+            message: 'Error updating crop',
+            notification: {
+                message: 'UPDATE FAILURE: SYSTEM SYNC INTERRUPTED',
+                type: 'error'
+            }
+        });
     }
 };
 
@@ -259,6 +260,12 @@ exports.deleteCrop = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({ message: 'Error deleting crop' });
+        res.status(500).json({
+            message: 'Error deleting crop',
+            notification: {
+                message: 'LIQUIDATION FAILED: ASSET PROTECTED BY SYSTEM',
+                type: 'error'
+            }
+        });
     }
 };

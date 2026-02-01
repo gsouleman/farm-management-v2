@@ -35,7 +35,13 @@ exports.createInput = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({ message: 'Error creating input' });
+        res.status(500).json({
+            message: 'Error creating input',
+            notification: {
+                message: 'REGISTRATION FAILURE: INVENTORY SYNC ERROR',
+                type: 'error'
+            }
+        });
     }
 };
 
@@ -53,7 +59,13 @@ exports.updateInput = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({ message: 'Error updating input' });
+        res.status(500).json({
+            message: 'Error updating input',
+            notification: {
+                message: 'UPDATE FAILURE: STOCK LEVELS PROTECTED',
+                type: 'error'
+            }
+        });
     }
 };
 
@@ -71,6 +83,12 @@ exports.deleteInput = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({ message: 'Error deleting input' });
+        res.status(500).json({
+            message: 'Error deleting input',
+            notification: {
+                message: 'DELETE FAILURE: ITEM LINKED TO ACTIVE LOGS',
+                type: 'error'
+            }
+        });
     }
 };

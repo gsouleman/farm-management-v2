@@ -94,7 +94,13 @@ exports.createField = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Error creating field' });
+        res.status(500).json({
+            message: 'Error creating field',
+            notification: {
+                message: `REGISTRATION FAILED: ${error.message.toUpperCase()}`,
+                type: 'error'
+            }
+        });
     }
 };
 
@@ -178,7 +184,13 @@ exports.updateField = async (req, res) => {
         });
     } catch (error) {
         console.error('Update Field Error:', error);
-        res.status(500).json({ message: 'Error updating field' });
+        res.status(500).json({
+            message: 'Error updating field',
+            notification: {
+                message: 'UPDATE FAILURE: DATABASE LOCK OR SYNC ERROR',
+                type: 'error'
+            }
+        });
     }
 };
 
@@ -196,6 +208,12 @@ exports.deleteField = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({ message: 'Error deleting field' });
+        res.status(500).json({
+            message: 'Error deleting field',
+            notification: {
+                message: 'DELETE FAILURE: PARCEL LINKED TO ACTIVE CROPS',
+                type: 'error'
+            }
+        });
     }
 };

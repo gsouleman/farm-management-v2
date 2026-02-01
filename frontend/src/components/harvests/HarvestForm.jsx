@@ -53,6 +53,11 @@ const HarvestForm = ({ cropId, onComplete, initialData }) => {
                 const msg = response?.notification?.message || 'HARVEST RECORD UPDATED SUCCESSFULLY - SYSTEM SYNCED';
                 showNotification(msg, 'success');
             } else {
+                if (!cropId || cropId === 'undefined') {
+                    showNotification('OPERATIONAL ALERT: NO CROP SELECTED', 'error');
+                    setLoading(false);
+                    return;
+                }
                 const response = await createHarvest(cropId, payload);
                 const msg = response?.notification?.message || 'HARVEST RECORD ARCHIVED SUCCESSFULLY - DATA SECURED';
                 showNotification(msg, 'success');

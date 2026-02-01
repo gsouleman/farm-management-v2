@@ -184,23 +184,13 @@ exports.createActivity = async (req, res) => {
         });
     } catch (error) {
         console.error('Activity Creation Error:', error);
-        if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
-            console.error('Validation Errors:', error.errors.map(e => ({
-                field: e.path,
-                message: e.message,
-                value: e.value
-            })));
-            return res.status(400).json({
-                message: 'Validation error create activity',
-                errors: error.errors.map(e => e.message)
-            });
-        }
         res.status(500).json({
             message: 'Internal server error create activity',
-            error: error.message,
-            detail: error.original ? error.original.detail : undefined,
-            hint: error.original ? error.original.hint : undefined,
-            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+            notification: {
+                message: `LOG FAILURE: ${error.message.toUpperCase()}`,
+                type: 'error'
+            },
+            error: error.message
         });
     }
 };
@@ -266,7 +256,13 @@ exports.updateActivity = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({ message: 'Error updating activity' });
+        res.status(500).json({
+            message: 'Error updating activity',
+            notification: {
+                message: 'UPDATE FAILURE: DATABASE LOCK OR SYNC ERROR',
+                type: 'error'
+            }
+        });
     }
 };
 
@@ -302,7 +298,13 @@ exports.deleteActivity = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({ message: 'Error deleting activity' });
+        res.status(500).json({
+            message: 'Error deleting activity',
+            notification: {
+                message: 'DELETE FAILURE: RECORD LINKED TO VITAL DATA',
+                type: 'error'
+            }
+        });
     }
 };
 

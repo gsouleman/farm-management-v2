@@ -93,9 +93,13 @@ const Infrastructure = () => {
                                 const template = getConfirmation('DELETE_INFRA');
                                 const msg = template ? `${template.title}\n------------------\n${template.body}` : 'Delete this asset?';
                                 if (window.confirm(msg)) {
-                                    const resp = await deleteInfrastructure(selectedInfra.id);
-                                    showNotification(resp?.notification?.message || 'Infrastructure deleted', 'success');
-                                    setView('list');
+                                    try {
+                                        const resp = await deleteInfrastructure(selectedInfra.id);
+                                        showNotification(resp?.notification?.message || 'Infrastructure deleted', 'success');
+                                        setView('list');
+                                    } catch (error) {
+                                        showNotification(error.response?.data?.notification?.message || 'Delete failed', 'error');
+                                    }
                                 }
                             }}
                             style={{ flex: 1, color: '#dc3545', borderColor: '#ffccd1' }}
@@ -162,8 +166,12 @@ const Infrastructure = () => {
                                         const template = getConfirmation('DELETE_INFRA');
                                         const msg = template ? `${template.title}\n------------------\n${template.body}` : 'Delete this asset?';
                                         if (window.confirm(msg)) {
-                                            const resp = await deleteInfrastructure(infra.id);
-                                            showNotification(resp?.notification?.message || 'Infrastructure deleted', 'success');
+                                            try {
+                                                const resp = await deleteInfrastructure(infra.id);
+                                                showNotification(resp?.notification?.message || 'Infrastructure deleted', 'success');
+                                            } catch (error) {
+                                                showNotification(error.response?.data?.notification?.message || 'Delete failed', 'error');
+                                            }
                                         }
                                     }}
                                 >

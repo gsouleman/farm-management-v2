@@ -38,9 +38,12 @@ exports.createInfrastructure = async (req, res) => {
     } catch (error) {
         console.error('[InfrastructureController] Create Error:', error);
         res.status(500).json({
-            error: 'Failed to create infrastructure',
-            details: error.message,
-            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+            message: 'Failed to create infrastructure',
+            notification: {
+                message: `REGISTRATION FAILED: ${error.message.toUpperCase()}`,
+                type: 'error'
+            },
+            error: error.message
         });
     }
 };
@@ -96,8 +99,12 @@ exports.updateInfrastructure = async (req, res) => {
     } catch (error) {
         console.error('[InfrastructureController] Update Error:', error);
         res.status(500).json({
-            error: 'Failed to update infrastructure',
-            details: error.message
+            message: 'Failed to update infrastructure',
+            notification: {
+                message: `UPDATE FAILURE: ${error.message.toUpperCase()}`,
+                type: 'error'
+            },
+            error: error.message
         });
     }
 };
@@ -114,6 +121,12 @@ exports.deleteInfrastructure = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({
+            message: 'Error deleting infrastructure',
+            notification: {
+                message: 'DECOMMISSIONING FAILED: ASSET PROTECTED',
+                type: 'error'
+            }
+        });
     }
 };

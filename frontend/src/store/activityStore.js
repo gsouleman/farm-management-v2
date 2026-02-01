@@ -110,10 +110,11 @@ const useActivityStore = create((set, get) => ({
 
     deleteActivity: async (id) => {
         try {
-            await api.delete(`/activities/${id}`);
+            const response = await api.delete(`/activities/${id}`);
             set((state) => ({
                 activities: state.activities.filter(a => a.id !== id)
             }));
+            return response.data;
         } catch (error) {
             throw error;
         }

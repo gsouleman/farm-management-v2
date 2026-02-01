@@ -51,10 +51,11 @@ const useInventoryStore = create((set, get) => ({
 
     deleteInput: async (id) => {
         try {
-            await api.delete(`/inputs/${id}`);
+            const response = await api.delete(`/inputs/${id}`);
             set((state) => ({
                 inputs: state.inputs.filter(i => i.id !== id)
             }));
+            return response.data;
         } catch (error) {
             throw error;
         }

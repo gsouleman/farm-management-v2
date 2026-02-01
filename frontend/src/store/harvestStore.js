@@ -64,10 +64,11 @@ const useHarvestStore = create((set, get) => ({
     deleteHarvest: async (id) => {
         set({ loading: true, error: null });
         try {
-            await api.delete(`/harvests/${id}`);
+            const response = await api.delete(`/harvests/${id}`);
             set((state) => ({
                 harvests: state.harvests.filter(h => h.id !== id)
             }));
+            return response.data;
         } catch (error) {
             console.error('[HarvestStore] Delete error:', error);
             set({ error: error.response?.data?.message || 'Failed to delete harvest' });

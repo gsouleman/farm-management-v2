@@ -63,7 +63,13 @@ exports.createFarm = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Error creating farm' });
+        res.status(500).json({
+            message: 'Error creating farm',
+            notification: {
+                message: 'REGISTRATION FAILURE: SYSTEM OVERLOAD OR INVALID DATA',
+                type: 'error'
+            }
+        });
     }
 };
 
@@ -104,7 +110,13 @@ exports.updateFarm = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({ message: 'Error updating farm' });
+        res.status(500).json({
+            message: 'Error updating farm',
+            notification: {
+                message: 'UPDATE FAILURE: DATABASE LOCK',
+                type: 'error'
+            }
+        });
     }
 };
 
@@ -124,6 +136,12 @@ exports.deleteFarm = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({ message: 'Error deleting farm' });
+        res.status(500).json({
+            message: 'Error deleting farm',
+            notification: {
+                message: 'DELETE FAILURE: ENTERPRISE DATA PROTECTED',
+                type: 'error'
+            }
+        });
     }
 };
