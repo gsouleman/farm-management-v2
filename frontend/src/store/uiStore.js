@@ -3,6 +3,14 @@ import { create } from 'zustand';
 const useUIStore = create((set, get) => ({
     notification: null, // { message, type: 'success' | 'error' | 'info', visible: boolean }
     systemMessages: null,
+    modal: {
+        isOpen: false,
+        type: 'alert', // 'alert' | 'confirm'
+        title: '',
+        body: '',
+        onConfirm: null, // Callback for confirm action
+        singleAction: false, // if true, only show OK button (for alerts)
+    },
 
     fetchSystemMessages: async () => {
         try {
@@ -30,13 +38,67 @@ const useUIStore = create((set, get) => ({
         return null;
     },
 
-    showAlert: (action) => {
+    openModal: (options) => {
+        set({
+            modal: {
+                isOpen: true,
+                type: options.type || 'alert',
+                title: options.title || '',
+                body: options.body || '',
+                onConfirm: options.onConfirm || null,
+                singleAction: options.singleAction || false
+            }
+        });
+    },
+
+    closeModal: () => {
+        set((state) => ({
+            modal: { ...state.modal, isOpen: false, onConfirm: null }
+        }));
+    },
+
+    confirmAction: () => {
+        const { modal } = get();
+        if (modal.onConfirm) {
+            modal.onConfirm();
+        }
+        get().closeModal();
+    },
+
+    showConfirm: (actionTitleKey, onConfirmCallback) => {
         const state = get();
-        const template = state.getAlert(action);
-        const alertMsg = template
-            ? `${template.title}\n----------------------------------\n${template.body}`
-            : `SYSTEM ALERT: ${action.toUpperCase()} - OPERATIONAL FAILURE`;
-        window.alert(alertMsg);
+        const template = state.getConfirmation(actionTitleKey);
+
+        state.openModal({
+            type: 'confirm',
+            title: template ? template.title : 'CONFIRM ACTION',
+            body: template ? template.body : 'Are you sure you want to proceed?',
+            onConfirm: onConfirmCallback,
+            singleAction: false
+        });
+    },
+
+    showAlert: (actionOrTitle, body = null) => {
+        const state = get();
+        // Check if it's a known system alert key
+        const template = state.getAlert(actionOrTitle);
+
+        if (template) {
+            state.openModal({
+                type: 'alert',
+                title: template.title,
+                body: template.body,
+                singleAction: true
+            });
+        } else {
+            // Generic alert
+            state.openModal({
+                type: 'alert',
+                title: typeof actionOrTitle === 'string' ? actionOrTitle : 'SYSTEM ALERT',
+                body: body || 'An unexpected event occurred.',
+                singleAction: true
+            });
+        }
     },
 
     showNotification: (message, type = 'info') => {

@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
 import useFarmStore from '../store/farmStore';
 import SyncStatus from './common/SyncStatus';
+import SystemModal from './common/SystemModal';
 import syncService from '../services/syncService';
 
 const MainLayout = ({ children }) => {
@@ -238,6 +239,7 @@ const MainLayout = ({ children }) => {
                     {children}
                 </div>
             </main>
+            <SystemModal />
         </div>
     );
 };

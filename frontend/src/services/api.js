@@ -59,7 +59,7 @@ api.interceptors.response.use(
 
             if (notif.type === 'error') {
                 // Interruption Alert for critical errors
-                window.alert(`PROTOCOL ALERT\n------------------\n${notif.message}`);
+                showAlert('PROTOCOL ALERT', notif.message);
             } else {
                 showNotification(notif.message, notif.type);
             }
