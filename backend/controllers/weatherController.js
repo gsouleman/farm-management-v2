@@ -5,9 +5,9 @@ const generateWeatherData = (farm) => {
     const conditions = ['Sunny', 'Partly cloudy', 'Cloudy', 'Patchy rain possible', 'Thundery outbreaks possible'];
     const conditionText = conditions[Math.floor(Math.random() * conditions.length)];
 
-    // Logic: Find village within 3km of boundary
+    // Logic: Find village within 2km of boundary
     // Since this is simulated without a GIS database, we validate against the farm's setting
-    // In a real app, this would query a geo-database: WHERE ST_DWithin(village_loc, farm.boundary, 3000)
+    // In a real app, this would query a geo-database: WHERE ST_DWithin(village_loc, farm.boundary, 2000)
 
     let locationName = farm.city || farm.address || farm.name;
     let locationTag = "";
@@ -15,10 +15,10 @@ const generateWeatherData = (farm) => {
     // Simulate standard/verified village checking
     if (farm.city) {
         locationName = farm.city;
-        locationTag = " (Verified < 3km)";
+        locationTag = " (Verified < 2km)";
     } else {
         locationName = "Massoumbou"; // Default fallback for this specific project context
-        locationTag = " (Nearest Village < 3km)";
+        locationTag = " (Nearest Village < 2km)";
     }
 
     return {
