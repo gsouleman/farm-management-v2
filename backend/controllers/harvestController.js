@@ -60,13 +60,13 @@ exports.createHarvest = async (req, res) => {
         // Robust sanitization to handle empty strings from frontend becoming numeric errors in DB
         const cleanedData = {
             ...req.body,
-            area_harvested: req.body.area_harvested || 0,
-            quantity: req.body.quantity || 0,
+            area_harvested: req.body.area_harvested ? (parseFloat(req.body.area_harvested) || 0) : 0,
+            quantity: req.body.quantity ? (parseFloat(req.body.quantity) || 0) : 0,
             unit: req.body.unit || 'kg',
-            yield_per_area: req.body.yield_per_area || 0,
-            moisture_content: req.body.moisture_content || null,
-            price_per_unit: req.body.price_per_unit || 0,
-            total_revenue: req.body.total_revenue || 0
+            yield_per_area: req.body.yield_per_area ? (parseFloat(req.body.yield_per_area) || 0) : 0,
+            moisture_content: req.body.moisture_content ? (parseFloat(req.body.moisture_content) || null) : null,
+            price_per_unit: req.body.price_per_unit ? (parseFloat(req.body.price_per_unit) || 0) : 0,
+            total_revenue: req.body.total_revenue ? (parseFloat(req.body.total_revenue) || 0) : 0
         };
 
         const harvest = await Harvest.create(cleanedData);
@@ -117,9 +117,12 @@ exports.updateHarvest = async (req, res) => {
         // Sanitize update data
         const updateData = {
             ...req.body,
-            area_harvested: req.body.area_harvested !== undefined ? (req.body.area_harvested || 0) : harvest.area_harvested,
-            quantity: req.body.quantity !== undefined ? (req.body.quantity || 0) : harvest.quantity,
-            total_revenue: req.body.total_revenue !== undefined ? (req.body.total_revenue || 0) : harvest.total_revenue
+            area_harvested: req.body.area_harvested !== undefined ? (parseFloat(req.body.area_harvested) || 0) : harvest.area_harvested,
+            quantity: req.body.quantity !== undefined ? (parseFloat(req.body.quantity) || 0) : harvest.quantity,
+            yield_per_area: req.body.yield_per_area !== undefined ? (parseFloat(req.body.yield_per_area) || 0) : harvest.yield_per_area,
+            moisture_content: req.body.moisture_content !== undefined ? (parseFloat(req.body.moisture_content) || null) : harvest.moisture_content,
+            price_per_unit: req.body.price_per_unit !== undefined ? (parseFloat(req.body.price_per_unit) || 0) : harvest.price_per_unit,
+            total_revenue: req.body.total_revenue !== undefined ? (parseFloat(req.body.total_revenue) || 0) : harvest.total_revenue
         };
 
         await harvest.update(updateData);

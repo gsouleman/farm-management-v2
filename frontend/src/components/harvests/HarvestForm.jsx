@@ -66,20 +66,24 @@ const HarvestForm = ({ cropId, onComplete, initialData }) => {
     };
 
     const calculateYield = () => {
-        const qty = stripCommas(formData.quantity);
-        const area = stripCommas(formData.area_harvested);
-        if (qty && area) {
-            const y = (parseFloat(qty) / parseFloat(area)).toFixed(2);
+        const qty = parseFloat(stripCommas(formData.quantity)) || 0;
+        const area = parseFloat(stripCommas(formData.area_harvested)) || 0;
+        if (qty && area && area !== 0) {
+            const y = (qty / area).toFixed(2);
             setFormData(prev => ({ ...prev, yield_per_area: y }));
+        } else {
+            setFormData(prev => ({ ...prev, yield_per_area: '0' }));
         }
     };
 
     const calculateRevenue = () => {
-        const qty = stripCommas(formData.quantity);
-        const price = stripCommas(formData.price_per_unit);
+        const qty = parseFloat(stripCommas(formData.quantity)) || 0;
+        const price = parseFloat(stripCommas(formData.price_per_unit)) || 0;
         if (qty && price) {
-            const r = (parseFloat(qty) * parseFloat(price)).toFixed(2);
+            const r = (qty * price).toFixed(2);
             setFormData(prev => ({ ...prev, total_revenue: r }));
+        } else {
+            setFormData(prev => ({ ...prev, total_revenue: '0' }));
         }
     };
 
