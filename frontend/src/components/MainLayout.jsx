@@ -160,7 +160,7 @@ const MainLayout = ({ children }) => {
 
                 {/* Navigation */}
                 <nav style={{ flex: 1, overflowY: 'auto', padding: '16px 12px' }}>
-                    <SidebarLink to="/" icon="📊" label="Dashboard" onClick={handleNavItemClick} />
+                    <SidebarLink to="/" icon="📊" label="Home" onClick={handleNavItemClick} />
 
                     <NavGroup
                         label="OPERATIONS"
