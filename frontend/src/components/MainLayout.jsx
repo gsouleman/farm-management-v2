@@ -99,10 +99,8 @@ const MainLayout = ({ children }) => {
                         FARMER
                     </h2>
                     <div style={{ fontSize: '10px', color: '#666', marginTop: '6px', fontWeight: 'bold', letterSpacing: '1px' }}>GLOBAL AGRICULTURE NETWORK</div>
-                    <a
-                        href="https://agrixp.com/express"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    <div
+                        onClick={() => navigate('/mobile')}
                         style={{
                             display: 'inline-flex',
                             alignItems: 'center',
@@ -123,7 +121,7 @@ const MainLayout = ({ children }) => {
                         onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#333'; e.currentTarget.style.color = '#fff'; }}
                     >
                         <span style={{ fontSize: '14px' }}>📱</span> MOBILE VERSION
-                    </a>
+                    </div>
                 </div>
 
                 {/* Farm Selector - CNN Styled */}
