@@ -14,9 +14,9 @@ const generateWeatherData = (farm) => {
             icon: '//cdn.weatherapi.com/weather/64x64/day/113.png'
         },
         location: {
-            name: farm.name,
-            region: farm.region || 'Region',
-            country: 'Country'
+            name: farm.city || farm.address || farm.name,
+            region: farm.state || 'Region',
+            country: farm.country || 'Country'
         },
         last_updated: new Date().toISOString()
     };

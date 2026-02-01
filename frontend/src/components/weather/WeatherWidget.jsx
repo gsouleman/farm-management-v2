@@ -36,7 +36,9 @@ const WeatherWidget = () => {
                     <h3 style={{ margin: 0, color: '#fff', fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px' }}>
                         FARMING WEATHER
                     </h3>
-                    <div style={{ fontSize: '9px', color: '#4caf50', marginTop: '2px', fontWeight: 'bold' }}>● LIVE FEED</div>
+                    <div style={{ fontSize: '9px', color: '#4caf50', marginTop: '2px', fontWeight: 'bold' }}>
+                        ● LIVE FEED {currentWeather?.location?.name ? `@ ${currentWeather.location.name.toUpperCase()}` : ''}
+                    </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                     <div style={{ color: '#fff', fontSize: '18px', fontWeight: '900' }}>
