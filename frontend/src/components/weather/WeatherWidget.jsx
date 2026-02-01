@@ -4,11 +4,12 @@ import useFarmStore from '../../store/farmStore';
 
 const WeatherWidget = () => {
     const { currentFarm } = useFarmStore();
-    const { currentWeather, forecast, fetchWeather, loading } = useWeatherStore();
+    const { weatherData: currentWeather, forecast, fetchWeather, fetchForecast, loading } = useWeatherStore();
 
     useEffect(() => {
         if (currentFarm?.id) {
             fetchWeather(currentFarm.id);
+            fetchForecast(currentFarm.id);
         }
     }, [currentFarm?.id]);
 
