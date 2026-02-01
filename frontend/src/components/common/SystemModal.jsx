@@ -48,7 +48,7 @@ const SystemModal = () => {
                 onClick={stopPropagation}
             >
                 {/* Header */}
-                <div style={{ backgroundColor: '#cc0000', padding: '12px 24px' }}>
+                <div style={{ backgroundColor: 'var(--secondary)', padding: '12px 24px' }}>
                     <h3 style={{
                         margin: 0,
                         fontSize: '14px',

@@ -90,10 +90,10 @@ const CostSettings = () => {
         return (
             <div className="animate-fade-in" style={{ maxWidth: '800px', margin: '0 auto', backgroundColor: '#fff', border: '1px solid #000', boxShadow: '0 20px 50px rgba(0,0,0,0.15)' }}>
                 {/* Header - Harvest Record Style */}
-                <div style={{ backgroundColor: '#bb1919', padding: '24px 40px', color: 'white', position: 'relative' }}>
+                <div style={{ backgroundColor: 'var(--primary)', padding: '24px 40px', color: 'white', position: 'relative' }}>
                     <div style={{ position: 'absolute', top: '0', left: '0', height: '100%', width: '4px', backgroundColor: '#000' }}></div>
                     <h1 style={{ margin: 0, fontSize: '28px', fontWeight: '900', letterSpacing: '-1px', textTransform: 'uppercase' }}>
-                        <span style={{ backgroundColor: '#fff', color: '#bb1919', padding: '2px 8px', marginRight: '10px' }}>{editingId ? 'EDIT' : 'NEW'}</span>
+                        <span style={{ backgroundColor: '#fff', color: 'var(--primary)', padding: '2px 8px', marginRight: '10px' }}>{editingId ? 'EDIT' : 'NEW'}</span>
                         Cost Parameter
                     </h1>
                 </div>
@@ -222,14 +222,14 @@ const CostSettings = () => {
                     <tbody>
                         {costSettings.map(setting => (
                             <tr key={setting.id} style={{ borderBottom: '1px solid #eee', fontSize: '13px' }}>
-                                <td style={{ padding: '15px 20px', fontWeight: '700', color: '#bb1919' }}>{setting.category}</td>
+                                <td style={{ padding: '15px 20px', fontWeight: '700', color: 'var(--primary)' }}>{setting.category}</td>
                                 <td style={{ padding: '15px 20px', fontWeight: '700' }}>{setting.name}</td>
                                 <td style={{ padding: '15px 20px' }}>{setting.billing_frequency === 'per_unit' ? `Per ${setting.unit}` : setting.billing_frequency.toUpperCase()}</td>
                                 <td style={{ padding: '15px 20px', fontWeight: '900', textAlign: 'right' }}>{formatNumber(setting.unit_cost)}</td>
                                 <td style={{ padding: '15px 20px', textAlign: 'center' }}>
                                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                                         <button onClick={() => handleEdit(setting)} style={{ border: '1px solid #000', background: '#fff', padding: '5px 10px', cursor: 'pointer', fontSize: '10px', fontWeight: '900' }}>EDIT</button>
-                                        <button onClick={() => handleDelete(setting.id)} style={{ border: '1px solid #bb1919', background: '#bb1919', color: '#fff', padding: '5px 10px', cursor: 'pointer', fontSize: '10px', fontWeight: '900' }}>DEL</button>
+                                        <button onClick={() => handleDelete(setting.id)} style={{ border: 'none', background: 'var(--error)', color: '#fff', padding: '5px 10px', cursor: 'pointer', fontSize: '10px', fontWeight: '900' }}>DEL</button>
                                     </div>
                                 </td>
                             </tr>

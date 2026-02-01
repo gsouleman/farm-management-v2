@@ -1,38 +1,32 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap');
 
 :root {
-  /* Color Palette - CNN Style */
-  --primary: #cc0000;
-  /* CNN Red */
-  --primary-light: #ff3333;
-  --primary-dark: #990000;
-  --secondary: #262626;
-  /* CNN Deep Black/Gray */
-  --accent: #4a90e2;
-  /* Professional Blue */
-  --success: #28a745;
-  /* High-contrast Green */
-  --warning: #ffc107;
-  --error: #cc0000;
+  /* Modern AgTech Palette */
+  --primary: #2e7d32;       /* Forest Green */
+  --primary-light: #4caf50; /* Fresh Green */
+  --primary-dark: #1b5e20;  /* Deep Green */
+  
+  --secondary: #1a237e;     /* Deep Tech Blue */
+  
+  --accent: #0288d1;        /* Sky Blue */
+  
+  --success: #2e7d32;       /* Forest Green */
+  --warning: #fbc02d;       /* Amber */
+  --error: #d32f2f;         /* Soft Red */
 
-  --bg-main: #f8f9fa;
-  /* Clean White/Light Gray */
+  --bg-main: #f4f6f8;       /* Cool Light Gray */
   --bg-card: #ffffff;
-  --bg-sidebar: #000000;
-  /* Stark Black Sidebar */
+  --bg-sidebar: #1b1b1b;    /* Modern Dark Sidebar */
 
-  --text-main: #262626;
-  /* Stark Black */
+  --text-main: #333333;     /* Soft Black */
   --text-muted: #666666;
   --text-light: #ffffff;
 
   --border: #e0e0e0;
-  /* Crisp thin dividers */
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --radius: 0;
-  /* Sharper, news-style corners */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --radius: 8px;            /* Modern Rounded Corners */
 }
 
 * {

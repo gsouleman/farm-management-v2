@@ -16,13 +16,11 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-    origin: '*', // Allow all origins for mobile compatibility
+    origin: process.env.CORS_ORIGIN || '*', // Restrict in production via env var
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(helmet({
-    contentSecurityPolicy: false, // Disable CSP for easier mobile testing
-}));
+app.use(helmet()); // Enable standard security headers
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -50,10 +48,7 @@ app.use('/api/contracts', require('./routes/contractRoutes'));
 app.use('/api/system', require('./routes/systemRoutes'));
 app.use('/api/crop-definitions', require('./routes/cropDefinitionRoutes'));
 
-// Aggressive fallback routes for sync (handles ?farm_id=)
-app.get('/api/activities', auth, activityController.getFarmActivities);
-app.get('/api/crops', auth, cropController.getFarmCrops);
-app.get('/api/infrastructure', auth, infraController.getFarmInfrastructure);
+
 
 // Static files for uploads
 const path = require('path');
@@ -69,18 +64,7 @@ const startServer = async () => {
         // Sync models (in production, use migrations)
         await sequelize.sync({ alter: true });
 
-        // Backfill farm_id for activities if missing (one-time migration helper)
-        const { Activity, Farm } = require('./models');
-        const firstFarm = await Farm.findOne();
-        if (firstFarm) {
-            const [updatedCount] = await Activity.update(
-                { farm_id: firstFarm.id },
-                { where: { farm_id: null } }
-            );
-            if (updatedCount > 0) {
-                console.log(`[Startup] Backfilled ${updatedCount} activities with farmId: ${firstFarm.id}`);
-            }
-        }
+
 
         app.listen(PORT, '0.0.0.0', () => {
             console.log(`Server is running on port ${PORT} and accessible on the local network`);

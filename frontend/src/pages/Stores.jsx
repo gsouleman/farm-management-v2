@@ -79,12 +79,20 @@ const Stores = () => {
                     <button
                         className={viewParam === 'inventory' ? 'primary' : 'outline'}
                         onClick={() => setSearchParams({ view: 'inventory' })}
+                        style={{
+                            borderBottom: viewParam === 'inventory' ? '3px solid var(--primary)' : '3px solid transparent',
+                            color: viewParam === 'inventory' ? 'var(--primary)' : '#666',
+                        }}
                     >
                         Stock Inventory
                     </button>
                     <button
                         className={viewParam === 'structures' ? 'primary' : 'outline'}
                         onClick={() => setSearchParams({ view: 'structures' })}
+                        style={{
+                            borderBottom: viewParam === 'structures' ? '3px solid var(--primary)' : '3px solid transparent',
+                            color: viewParam === 'structures' ? 'var(--primary)' : '#666',
+                        }}
                     >
                         Storage Units
                     </button>
@@ -94,137 +102,136 @@ const Stores = () => {
                         <button className="primary" onClick={() => setInfrastructureAddMode(true)}>+ New Storage</button>
                     )}
                 </div>
-            </div>
 
-            {viewParam === 'inventory' ? (
-                <>
-                    {/* Summary Cards */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '20px', marginBottom: '32px' }}>
-                        {Object.keys(inventoryByCategory).map(cat => (
-                            <div key={cat} className="card" style={{ padding: '20px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-                                    <h3 style={{ margin: 0, fontSize: '14px', textTransform: 'capitalize' }}>{cat || 'Uncategorized'}</h3>
-                                    <span style={{ fontSize: '20px' }}>📦</span>
+                {viewParam === 'inventory' ? (
+                    <>
+                        {/* Summary Cards */}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '20px', marginBottom: '32px' }}>
+                            {Object.keys(inventoryByCategory).map(cat => (
+                                <div key={cat} className="card" style={{ padding: '20px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
+                                        <h3 style={{ margin: 0, fontSize: '14px', textTransform: 'capitalize' }}>{cat || 'Uncategorized'}</h3>
+                                        <span style={{ fontSize: '20px' }}>📦</span>
+                                    </div>
+                                    <div style={{ fontSize: '24px', fontWeight: '800' }}>{inventoryByCategory[cat]} Items</div>
                                 </div>
-                                <div style={{ fontSize: '24px', fontWeight: '800' }}>{inventoryByCategory[cat]} Items</div>
+                            ))}
+                        </div>
+
+                        {/* Filter Bar */}
+                        <div className="card" style={{ marginBottom: '24px', padding: '12px' }}>
+                            <div className="flex gap-12">
+                                <button className={filter === 'all' ? 'primary' : 'outline'} style={{ padding: '4px 12px', fontSize: '12px' }} onClick={() => setFilter('all')}>All</button>
+                                <button className={filter === 'fertilizer' ? 'primary' : 'outline'} style={{ padding: '4px 12px', fontSize: '12px' }} onClick={() => setFilter('fertilizer')}>Fertilizers</button>
+                                <button className={filter === 'pesticide' ? 'primary' : 'outline'} style={{ padding: '4px 12px', fontSize: '12px' }} onClick={() => setFilter('pesticide')}>Pesticides</button>
+                                <button className={filter === 'seed' ? 'primary' : 'outline'} style={{ padding: '4px 12px', fontSize: '12px' }} onClick={() => setFilter('seed')}>Seeds</button>
+                            </div>
+                        </div>
+
+                        {/* Detailed List */}
+                        <div className="card" style={{ padding: 0 }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                <thead>
+                                    <tr style={{ textAlign: 'left', fontSize: '11px', color: 'var(--text-muted)', borderBottom: '2px solid var(--border)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                        <th style={{ padding: '16px' }}>Type</th>
+                                        <th style={{ padding: '16px' }}>Product</th>
+                                        <th style={{ padding: '16px' }}>In Stock</th>
+                                        <th style={{ padding: '16px' }}>Status</th>
+                                        <th style={{ padding: '16px' }}>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredInputs.map(input => (
+                                        <tr key={input.id} style={{ borderBottom: '1px solid var(--border)', fontSize: '14px' }}>
+                                            <td style={{ padding: '16px' }}>
+                                                <span style={{ textTransform: 'capitalize', padding: '2px 6px', borderRadius: '4px', backgroundColor: '#f0f2f0', fontSize: '10px', fontWeight: 'bold' }}>
+                                                    {input.input_type}
+                                                </span>
+                                            </td>
+                                            <td style={{ padding: '16px' }}>
+                                                <div style={{ fontWeight: '700' }}>{input.name}</div>
+                                                <div style={{ fontSize: '11px', color: '#888' }}>{input.brand}</div>
+                                            </td>
+                                            <td style={{ padding: '16px', fontWeight: '700' }}>{input.quantity_in_stock} {input.unit}</td>
+                                            <td style={{ padding: '16px' }}>
+                                                {input.quantity_in_stock < 10 ? (
+                                                    <span style={{ color: '#cc0000', fontSize: '10px', fontWeight: '900' }}>● LOW STOCK</span>
+                                                ) : (
+                                                    <span style={{ color: '#2e7d32', fontSize: '10px', fontWeight: '900' }}>● OPTIMAL</span>
+                                                )}
+                                            </td>
+                                            <td style={{ padding: '16px' }}>
+                                                <button className="outline" style={{ fontSize: '11px', padding: '4px 8px' }} onClick={() => {
+                                                    const adj = prompt('Adjust stock by (e.g. 50 or -10):');
+                                                    if (adj) adjustStock(input.id, parseFloat(adj));
+                                                }}>Adjust</button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {filteredInputs.length === 0 && (
+                                        <tr>
+                                            <td colSpan="5" style={{ textAlign: 'center', padding: '60px', color: '#888' }}>
+                                                <div style={{ fontSize: '32px', marginBottom: '16px' }}>📦</div>
+                                                No inventory items recorded in this category.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </>
+                ) : (
+                    /* Storage Units View */
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
+                        {storageUnits.map(unit => (
+                            <div key={unit.id} className="card" style={{ padding: '0', overflow: 'hidden', position: 'relative' }}>
+                                <div style={{ backgroundColor: 'var(--secondary)', height: '60px', display: 'flex', alignItems: 'center', padding: '0 20px', justifyContent: 'space-between' }}>
+                                    <h3 style={{ color: 'white', margin: 0, fontSize: '13px', fontWeight: '900', letterSpacing: '1px' }}>{unit.name.toUpperCase()}</h3>
+                                    <div className="flex gap-8">
+                                        <button
+                                            style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
+                                            onClick={() => setEditingInfra(unit)}
+                                        >
+                                            EDIT
+                                        </button>
+                                        <button
+                                            style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
+                                            onClick={() => handleDeleteStorage(unit.id)}
+                                        >
+                                            DEL
+                                        </button>
+                                    </div>
+                                </div>
+                                <div style={{ padding: '20px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+                                        <div>
+                                            <div style={{ fontSize: '10px', color: '#888', fontWeight: 'bold' }}>TYPE & STATUS</div>
+                                            <div style={{ fontSize: '16px', fontWeight: '900', textTransform: 'capitalize' }}>{unit.sub_type || 'General'} | {unit.status}</div>
+                                        </div>
+                                        <div>
+                                            <div style={{ fontSize: '10px', color: '#888', fontWeight: 'bold', textAlign: 'right' }}>CAPACITY</div>
+                                            <div style={{ fontSize: '18px', fontWeight: '900' }}>{unit.area_sqm || '0'} MT</div>
+                                        </div>
+                                    </div>
+                                    {unit.notes && (
+                                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic', marginTop: '12px', borderTop: '1px solid var(--border)', paddingTop: '12px' }}>
+                                            {unit.notes}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         ))}
-                    </div>
-
-                    {/* Filter Bar */}
-                    <div className="card" style={{ marginBottom: '24px', padding: '12px' }}>
-                        <div className="flex gap-12">
-                            <button className={filter === 'all' ? 'primary' : 'outline'} style={{ padding: '4px 12px', fontSize: '12px' }} onClick={() => setFilter('all')}>All</button>
-                            <button className={filter === 'fertilizer' ? 'primary' : 'outline'} style={{ padding: '4px 12px', fontSize: '12px' }} onClick={() => setFilter('fertilizer')}>Fertilizers</button>
-                            <button className={filter === 'pesticide' ? 'primary' : 'outline'} style={{ padding: '4px 12px', fontSize: '12px' }} onClick={() => setFilter('pesticide')}>Pesticides</button>
-                            <button className={filter === 'seed' ? 'primary' : 'outline'} style={{ padding: '4px 12px', fontSize: '12px' }} onClick={() => setFilter('seed')}>Seeds</button>
-                        </div>
-                    </div>
-
-                    {/* Detailed List */}
-                    <div className="card" style={{ padding: 0 }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                            <thead>
-                                <tr style={{ textAlign: 'left', fontSize: '11px', color: 'var(--text-muted)', borderBottom: '2px solid var(--border)', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                                    <th style={{ padding: '16px' }}>Type</th>
-                                    <th style={{ padding: '16px' }}>Product</th>
-                                    <th style={{ padding: '16px' }}>In Stock</th>
-                                    <th style={{ padding: '16px' }}>Status</th>
-                                    <th style={{ padding: '16px' }}>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredInputs.map(input => (
-                                    <tr key={input.id} style={{ borderBottom: '1px solid var(--border)', fontSize: '14px' }}>
-                                        <td style={{ padding: '16px' }}>
-                                            <span style={{ textTransform: 'capitalize', padding: '2px 6px', borderRadius: '4px', backgroundColor: '#f0f2f0', fontSize: '10px', fontWeight: 'bold' }}>
-                                                {input.input_type}
-                                            </span>
-                                        </td>
-                                        <td style={{ padding: '16px' }}>
-                                            <div style={{ fontWeight: '700' }}>{input.name}</div>
-                                            <div style={{ fontSize: '11px', color: '#888' }}>{input.brand}</div>
-                                        </td>
-                                        <td style={{ padding: '16px', fontWeight: '700' }}>{input.quantity_in_stock} {input.unit}</td>
-                                        <td style={{ padding: '16px' }}>
-                                            {input.quantity_in_stock < 10 ? (
-                                                <span style={{ color: '#cc0000', fontSize: '10px', fontWeight: '900' }}>● LOW STOCK</span>
-                                            ) : (
-                                                <span style={{ color: '#2e7d32', fontSize: '10px', fontWeight: '900' }}>● OPTIMAL</span>
-                                            )}
-                                        </td>
-                                        <td style={{ padding: '16px' }}>
-                                            <button className="outline" style={{ fontSize: '11px', padding: '4px 8px' }} onClick={() => {
-                                                const adj = prompt('Adjust stock by (e.g. 50 or -10):');
-                                                if (adj) adjustStock(input.id, parseFloat(adj));
-                                            }}>Adjust</button>
-                                        </td>
-                                    </tr>
-                                ))}
-                                {filteredInputs.length === 0 && (
-                                    <tr>
-                                        <td colSpan="5" style={{ textAlign: 'center', padding: '60px', color: '#888' }}>
-                                            <div style={{ fontSize: '32px', marginBottom: '16px' }}>📦</div>
-                                            No inventory items recorded in this category.
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </>
-            ) : (
-                /* Storage Units View */
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
-                    {storageUnits.map(unit => (
-                        <div key={unit.id} className="card" style={{ padding: '0', overflow: 'hidden', position: 'relative' }}>
-                            <div style={{ backgroundColor: '#cc0000', height: '60px', display: 'flex', alignItems: 'center', padding: '0 20px', justifyContent: 'space-between' }}>
-                                <h3 style={{ color: 'white', margin: 0, fontSize: '13px', fontWeight: '900', letterSpacing: '1px' }}>{unit.name.toUpperCase()}</h3>
-                                <div className="flex gap-8">
-                                    <button
-                                        style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
-                                        onClick={() => setEditingInfra(unit)}
-                                    >
-                                        EDIT
-                                    </button>
-                                    <button
-                                        style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
-                                        onClick={() => handleDeleteStorage(unit.id)}
-                                    >
-                                        DEL
-                                    </button>
-                                </div>
+                        {storageUnits.length === 0 && (
+                            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '60px', color: '#888' }}>
+                                <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏗️</div>
+                                <h3>No storage units found.</h3>
+                                <p>Click "+ New Storage" to create your first storage structure.</p>
                             </div>
-                            <div style={{ padding: '20px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                                    <div>
-                                        <div style={{ fontSize: '10px', color: '#888', fontWeight: 'bold' }}>TYPE & STATUS</div>
-                                        <div style={{ fontSize: '16px', fontWeight: '900', textTransform: 'capitalize' }}>{unit.sub_type || 'General'} | {unit.status}</div>
-                                    </div>
-                                    <div>
-                                        <div style={{ fontSize: '10px', color: '#888', fontWeight: 'bold', textAlign: 'right' }}>CAPACITY</div>
-                                        <div style={{ fontSize: '18px', fontWeight: '900' }}>{unit.area_sqm || '0'} MT</div>
-                                    </div>
-                                </div>
-                                {unit.notes && (
-                                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic', marginTop: '12px', borderTop: '1px solid var(--border)', paddingTop: '12px' }}>
-                                        {unit.notes}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    ))}
-                    {storageUnits.length === 0 && (
-                        <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '60px', color: '#888' }}>
-                            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏗️</div>
-                            <h3>No storage units found.</h3>
-                            <p>Click "+ New Storage" to create your first storage structure.</p>
-                        </div>
-                    )}
-                </div>
-            )}
-        </div>
-    );
+                        )}
+                    </div>
+                )}
+            </div>
+            );
 };
 
-export default Stores;
+            export default Stores;

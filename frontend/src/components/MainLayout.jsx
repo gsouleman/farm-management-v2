@@ -79,39 +79,38 @@ const MainLayout = ({ children }) => {
                 onClick={() => setIsMobileMenuOpen(false)}
             ></div>
 
-            {/* CNN Style Sidebar */}
+            {/* Modern Sidebar */}
             <aside className={`sidebar-container ${isMobileMenuOpen ? 'open' : ''}`} style={{
                 width: '280px',
-                backgroundColor: '#000000',
+                backgroundColor: 'var(--bg-sidebar)',
                 color: 'white',
                 display: 'flex',
                 flexDirection: 'column',
-                boxShadow: '4px 0 15px rgba(0,0,0,0.5)',
+                boxShadow: '4px 0 15px rgba(0,0,0,0.1)',
                 zIndex: 100,
                 borderRight: '1px solid #333'
             }}>
-                <div style={{ padding: '30px 24px', borderBottom: '1px solid #222' }}>
+                <div style={{ padding: '24px', borderBottom: '1px solid #333' }}>
                     <h2 style={{
                         margin: 0,
                         color: 'white',
                         fontSize: '22px',
-                        fontWeight: '800',
+                        fontWeight: '700',
                         letterSpacing: '-0.5px',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '8px'
                     }}>
-                        <span style={{ backgroundColor: '#cc0000', padding: '2px 8px', borderRadius: '2px' }}>PRO</span>
+                        <span style={{ backgroundColor: 'var(--primary)', padding: '4px 8px', borderRadius: '6px', fontSize: '14px' }}>PRO</span>
                         FARMER
                     </h2>
-                    <div style={{ fontSize: '10px', color: '#666', marginTop: '6px', fontWeight: 'bold', letterSpacing: '1px' }}>GLOBAL AGRICULTURE NETWORK</div>
-
+                    <div style={{ fontSize: '11px', color: '#888', marginTop: '8px', fontWeight: '500' }}>INTELLIGENT AGRICULTURE</div>
                 </div>
 
-                {/* Farm Selector - CNN Styled */}
-                <div style={{ padding: '20px 24px', backgroundColor: '#111' }}>
+                {/* Farm Selector */}
+                <div style={{ padding: '20px 24px', backgroundColor: 'rgba(255,255,255,0.03)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                        <label style={{ fontSize: '11px', color: '#888', fontWeight: 'bold' }}>STATION SELECTOR</label>
+                        <label style={{ fontSize: '11px', color: '#888', fontWeight: '600' }}>ACTIVE STATION</label>
                         <button
                             onClick={() => {
                                 navigate('/');
@@ -119,17 +118,17 @@ const MainLayout = ({ children }) => {
                                 handleNavItemClick();
                             }}
                             style={{
-                                backgroundColor: '#cc0000',
+                                backgroundColor: 'var(--primary)',
                                 color: 'white',
                                 border: 'none',
-                                padding: '2px 8px',
+                                padding: '4px 10px',
                                 fontSize: '10px',
                                 fontWeight: 'bold',
                                 cursor: 'pointer',
-                                borderRadius: '2px'
+                                borderRadius: '4px'
                             }}
                         >
-                            + NEW STATION
+                            + NEW
                         </button>
                     </div>
                     <select
@@ -140,19 +139,20 @@ const MainLayout = ({ children }) => {
                         }}
                         style={{
                             width: '100%',
-                            padding: '12px',
-                            backgroundColor: '#222',
+                            padding: '10px',
+                            backgroundColor: '#000',
                             color: 'white',
-                            border: '1px solid #333',
+                            border: '1px solid #444',
+                            borderRadius: '6px',
                             fontSize: '13px',
-                            fontWeight: '600',
+                            fontWeight: '500',
                             cursor: 'pointer',
                             outline: 'none'
                         }}
                     >
-                        {farms.length === 0 && <option value="">No Active Stations</option>}
+                        {farms.length === 0 && <option value="">Select a Station</option>}
                         {farms.map(farm => (
-                            <option key={farm.id} value={farm.id}>{farm.name.toUpperCase()}</option>
+                            <option key={farm.id} value={farm.id}>{farm.name}</option>
                         ))}
                     </select>
                 </div>
@@ -227,7 +227,7 @@ const MainLayout = ({ children }) => {
                         <div style={{
                             width: '40px',
                             height: '40px',
-                            backgroundColor: '#cc0000',
+                            backgroundColor: 'var(--primary)',
                             color: 'white',
                             display: 'flex',
                             alignItems: 'center',
@@ -239,7 +239,7 @@ const MainLayout = ({ children }) => {
                         </div>
                         <div style={{ flex: 1 }}>
                             <div style={{ fontSize: '14px', fontWeight: '700' }}>{user?.first_name}</div>
-                            <button onClick={handleLogout} style={{ fontSize: '11px', color: '#cc0000', background: 'none', padding: 0, fontWeight: 'bold', cursor: 'pointer' }}>LOGOUT</button>
+                            <button onClick={handleLogout} style={{ fontSize: '11px', color: 'var(--error)', background: 'none', padding: 0, fontWeight: 'bold', cursor: 'pointer' }}>LOGOUT</button>
                         </div>
                     </div>
                 </div>
@@ -247,8 +247,7 @@ const MainLayout = ({ children }) => {
 
             {/* Main Content Area */}
             <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                {/* CNN Red bar top */}
-                <div style={{ height: '4px', backgroundColor: '#cc0000' }}></div>
+
                 <div style={{ flex: 1, overflowY: 'auto' }}>
                     {children}
                 </div>
@@ -297,12 +296,13 @@ const SidebarLink = ({ to, icon, label, sub, nested, onClick }) => (
             padding: sub ? (nested ? '8px 16px 8px 32px' : '8px 16px') : '12px 16px',
             color: isActive ? 'white' : '#aaa',
             textDecoration: 'none',
-            backgroundColor: isActive ? '#cc0000' : 'transparent',
+            backgroundColor: isActive ? 'var(--primary)' : 'transparent',
             margin: sub ? '2px 0' : '4px 0',
-            fontSize: nested ? '12px' : (sub ? '13px' : '14px'),
-            fontWeight: sub ? '500' : '700',
+            fontSize: nested ? '13px' : (sub ? '14px' : '15px'),
+            fontWeight: sub ? '400' : '600',
             transition: 'all 0.2s',
-            borderLeft: isActive && !sub ? '4px solid white' : 'none'
+            borderRadius: '6px',
+            borderLeft: 'none'
         })}
     >
         {!sub && <span style={{ fontSize: '18px' }}>{icon}</span>}

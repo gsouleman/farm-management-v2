@@ -63,7 +63,7 @@ const SyncStatus = () => {
         },
         pending: {
             marginLeft: 'auto',
-            color: '#cc0000',
+            color: 'var(--error)',
             backgroundColor: '#fff',
             padding: '2px 6px',
             borderRadius: '10px',

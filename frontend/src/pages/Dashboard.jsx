@@ -75,10 +75,10 @@ const Dashboard = () => {
         : 0, [currentFarm, totalPlantedArea]);
 
     const stats = useMemo(() => [
-        { label: 'Revenue', value: formatToXAF(totalRevenue), icon: '💰', color: '#4caf50' },
-        { label: 'Expenses', value: formatToXAF(totalExpenses), icon: '📉', color: '#cc0000' },
-        { label: 'Cash Flow', value: formatToXAF(netCashFlow), icon: '⚖️', color: netCashFlow >= 0 ? '#4caf50' : '#cc0000' },
-        { label: 'Total Area', value: `${currentFarm?.total_area || '0.0'} ha`, icon: '📏' },
+        { label: 'Revenue', value: formatToXAF(totalRevenue), icon: '💰', color: 'var(--success)' },
+        { label: 'Expenses', value: formatToXAF(totalExpenses), icon: '📉', color: 'var(--error)' },
+        { label: 'Cash Flow', value: formatToXAF(netCashFlow), icon: '⚖️', color: netCashFlow >= 0 ? 'var(--success)' : 'var(--error)' },
+        { label: 'Total Area', value: `${currentFarm?.total_area || '0.0'} ha`, icon: '📏', color: 'var(--accent)' },
         {
             label: 'Planted',
             value: `${totalPlantedArea.toFixed(1)} ha`,
@@ -134,33 +134,37 @@ const Dashboard = () => {
         return (
             <div className="animate-fade-in">
                 {/* KPI Bar (Moved to Top) */}
+                {/* KPI Bar */}
                 <div style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: '12px',
-                    backgroundColor: '#fff',
-                    padding: '12px',
-                    border: '1px solid var(--border)',
-                    boxShadow: 'var(--shadow-sm)',
-                    marginBottom: '24px'
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                    gap: '16px',
+                    marginBottom: '32px'
                 }}>
                     {stats.map((stat, i) => (
                         <div
                             key={i}
                             onClick={stat.onClick}
                             style={{
-                                flex: '1 1 100px',
-                                padding: '8px 12px',
-                                borderRight: i < stats.length - 1 ? '1px solid var(--border)' : 'none',
+                                backgroundColor: '#fff',
+                                padding: '16px',
+                                borderRadius: '12px',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.03)',
+                                border: '1px solid rgba(0,0,0,0.05)',
                                 cursor: stat.clickable ? 'pointer' : 'default',
-                                transition: 'all 0.2s ease',
+                                transition: 'transform 0.2s',
                             }}
+                            onMouseEnter={e => stat.clickable && (e.currentTarget.style.transform = 'translateY(-2px)')}
+                            onMouseLeave={e => stat.clickable && (e.currentTarget.style.transform = 'translateY(0)')}
                         >
-                            <span style={{ fontSize: '9px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-                                {stat.label}
-                            </span>
-                            <div style={{ fontSize: '16px', fontWeight: '800', color: stat.color || 'inherit', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                <span>{stat.value}</span>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
+                                <span style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                    {stat.label}
+                                </span>
+                                <span style={{ fontSize: '16px' }}>{stat.icon}</span>
+                            </div>
+                            <div style={{ fontSize: '18px', fontWeight: '700', color: stat.color || 'var(--text-main)' }}>
+                                {stat.value}
                             </div>
                         </div>
                     ))}
@@ -204,8 +208,8 @@ const Dashboard = () => {
 
                 {/* Section 3: Field Registry */}
                 <div className="card" style={{ marginTop: '24px', padding: '0' }}>
-                    <div style={{ padding: '12px 16px', borderBottom: '2px solid var(--primary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff' }}>
-                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: '900', letterSpacing: '0.5px' }}>FIELD REGISTRY & SOIL ANALYTICS</h3>
+                    <div style={{ padding: '16px', borderBottom: '2px solid var(--primary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff' }}>
+                        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: 'var(--secondary)' }}>Field Registry & Soil Analytics</h3>
                         <div style={{ display: 'flex', gap: '8px' }}>
                             <button className="outline" style={{ fontSize: '10px', fontWeight: '800', padding: '4px 10px' }}>FILTER</button>
                             <button className="outline" style={{ fontSize: '10px', fontWeight: '800', padding: '4px 10px' }} onClick={() => window.print()}>EXPORT</button>
@@ -240,7 +244,7 @@ const Dashboard = () => {
                                             <td style={{ padding: '10px 16px', textTransform: 'capitalize' }}>{f.soil_type || '—'}</td>
                                             <td style={{ padding: '10px 16px' }}>{f.drainage || '—'}</td>
                                             <td style={{ padding: '10px 16px', textAlign: 'right' }}>
-                                                <button onClick={() => { setSelectedField(f); setView('field-details'); }} style={{ padding: '3px 10px', borderRadius: '1px', fontSize: '10px', backgroundColor: '#000', color: 'white', border: 'none', cursor: 'pointer', fontWeight: '800' }}>MANAGE</button>
+                                                <button onClick={() => { setSelectedField(f); setView('field-details'); }} style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '11px', backgroundColor: 'var(--secondary)', color: 'white', border: 'none', cursor: 'pointer', fontWeight: '600' }}>Manage</button>
                                             </td>
                                         </tr>
                                     );
@@ -256,22 +260,22 @@ const Dashboard = () => {
 
     return (
         <div style={{ padding: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', borderBottom: '2px solid #000', paddingBottom: '16px' }}>
+            {/* Header: Modern & Clean */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                 <div>
-                    <h1 style={{ fontSize: '28px', fontWeight: '900', margin: 0, textTransform: 'uppercase', letterSpacing: '-1px' }}>
+                    <h1 style={{ fontSize: '32px', fontWeight: '800', margin: 0, color: 'var(--secondary)', letterSpacing: '-1px' }}>
                         {currentFarm?.name || 'CENTRAL STATION'}
                     </h1>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '4px' }}>
-                        <span style={{ fontSize: '11px', color: '#cc0000', fontWeight: '900', letterSpacing: '1px' }}>● LIVE TELEMETRY</span>
-                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>SYSTEM STATUS: OPTIMAL</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '8px' }}>
+                        <span style={{ fontSize: '12px', color: 'var(--success)', fontWeight: '700', padding: '4px 10px', backgroundColor: 'rgba(46, 125, 50, 0.1)', borderRadius: '12px' }}>● SYSTEM OPTIMAL</span>
                     </div>
                 </div>
                 {view !== 'overview' && (
-                    <button onClick={() => setView('overview')} className="outline" style={{ fontWeight: '800', fontSize: '11px' }}>← RETURN TO CONTROL</button>
+                    <button onClick={() => setView('overview')} className="outline" style={{ fontWeight: '600', fontSize: '12px', borderRadius: '8px' }}>← BACK TO OVERVIEW</button>
                 )}
             </div>
 
-            {loading && <div style={{ textAlign: 'center', padding: '40px', fontSize: '14px', fontWeight: '700', color: '#888' }}>SYNCING STATION DATA...</div>}
+            {loading && <div style={{ textAlign: 'center', padding: '40px', fontSize: '14px', fontWeight: '600', color: '#888' }}>Syncing Data...</div>}
 
             {!loading && renderContent()}
         </div>
