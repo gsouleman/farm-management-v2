@@ -45,8 +45,13 @@ const useActivityStore = create((set, get) => ({
     createActivity: async (cropId, activityData) => {
         try {
             const response = await api.post(`/crops/${cropId}/activities`, activityData);
-            set((state) => ({ activities: [...state.activities, response.data] }));
-            await saveToLocal('activities', response.data);
+
+            // Force re-fetch
+            const farmId = (await import('./farmStore')).default.getState().currentFarm?.id;
+            if (farmId) {
+                await get().fetchActivitiesByFarm(farmId);
+            }
+
             return response.data;
         } catch (error) {
             if (error.isOfflineQueue) {
@@ -68,8 +73,13 @@ const useActivityStore = create((set, get) => ({
     logActivity: async (activityData) => {
         try {
             const response = await api.post('/activities', activityData);
-            set((state) => ({ activities: [...state.activities, response.data] }));
-            await saveToLocal('activities', response.data);
+
+            // Force re-fetch
+            const farmId = (await import('./farmStore')).default.getState().currentFarm?.id;
+            if (farmId) {
+                await get().fetchActivitiesByFarm(farmId);
+            }
+
             return response.data;
         } catch (error) {
             if (error.isOfflineQueue) {
@@ -94,9 +104,13 @@ const useActivityStore = create((set, get) => ({
     updateActivity: async (id, activityData) => {
         try {
             const response = await api.put(`/activities/${id}`, activityData);
-            set((state) => ({
-                activities: state.activities.map(a => a.id === id ? response.data : a)
-            }));
+
+            // Force re-fetch
+            const farmId = (await import('./farmStore')).default.getState().currentFarm?.id;
+            if (farmId) {
+                await get().fetchActivitiesByFarm(farmId);
+            }
+
             return response.data;
         } catch (error) {
             console.error('[ActivityStore] updateActivity error details:', {
@@ -111,9 +125,13 @@ const useActivityStore = create((set, get) => ({
     deleteActivity: async (id) => {
         try {
             const response = await api.delete(`/activities/${id}`);
-            set((state) => ({
-                activities: state.activities.filter(a => a.id !== id)
-            }));
+
+            // Force re-fetch
+            const farmId = (await import('./farmStore')).default.getState().currentFarm?.id;
+            if (farmId) {
+                await get().fetchActivitiesByFarm(farmId);
+            }
+
             return response.data;
         } catch (error) {
             throw error;

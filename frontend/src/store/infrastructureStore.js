@@ -23,7 +23,6 @@ const useInfrastructureStore = create((set) => ({
         set({ loading: true, error: null });
         try {
             const response = await api.post(`/infrastructure/farm/${farmId}`, data);
-            set(state => ({ infrastructure: [...state.infrastructure, response.data] }));
 
             // Force re-fetch
             await get().fetchInfrastructure(farmId);
@@ -43,7 +42,6 @@ const useInfrastructureStore = create((set) => ({
         set({ loading: true, error: null });
         try {
             const response = await api.delete(`/infrastructure/${id}`);
-            set(state => ({ infrastructure: state.infrastructure.filter(i => i.id !== id) }));
 
             // Force re-fetch
             const farmId = (await import('./farmStore')).default.getState().currentFarm?.id;
@@ -65,9 +63,6 @@ const useInfrastructureStore = create((set) => ({
         set({ loading: true, error: null });
         try {
             const response = await api.put(`/infrastructure/${id}`, data);
-            set(state => ({
-                infrastructure: state.infrastructure.map(i => i.id === id ? response.data : i)
-            }));
 
             // Force re-fetch
             const farmId = (await import('./farmStore')).default.getState().currentFarm?.id;

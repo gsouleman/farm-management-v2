@@ -34,7 +34,6 @@ const useHarvestStore = create((set, get) => ({
         try {
             const response = await api.post(`/crops/${cropId}/harvests`, harvestData);
             // Optimistic update
-            set((state) => ({ harvests: [...state.harvests, response.data] }));
 
             // Force re-fetch to ensure consistency as requested
             const farmId = (await import('./farmStore')).default.getState().currentFarm?.id;
@@ -56,9 +55,7 @@ const useHarvestStore = create((set, get) => ({
         set({ loading: true, error: null });
         try {
             const response = await api.put(`/harvests/${id}`, harvestData);
-            set((state) => ({
-                harvests: state.harvests.map(h => h.id === id ? response.data : h)
-            }));
+            // Optimistic update
 
             // Force re-fetch
             const farmId = (await import('./farmStore')).default.getState().currentFarm?.id;
