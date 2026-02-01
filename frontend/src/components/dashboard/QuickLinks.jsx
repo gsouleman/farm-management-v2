@@ -7,7 +7,7 @@ const QuickLinks = () => {
     const links = [
         { label: 'Manage Cultivation', icon: '🌿', path: '/select-crops', color: '#bb1919' },
         { label: 'Manage Harvest', icon: '🌾', path: '/harvests', color: '#000' },
-        { label: 'Manage Farm Journal', icon: '🚜', path: '/activities', color: '#000' },
+        { label: 'Manage Journal', icon: '🚜', path: '/activities', color: '#000' },
         { label: 'Manage Farm', icon: '🗺️', path: '/fields', color: '#000' },
     ];
 

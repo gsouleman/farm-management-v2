@@ -176,7 +176,7 @@ const MainLayout = ({ children }) => {
                     >
                         <SidebarLink to="/select-crops" icon="🌿" label="Manage Cultivation" sub onClick={handleNavItemClick} />
                         <SidebarLink to="/crop-library" icon="✅" label="Manage Crops" sub onClick={handleNavItemClick} />
-                        <SidebarLink to="/activities" icon="🚜" label="Manage Farm Journal" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/activities" icon="🚜" label="Manage Journal" sub onClick={handleNavItemClick} />
                         <SidebarLink to="/harvests" icon="🌾" label="Manage Harvest" sub onClick={handleNavItemClick} />
                         <SidebarLink to="/planner" icon="📅" label="Manage Production" sub onClick={handleNavItemClick} />
                     </NavGroup>
