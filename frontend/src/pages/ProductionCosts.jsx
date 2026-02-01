@@ -1,4 +1,7 @@
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import useFarmStore from '../store/farmStore';
+import api from '../services/api';
 import CostSettings from '../components/finance/CostSettings';
 
 const ProductionCosts = () => {
