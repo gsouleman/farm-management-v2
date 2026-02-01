@@ -54,4 +54,11 @@ router.post('/:farmId/inputs', (req, res, next) => {
 const cropController = require('../controllers/cropController');
 router.get('/:farmId/crops', cropController.getFarmCrops);
 
+// Cost Setting sub-routes
+const costSettingController = require('../controllers/costSettingController');
+router.get('/:farmId/cost-settings', costSettingController.getFarmCostSettings);
+router.post('/:farmId/cost-settings', costSettingController.createCostSetting);
+router.put('/cost-settings/:id', costSettingController.updateCostSetting);
+router.delete('/cost-settings/:id', costSettingController.deleteCostSetting);
+
 module.exports = router;

@@ -27,7 +27,8 @@ const models = {
     ActivityInput: require('./ActivityInput')(sequelize),
     FarmUser: require('./FarmUser')(sequelize),
     Infrastructure: require('./Infrastructure')(sequelize),
-    Contract: require('./Contract')(sequelize)
+    Contract: require('./Contract')(sequelize),
+    CostSetting: require('./CostSetting')(sequelize, Sequelize.DataTypes)
 };
 
 // Set up associations
