@@ -33,7 +33,15 @@ const useHarvestStore = create((set, get) => ({
         set({ loading: true, error: null });
         try {
             const response = await api.post(`/crops/${cropId}/harvests`, harvestData);
+            // Optimistic update
             set((state) => ({ harvests: [...state.harvests, response.data] }));
+
+            // Force re-fetch to ensure consistency as requested
+            const farmId = (await import('./farmStore')).default.getState().currentFarm?.id;
+            if (farmId) {
+                await get().fetchHarvestsByFarm(farmId);
+            }
+
             return response.data;
         } catch (error) {
             console.error('[HarvestStore] Create error:', error);
@@ -51,6 +59,13 @@ const useHarvestStore = create((set, get) => ({
             set((state) => ({
                 harvests: state.harvests.map(h => h.id === id ? response.data : h)
             }));
+
+            // Force re-fetch
+            const farmId = (await import('./farmStore')).default.getState().currentFarm?.id;
+            if (farmId) {
+                await get().fetchHarvestsByFarm(farmId);
+            }
+
             return response.data;
         } catch (error) {
             console.error('[HarvestStore] Update error:', error);
@@ -68,6 +83,13 @@ const useHarvestStore = create((set, get) => ({
             set((state) => ({
                 harvests: state.harvests.filter(h => h.id !== id)
             }));
+
+            // Force re-fetch
+            const farmId = (await import('./farmStore')).default.getState().currentFarm?.id;
+            if (farmId) {
+                await get().fetchHarvestsByFarm(farmId);
+            }
+
             return response.data;
         } catch (error) {
             console.error('[HarvestStore] Delete error:', error);

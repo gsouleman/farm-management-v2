@@ -24,6 +24,10 @@ const useInfrastructureStore = create((set) => ({
         try {
             const response = await api.post(`/infrastructure/farm/${farmId}`, data);
             set(state => ({ infrastructure: [...state.infrastructure, response.data] }));
+
+            // Force re-fetch
+            await get().fetchInfrastructure(farmId);
+
             return response.data;
         } catch (error) {
             console.error('[InfrastructureStore] Create error:', error);
@@ -40,6 +44,13 @@ const useInfrastructureStore = create((set) => ({
         try {
             const response = await api.delete(`/infrastructure/${id}`);
             set(state => ({ infrastructure: state.infrastructure.filter(i => i.id !== id) }));
+
+            // Force re-fetch
+            const farmId = (await import('./farmStore')).default.getState().currentFarm?.id;
+            if (farmId) {
+                await get().fetchInfrastructure(farmId);
+            }
+
             return response.data;
         } catch (error) {
             console.error('[InfrastructureStore] Delete error:', error);
@@ -57,6 +68,13 @@ const useInfrastructureStore = create((set) => ({
             set(state => ({
                 infrastructure: state.infrastructure.map(i => i.id === id ? response.data : i)
             }));
+
+            // Force re-fetch
+            const farmId = (await import('./farmStore')).default.getState().currentFarm?.id;
+            if (farmId) {
+                await get().fetchInfrastructure(farmId);
+            }
+
             return response.data;
         } catch (error) {
             console.error('[InfrastructureStore] Update error:', error);
