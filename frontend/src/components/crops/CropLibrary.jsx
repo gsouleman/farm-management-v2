@@ -1,12 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import useCropDefinitionStore from '../../store/cropDefinitionStore';
 
+// Comprehensive list of agricultural emojis
+const AVAILABLE_ICONS = [
+    '🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🫐', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🫒', '🥑',
+    '🍆', '🥔', '🥕', '🌽', '🌶️', '🫑', '🥒', '🥬', '🥦', '🧄', '🧅', '🍄', '🥜', '🌰', '🌾', '🌿', '🍀', '🍬', '🍫',
+    '🍯', '🥛', '🍵', '☕', '🥜', '🥔', '🍠', '🥐', '🥯', '🍞', '🥖', '🥨', '🧀', '🥚', '🍳', '🧈', '🥞', '🧇', '🥓',
+    '🥩', '🍗', '🍖', '🦴', '🌭', '🍔', '🍟', '🍕', '🫓', '🥪', '🥙', '🧆', '🌮', '🌯', '🫔', '🥗', '🥘', '🫕', '🥫',
+    '🍝', '🍜', '🍲', '🍛', '🍣', '🍱', '🥟', '🦪', '🍤', '🍙', '🍚', '🍘', '🍥', '🥠', '🥮', '🍢', '🍡', '🍧', '🍨',
+    '🍦', '🥧', '🧁', '🍰', '🎂', '🍮', '🍭', '🍬', '🍫', '🍿', '🍩', '🍪', '🌰', '🥜', '🍯', '🥛', '🍼', '☕', '🍵',
+    '🧃', '🥤', '🧋', '🍶', '🍺', '🍻', '🥂', '🍷', '🥃', '🍸', '🍹', '🧉', '🍾', '🧊', '🥄', '🍴', '🍽️', '🥣', '🥡', '🥢'
+];
+
 const CropLibrary = () => {
     const { definitions, fetchDefinitions, loading, toggleStatus, createDefinition, updateDefinition, deleteDefinition } = useCropDefinitionStore();
     const [searchQuery, setSearchQuery] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [formData, setFormData] = useState({ name: '', icon: '🌱', color: '#4caf50', varieties: '' });
+
+    // Filter available icons: explicitly allow the current form's icon if editing
+    const usedIcons = new Set(definitions.map(d => d.icon));
+    const selectableIcons = AVAILABLE_ICONS.filter(icon => !usedIcons.has(icon) || (editingItem && icon === editingItem.icon));
+
+    // Ensure current icon is in the list (e.g. if it's a custom one not in our preset list)
+    if (formData.icon && !selectableIcons.includes(formData.icon)) {
+        selectableIcons.unshift(formData.icon);
+    }
 
     useEffect(() => {
         fetchDefinitions();
@@ -198,12 +218,16 @@ const CropLibrary = () => {
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                             <div>
                                 <label style={{ display: 'block', fontSize: '12px', marginBottom: '4px', fontWeight: 'bold' }}>Icon (Emoji)</label>
-                                <input
-                                    type="text"
+                                <select
                                     value={formData.icon}
                                     onChange={e => setFormData({ ...formData, icon: e.target.value })}
-                                    style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-                                />
+                                    style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '16px' }}
+                                >
+                                    {selectableIcons.map(icon => (
+                                        <option key={icon} value={icon}>{icon}</option>
+                                    ))}
+                                    <option value="🌱">🌱 (Default)</option>
+                                </select>
                             </div>
                             <div>
                                 <label style={{ display: 'block', fontSize: '12px', marginBottom: '4px', fontWeight: 'bold' }}>Color</label>
