@@ -308,29 +308,6 @@ const NavGroup = ({ label, children, isOpen, onToggle }) => (
     </div>
 );
 
-<NavLink
-    to={to}
-    onClick={onClick}
-    style={({ isActive }) => ({
-        display: 'flex',
-        alignItems: 'center',
-        gap: isActive && !sub ? '12px' : '12px',
-        padding: sub ? (nested ? '8px 16px 8px 32px' : '8px 16px') : '12px 16px',
-        color: isActive ? 'white' : '#aaa',
-        textDecoration: 'none',
-        backgroundColor: isActive ? 'var(--primary)' : 'transparent',
-        margin: sub ? '2px 0' : '4px 0',
-        fontSize: nested ? '13px' : (sub ? '14px' : '15px'),
-        fontWeight: sub ? '400' : '600',
-        transition: 'all 0.2s',
-        borderRadius: '6px',
-        borderLeft: 'none'
-    })}
->
-    {!sub && <span style={{ fontSize: '18px' }}>{icon}</span>}
-    {sub && icon && <span style={{ fontSize: nested ? '12px' : '14px', marginRight: '4px' }}>{icon}</span>}
-    <span>{label.toUpperCase()}</span>
-</NavLink>
-);
+
 
 export default MainLayout;
