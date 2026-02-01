@@ -7,32 +7,34 @@ import FieldMap from '../fields/FieldMap';
 import { CROP_CATEGORIES } from '../../constants/agriculturalData';
 import * as turf from '@turf/turf';
 
-const CropForm = ({ fieldId, onComplete }) => {
-    const { createCrop, crops } = useCropStore();
+const CropForm = ({ fieldId, onComplete, initialData }) => {
+    const { createCrop, updateCrop, crops } = useCropStore();
     const { fields } = useFarmStore();
     const { infrastructure } = useInfrastructureStore();
     const { showNotification, showAlert } = useUIStore();
 
-    const [selectedFieldId, setSelectedFieldId] = useState(fieldId ? fieldId.toString() : '');
+    const [selectedFieldId, setSelectedFieldId] = useState(
+        initialData?.field_id ? initialData.field_id.toString() : (fieldId ? fieldId.toString() : '')
+    );
 
     // Find parent field for map context
     const parentField = (fields || []).find(f => f?.id?.toString() === selectedFieldId);
 
     const [formData, setFormData] = useState({
-        crop_type: '',
-        variety: '',
-        planting_date: new Date().toISOString().split('T')[0],
-        expected_harvest_date: '',
-        planted_area: '',
-        boundary_coordinates: [], // Captured from map
-        perimeter: '',
-        planting_rate: '',
-        row_spacing: '',
-        season: '',
-        year: new Date().getFullYear(),
-        estimated_cost: '',
-        status: 'planted',
-        notes: ''
+        crop_type: initialData?.crop_type || '',
+        variety: initialData?.variety || '',
+        planting_date: initialData?.planting_date ? new Date(initialData.planting_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        expected_harvest_date: initialData?.expected_harvest_date ? new Date(initialData.expected_harvest_date).toISOString().split('T')[0] : '',
+        planted_area: initialData?.planted_area || '',
+        boundary_coordinates: initialData?.boundary_coordinates || [],
+        perimeter: initialData?.perimeter || '',
+        planting_rate: initialData?.planting_rate || '',
+        row_spacing: initialData?.row_spacing || '',
+        season: initialData?.season || '',
+        year: initialData?.year || new Date().getFullYear(),
+        estimated_cost: initialData?.estimated_cost || '',
+        status: initialData?.status || 'planted',
+        notes: initialData?.notes || ''
     });
     const [loading, setLoading] = useState(false);
 
@@ -87,7 +89,14 @@ const CropForm = ({ fieldId, onComplete }) => {
 
             console.log('Normalized Data for Submission:', normalizedData);
 
-            await createCrop(targetFieldId, normalizedData);
+            if (initialData?.id) {
+                await updateCrop(initialData.id, { ...normalizedData, field_id: targetFieldId });
+                showNotification('Crop record updated successfully', 'success');
+            } else {
+                await createCrop(targetFieldId, normalizedData);
+                showNotification('New crop record created', 'success');
+            }
+
             if (onComplete) onComplete();
         } catch (error) {
             console.error('Submission failed:', error);
@@ -99,7 +108,9 @@ const CropForm = ({ fieldId, onComplete }) => {
     return (
         <div className="card animate-fade-in" style={{ maxWidth: '850px', margin: '0 auto', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
             <div className="card-header" style={{ borderBottomColor: '#edf2f7', padding: '24px' }}>
-                <h3 style={{ margin: 0, fontSize: '20px', color: '#1a365d' }}>Establish New Cultivation Record</h3>
+                <h3 style={{ margin: 0, fontSize: '20px', color: '#1a365d' }}>
+                    {initialData ? 'Update Cultivation Record' : 'Establish New Cultivation Record'}
+                </h3>
             </div>
             <form onSubmit={handleSubmit} style={{ padding: '24px' }}>
                 <div style={{ marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid #edf2f7' }}>
@@ -337,7 +348,7 @@ const CropForm = ({ fieldId, onComplete }) => {
 
                 <div style={{ display: 'flex', gap: '16px' }}>
                     <button type="submit" className="primary" style={{ flex: 2, padding: '14px', fontSize: '16px' }} disabled={loading}>
-                        {loading ? 'Recording...' : 'Save Cultivation Record'}
+                        {loading ? 'Processing...' : (initialData ? 'Update Record' : 'Save Cultivation Record')}
                     </button>
                     <button type="button" onClick={onComplete} className="outline" style={{ flex: 1, padding: '14px' }}>Discard</button>
                 </div>
