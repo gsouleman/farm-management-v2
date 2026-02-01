@@ -12,6 +12,8 @@ import Reports from './pages/Reports';
 import TeamManagement from './pages/TeamManagement';
 import Harvests from './pages/Harvests';
 import Crops from './pages/Crops';
+import SelectCropsPage from './pages/SelectCropsPage';
+import InputListPage from './pages/InputListPage';
 import Planner from './pages/Planner';
 import WeatherCenter from './pages/WeatherCenter';
 import DocumentVault from './pages/DocumentVault';
@@ -150,6 +152,20 @@ function App() {
           <ProtectedRoute>
             <MainLayout>
               <Stores />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/select-crops" element={
+          <ProtectedRoute>
+            <MainLayout>
+              <SelectCropsPage />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/input-list" element={
+          <ProtectedRoute>
+            <MainLayout>
+              <InputListPage />
             </MainLayout>
           </ProtectedRoute>
         } />
