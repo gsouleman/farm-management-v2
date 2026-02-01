@@ -10,7 +10,7 @@ import { INFRASTRUCTURE_TYPES } from '../../constants/agriculturalData';
 
 const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData }) => {
     const { logActivity, updateActivity } = useActivityStore();
-    const { showNotification } = useUIStore();
+    const { showNotification, showAlert } = useUIStore();
     const { inputs: inventory, fetchInputs } = useInventoryStore();
     const { crops, fetchCropsByFarm } = useCropStore();
     const { currentFarm, fields, fetchFields } = useFarmStore();
@@ -68,7 +68,7 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
         e.preventDefault();
 
         if (!selectedFieldId) {
-            showNotification('Please select a target field for this activity.', 'error');
+            showAlert('NO_FIELD_SELECTION');
             return;
         }
 
@@ -95,29 +95,15 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                 payload.inputs = [];
             }
 
-            let response;
             if (initialData?.id) {
-                response = await updateActivity(initialData.id, payload);
-                const msg = response?.notification?.message || 'Operation data updated successfully.';
-                showNotification(msg, 'success');
+                await updateActivity(initialData.id, payload);
             } else {
-                response = await logActivity(payload);
-                const msg = response?.notification?.message || 'DATA SAVED SUCCESSFULLY - SYSTEM ARCHIVED';
-                showNotification(msg, 'success');
+                await logActivity(payload);
             }
 
             if (onComplete) onComplete();
         } catch (error) {
             console.error('[ActivityForm] Submission error:', error);
-            const serverMsg = error.response?.data?.message || 'Unknown Error';
-            const serverErr = error.response?.data?.error || '';
-            const serverDetail = error.response?.data?.detail || '';
-            const serverHint = error.response?.data?.hint || '';
-
-            showNotification(
-                `FAILED TO LOG OPERATION\n------------------\nMessage: ${serverMsg}\nError: ${serverErr}\nDetail: ${serverDetail}`,
-                'error'
-            );
         } finally {
             setLoading(false);
         }

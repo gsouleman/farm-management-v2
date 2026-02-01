@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import useFarmStore from '../../store/farmStore';
+import useUIStore from '../../store/uiStore';
 
 const FarmForm = ({ onComplete }) => {
     const { createFarm } = useFarmStore();
+    const { showAlert } = useUIStore();
     const [formData, setFormData] = useState({
         name: '',
         address: '',
@@ -87,6 +89,12 @@ const FarmForm = ({ onComplete }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!formData.boundary_coordinates || formData.boundary_coordinates.length === 0) {
+            showAlert('NO_BOUNDARY');
+            return;
+        }
+
         setLoading(true);
         try {
             const response = await createFarm(formData);
@@ -95,8 +103,7 @@ const FarmForm = ({ onComplete }) => {
             if (onComplete) onComplete();
         } catch (error) {
             console.error(error);
-            const { showNotification } = (await import('../../store/uiStore')).default.getState();
-            showNotification('Error registering farm', 'error');
+            showAlert('SAVE_FAILURE');
         } finally {
             setLoading(false);
         }

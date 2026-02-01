@@ -93,23 +93,13 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
 
             if (initialData?.id) {
                 await updateActivity(initialData.id, payload);
-                showNotification('Asset operation updated successfully.', 'success');
             } else {
                 await logActivity(payload);
-                showNotification('DATA SAVED SUCCESSFULLY - SYSTEM ARCHIVED', 'success');
             }
 
             if (onComplete) onComplete();
         } catch (error) {
             console.error('[InfrastructureActivityForm] Submission error:', error);
-            const serverMsg = error.response?.data?.message || 'Unknown Error';
-            const serverErr = error.response?.data?.error || '';
-            const serverDetail = error.response?.data?.detail || '';
-
-            showNotification(
-                `INFRASTRUCTURE LOG FAILURE\n------------------\nMessage: ${serverMsg}\nError: ${serverErr}\nDetail: ${serverDetail}`,
-                'error'
-            );
         } finally {
             setLoading(false);
         }

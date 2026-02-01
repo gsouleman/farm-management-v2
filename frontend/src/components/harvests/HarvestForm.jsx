@@ -49,28 +49,23 @@ const HarvestForm = ({ cropId, onComplete, initialData }) => {
             };
 
             if (initialData?.id) {
-                const response = await updateHarvest(initialData.id, payload);
-                const msg = response?.notification?.message || 'HARVEST RECORD UPDATED SUCCESSFULLY - SYSTEM SYNCED';
-                showNotification(msg, 'success');
+                await updateHarvest(initialData.id, payload);
             } else {
                 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
                 const isValidId = cropId && uuidRegex.test(cropId);
 
                 if (!isValidId) {
                     console.error('[HarvestForm] Submission blocked - Invalid cropId:', cropId);
-                    showNotification('OPERATIONAL ALERT: INVALID CROP REFERENCE - SELECT A VALID PLANTING', 'error');
+                    const uiStore = (await import('../../store/uiStore')).default.getState();
+                    uiStore.showAlert('INVALID_CROP');
                     setLoading(false);
                     return;
                 }
-                const response = await createHarvest(cropId, payload);
-                const msg = response?.notification?.message || 'HARVEST RECORD ARCHIVED SUCCESSFULLY - DATA SECURED';
-                showNotification(msg, 'success');
+                await createHarvest(cropId, payload);
             }
             if (onComplete) onComplete();
         } catch (error) {
             console.error(error);
-            const serverMsg = error.response?.data?.notification?.message || error.response?.data?.message || 'Operation failure';
-            showNotification(`HARVEST LOG FAILURE\n------------------\n${serverMsg}`, 'error');
         } finally {
             setLoading(false);
         }

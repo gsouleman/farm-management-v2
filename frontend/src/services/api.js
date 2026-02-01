@@ -41,10 +41,30 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// Add a response interceptor to handle unauthorized errors
+// Add a response interceptor to handle notifications and errors
 api.interceptors.response.use(
-    (response) => response,
-    (error) => {
+    async (response) => {
+        // Automatic Notification Handling
+        if (response.data?.notification) {
+            const { showNotification } = (await import('../store/uiStore')).default.getState();
+            showNotification(response.data.notification.message, response.data.notification.type || 'success');
+        }
+        return response;
+    },
+    async (error) => {
+        // Automatic Error Notification Handling
+        if (error.response?.data?.notification) {
+            const { showNotification, showAlert } = (await import('../store/uiStore')).default.getState();
+            const notif = error.response.data.notification;
+
+            if (notif.type === 'error') {
+                // Interruption Alert for critical errors
+                window.alert(`PROTOCOL ALERT\n------------------\n${notif.message}`);
+            } else {
+                showNotification(notif.message, notif.type);
+            }
+        }
+
         // Handle 401 Unauthorized errors
         if (error.response && error.response.status === 401) {
             // Only redirect if we're not already on the login page to avoid loops

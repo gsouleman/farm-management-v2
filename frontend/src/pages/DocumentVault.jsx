@@ -6,7 +6,7 @@ import useUIStore from '../store/uiStore';
 const DocumentVault = () => {
     const { currentFarm } = useFarmStore();
     const { documents, fetchDocuments, uploadDocument, deleteDocument, loading } = useDocumentStore();
-    const { showNotification } = useUIStore();
+    const { showNotification, showAlert, getConfirmation } = useUIStore();
     const [selectedFile, setSelectedFile] = useState(null);
     const [metadata, setMetadata] = useState({ document_type: 'photo', description: '' });
 
@@ -25,7 +25,7 @@ const DocumentVault = () => {
             setSelectedFile(null);
             setMetadata({ document_type: 'photo', description: '' });
         } catch (error) {
-            showNotification('Document upload failed. Please try again.', 'error');
+            showAlert('UPLOAD_FAILURE');
         }
     };
 
@@ -97,7 +97,13 @@ const DocumentVault = () => {
                                     <button
                                         className="outline"
                                         style={{ flex: 1, fontSize: '11px', color: 'var(--error)', borderColor: '#ffcdd2' }}
-                                        onClick={() => deleteDocument(doc.id)}
+                                        onClick={() => {
+                                            const template = getConfirmation('DELETE_FILE');
+                                            const msg = template
+                                                ? `${template.title}\n----------------------------------\n${template.body}`
+                                                : 'Delete this document permanently?';
+                                            if (window.confirm(msg)) deleteDocument(doc.id);
+                                        }}
                                     >Delete</button>
                                 </div>
                             </div>

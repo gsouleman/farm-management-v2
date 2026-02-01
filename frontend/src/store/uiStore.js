@@ -22,6 +22,23 @@ const useUIStore = create((set, get) => ({
         return null;
     },
 
+    getAlert: (action) => {
+        const state = get();
+        if (state.systemMessages?.ALERTS) {
+            return state.systemMessages.ALERTS[action.toUpperCase()];
+        }
+        return null;
+    },
+
+    showAlert: (action) => {
+        const state = get();
+        const template = state.getAlert(action);
+        const alertMsg = template
+            ? `${template.title}\n----------------------------------\n${template.body}`
+            : `SYSTEM ALERT: ${action.toUpperCase()} - OPERATIONAL FAILURE`;
+        window.alert(alertMsg);
+    },
+
     showNotification: (message, type = 'info') => {
         // Clear any existing timeout
         const currentNotif = get().notification;

@@ -5,7 +5,7 @@ import FieldMap from './FieldMap';
 
 const FieldForm = ({ onComplete }) => {
     const { currentFarm, createField } = useFarmStore();
-    const { showNotification } = useUIStore();
+    const { showNotification, showAlert } = useUIStore();
     const [formData, setFormData] = useState({
         name: '',
         field_number: '',
@@ -91,22 +91,19 @@ const FieldForm = ({ onComplete }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (formData.boundary_coordinates.length === 0) {
-            showNotification('Please draw a field boundary on the map first.', 'error');
+            showAlert('NO_BOUNDARY');
             return;
         }
 
         setLoading(true);
         try {
-            const response = await createField(currentFarm.id, {
+            await createField(currentFarm.id, {
                 ...formData,
                 area: calculatedArea
             });
-            const msg = response?.notification?.message || `Field ${formData.name} established successfully.`;
-            showNotification(msg, 'success');
             if (onComplete) onComplete();
         } catch (error) {
             console.error(error);
-            showNotification('Failed to establish field definition.', 'error');
         } finally {
             setLoading(false);
         }

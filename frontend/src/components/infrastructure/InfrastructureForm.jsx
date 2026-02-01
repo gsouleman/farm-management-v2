@@ -9,7 +9,7 @@ import * as turf from '@turf/turf';
 const InfrastructureForm = ({ farmId, onComplete, initialData = null }) => {
     const { createInfrastructure, updateInfrastructure, infrastructure } = useInfrastructureStore();
     const { currentFarm, fields } = useFarmStore();
-    const { showNotification } = useUIStore();
+    const { showNotification, showAlert } = useUIStore();
 
     const [selectedFieldId, setSelectedFieldId] = useState(initialData?.field_id || '');
     const parentField = (fields || []).find(f => f?.id?.toString() === selectedFieldId);
@@ -70,7 +70,7 @@ const InfrastructureForm = ({ farmId, onComplete, initialData = null }) => {
 
         const targetFarmId = farmId || currentFarm?.id;
         if (!targetFarmId) {
-            showNotification('Selection Error: Please ensure a farm is selected.', 'error');
+            showAlert('NO_FARM_SELECTION');
             setLoading(false);
             return;
         }
@@ -93,17 +93,13 @@ const InfrastructureForm = ({ farmId, onComplete, initialData = null }) => {
 
             let response;
             if (initialData) {
-                response = await updateInfrastructure(initialData.id, submissionData);
+                await updateInfrastructure(initialData.id, submissionData);
             } else {
-                response = await createInfrastructure(targetFarmId, submissionData);
+                await createInfrastructure(targetFarmId, submissionData);
             }
-            const msg = response?.notification?.message || (initialData ? 'Infrastructure asset updated successfully.' : 'New infrastructure asset registered successfully.');
-            showNotification(msg, 'success');
             if (onComplete) onComplete();
         } catch (error) {
             console.error('Registration failed:', error);
-            const serverMsg = error.response?.data?.notification?.message || error.response?.data?.message || 'Failed to save infrastructure asset';
-            showNotification(`ERROR: ${serverMsg}`, 'error');
         } finally {
             setLoading(false);
         }

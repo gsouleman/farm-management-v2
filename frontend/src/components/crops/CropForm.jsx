@@ -11,7 +11,7 @@ const CropForm = ({ fieldId, onComplete }) => {
     const { createCrop, crops } = useCropStore();
     const { fields } = useFarmStore();
     const { infrastructure } = useInfrastructureStore();
-    const { showNotification } = useUIStore();
+    const { showNotification, showAlert } = useUIStore();
 
     const [selectedFieldId, setSelectedFieldId] = useState(fieldId ? fieldId.toString() : '');
 
@@ -62,7 +62,7 @@ const CropForm = ({ fieldId, onComplete }) => {
         });
 
         if (!targetFieldId) {
-            showNotification('Selection Error: Please select a valid target field.', 'error');
+            showAlert('NO_FIELD_SELECTION');
             setLoading(false);
             return;
         }
@@ -88,15 +88,9 @@ const CropForm = ({ fieldId, onComplete }) => {
             console.log('Normalized Data for Submission:', normalizedData);
 
             await createCrop(targetFieldId, normalizedData);
-            showNotification(`Cultivation record for ${selectedCropLabel} saved successfully.`, 'success');
             if (onComplete) onComplete();
         } catch (error) {
             console.error('Submission failed:', error);
-            const serverMsg = error.response?.data?.message || 'Failed to save record';
-            const serverError = error.response?.data?.error || '';
-            const details = error.response?.data?.details ? `\n Details: ${error.response.data.details.join(', ')}` : '';
-
-            showNotification(`ERROR: ${serverMsg}${serverError ? ` (${serverError})` : ''}${details}`, 'error');
         } finally {
             setLoading(false);
         }

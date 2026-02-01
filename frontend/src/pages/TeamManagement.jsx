@@ -6,7 +6,7 @@ import useUIStore from '../store/uiStore';
 const TeamManagement = () => {
     const { currentFarm } = useFarmStore();
     const { teamMembers, fetchTeamMembers, inviteUser, removeMember, loading } = useUserStore();
-    const { showNotification } = useUIStore();
+    const { showNotification, showAlert, getConfirmation } = useUIStore();
     const [inviteData, setInviteData] = useState({ email: '', role: 'employee' });
     const [showInviteModal, setShowInviteModal] = useState(false);
 
@@ -24,7 +24,7 @@ const TeamManagement = () => {
             setInviteData({ email: '', role: 'employee' });
             setShowInviteModal(false);
         } catch (error) {
-            showNotification('Failed to send invitation. Please verify the email address.', 'error');
+            showAlert('INVITE_FAILURE');
         }
     };
 
@@ -113,7 +113,13 @@ const TeamManagement = () => {
                                     <button
                                         className="outline"
                                         style={{ fontSize: '11px', color: 'var(--error)', borderColor: '#ffcdd2' }}
-                                        onClick={() => { if (confirm('Remove this member?')) removeMember(member.id); }}
+                                        onClick={() => {
+                                            const template = getConfirmation('REVOKE_ACCESS');
+                                            const msg = template
+                                                ? `${template.title}\n----------------------------------\n${template.body}`
+                                                : 'Revoke access for this collaborator?';
+                                            if (window.confirm(msg)) removeMember(member.id);
+                                        }}
                                     >Revoke Access</button>
                                 </td>
                             </tr>

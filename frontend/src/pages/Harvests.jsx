@@ -10,7 +10,7 @@ const Harvests = () => {
     const { currentFarm } = useFarmStore();
     const { harvests, fetchHarvestsByFarm, deleteHarvest, loading } = useHarvestStore();
     const { crops, fetchCropsByFarm } = useCropStore();
-    const { showNotification, getConfirmation } = useUIStore();
+    const { showNotification, getConfirmation, getAlert, showAlert } = useUIStore();
     const [view, setView] = useState('list'); // list, add, edit
     const [selectedCropId, setSelectedCropId] = useState('');
     const [selectedHarvest, setSelectedHarvest] = useState(null);
@@ -143,7 +143,7 @@ const Harvests = () => {
                                 if (selectedCropId && !selectedCropId.startsWith('TYPE:')) {
                                     setView('add-form');
                                 } else {
-                                    showNotification('OPERATIONAL ALERT: SELECT AN ACTIVE PLANTING FROM THE LIST', 'error');
+                                    showAlert('INVALID_CROP');
                                 }
                             }}
                             style={{ flex: 2, padding: '18px', borderRadius: '0', backgroundColor: (selectedCropId && !selectedCropId.startsWith('TYPE:')) ? '#000' : '#ccc', color: '#fff', fontSize: '13px', fontWeight: '900', border: 'none', textTransform: 'uppercase', letterSpacing: '1px', cursor: (selectedCropId && !selectedCropId.startsWith('TYPE:')) ? 'pointer' : 'not-allowed' }}
