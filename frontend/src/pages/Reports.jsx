@@ -118,9 +118,30 @@ const Reports = () => {
                 </div>
             </div>
 
-            {/* Operations */}
+            {/* Sustainability & ESG */}
             <div style={{ marginBottom: '48px' }}>
-                <h3 style={{ fontSize: '18px', color: 'var(--primary)', marginBottom: '16px' }}>Operations</h3>
+                <h3 style={{ fontSize: '18px', color: 'var(--primary)', marginBottom: '16px' }}>Sustainability & ESG</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
+                    <ReportCard
+                        title="Carbon Footprint Analysis"
+                        desc="Estimated carbon sequestration vs. emissions based on field activities."
+                        icon="🌍"
+                        onClick={() => handleDownload('/reports/carbon?simulation=true', `CarbonReport_${currentFarm?.name}.pdf`)}
+                        loading={loading}
+                    />
+                    <ReportCard
+                        title="Water Usage Efficiency"
+                        desc="Irrigation tracking metrics and water sustainability index."
+                        icon="💧"
+                        onClick={() => handleDownload('/reports/water?simulation=true', `WaterUsage_${currentFarm?.name}.pdf`)}
+                        loading={loading}
+                    />
+                </div>
+            </div>
+
+            {/* Operations & Agronomy */}
+            <div style={{ marginBottom: '48px' }}>
+                <h3 style={{ fontSize: '18px', color: 'var(--primary)', marginBottom: '16px' }}>Operations & Agronomy</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
                     <ReportCard
                         title="Operations Report"
@@ -130,17 +151,38 @@ const Reports = () => {
                         loading={loading}
                     />
                     <ReportCard
+                        title="Labor Efficiency"
+                        desc="Workforce productivity analysis (Hours/Ha) and cost-per-activity metrics."
+                        icon="👥"
+                        onClick={() => handleDownload('/reports/labor?simulation=true', `LaborEfficiency_${currentFarm?.name}.pdf`)}
+                        loading={loading}
+                    />
+                    <ReportCard
+                        title="Machinery Health Log"
+                        desc="Equipment usage hours, maintenance schedules, and depreciation tracking."
+                        icon="🔧"
+                        onClick={() => handleDownload('/reports/machinery?simulation=true', `MachineryLog_${currentFarm?.name}.pdf`)}
+                        loading={loading}
+                    />
+                    <ReportCard
+                        title="Soil Health Trends"
+                        desc="Historical NPK levels, pH balance, and organic matter analysis per field."
+                        icon="🌱"
+                        onClick={() => handleDownload('/reports/soil?simulation=true', `SoilHealth_${currentFarm?.name}.pdf`)}
+                        loading={loading}
+                    />
+                    <ReportCard
+                        title="Weather Impact Report"
+                        desc="Seasonal GDD (Growing Degree Days) and precipitation analysis."
+                        icon="🌦️"
+                        onClick={() => handleDownload('/reports/weather?simulation=true', `WeatherImpact_${currentFarm?.name}.pdf`)}
+                        loading={loading}
+                    />
+                    <ReportCard
                         title="Farm Summary"
                         desc="General overview of fields, active crops, and current season status."
                         icon="🌾"
                         onClick={() => handleDownload('/reports/farm-summary?simulation=true', `FarmSummary_${currentFarm?.name}.pdf`)}
-                        loading={loading}
-                    />
-                    <ReportCard
-                        title="Inventory Valuation"
-                        desc="Current stock levels, valuation, and reorder alerts."
-                        icon="📦"
-                        onClick={() => handleDownload('/exports/excel?simulation=true', `Inventory_${currentFarm?.name}.pdf`)}
                         loading={loading}
                     />
                 </div>
