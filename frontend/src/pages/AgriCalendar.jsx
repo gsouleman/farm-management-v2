@@ -11,9 +11,12 @@ import '../App.css';
 // For now, we will use some placeholder events or try to fetch from an activities store if available.
 // Since we don't have a direct "calendar events" endpoint, we might map activities to events.
 
+import RegionalIntelligence from '../components/calendar/RegionalIntelligence.jsx';
+
 const AgriCalendar = () => {
     const { currentFarm } = useFarmStore();
     const [events, setEvents] = useState([]);
+    const [viewMode, setViewMode] = useState('calendar'); // 'calendar' or 'regional'
 
     // Sample events to demonstrate functionality
     useEffect(() => {
@@ -28,7 +31,7 @@ const AgriCalendar = () => {
 
     const handleDateClick = (arg) => {
         // Placeholder for adding new events
-        // alert('Date clicked: ' + arg.dateStr);
+        alert('Date clicked: ' + arg.dateStr);
     };
 
     return (
@@ -38,29 +41,70 @@ const AgriCalendar = () => {
                     <h1 style={{ fontSize: '28px', fontWeight: '800', margin: 0, color: '#1a365d' }}>Agri Calendar</h1>
                     <p style={{ color: '#4a5568', fontSize: '15px' }}>Schedule and track farm operations for <strong>{currentFarm?.name || 'Loading...'}</strong></p>
                 </div>
+
+                {/* View Switcher */}
+                <div style={{ display: 'flex', backgroundColor: '#e2e8f0', padding: '4px', borderRadius: '12px' }}>
+                    <button
+                        onClick={() => setViewMode('calendar')}
+                        style={{
+                            padding: '8px 16px',
+                            borderRadius: '10px',
+                            border: 'none',
+                            backgroundColor: viewMode === 'calendar' ? 'white' : 'transparent',
+                            color: viewMode === 'calendar' ? '#1a365d' : '#718096',
+                            fontWeight: 'bold',
+                            boxShadow: viewMode === 'calendar' ? '0 2px 5px rgba(0,0,0,0.05)' : 'none',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        Calendar View
+                    </button>
+                    <button
+                        onClick={() => setViewMode('regional')}
+                        style={{
+                            padding: '8px 16px',
+                            borderRadius: '10px',
+                            border: 'none',
+                            backgroundColor: viewMode === 'regional' ? 'white' : 'transparent',
+                            color: viewMode === 'regional' ? 'var(--primary)' : '#718096',
+                            fontWeight: 'bold',
+                            boxShadow: viewMode === 'regional' ? '0 2px 5px rgba(0,0,0,0.05)' : 'none',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        Regional Guidelines
+                    </button>
+                </div>
+
                 <div style={{ display: 'flex', gap: '12px' }}>
                     <button className="primary">+ Add Event</button>
                 </div>
             </div>
 
-            <div className="card" style={{ flex: 1, padding: '20px', borderRadius: '16px', overflow: 'hidden' }}>
-                <FullCalendar
-                    plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                    initialView="dayGridMonth"
-                    headerToolbar={{
-                        left: 'prev,next today',
-                        center: 'title',
-                        right: 'dayGridMonth,timeGridWeek,timeGridDay'
-                    }}
-                    height="100%"
-                    events={events}
-                    dateClick={handleDateClick}
-                    eventClick={(info) => {
-                        alert('Event: ' + info.event.title);
-                    }}
-                    editable={true}
-                    selectable={true}
-                />
+            <div className="card" style={{ flex: 1, padding: '20px', borderRadius: '16px', overflow: viewMode === 'calendar' ? 'hidden' : 'auto' }}>
+                {viewMode === 'calendar' ? (
+                    <FullCalendar
+                        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                        initialView="dayGridMonth"
+                        headerToolbar={{
+                            left: 'prev,next today',
+                            center: 'title',
+                            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                        }}
+                        height="100%"
+                        events={events}
+                        dateClick={handleDateClick}
+                        eventClick={(info) => {
+                            alert('Event: ' + info.event.title);
+                        }}
+                        editable={true}
+                        selectable={true}
+                    />
+                ) : (
+                    <RegionalIntelligence currentFarm={currentFarm} />
+                )}
             </div>
         </div>
     );
