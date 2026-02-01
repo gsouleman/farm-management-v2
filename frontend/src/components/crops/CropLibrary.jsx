@@ -78,10 +78,10 @@ const CropLibrary = () => {
             <div style={{ backgroundColor: '#bb1919', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                     <h3 style={{ margin: 0, color: '#fff', fontSize: '14px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                        CREATE NEW CROPS
+                        CROP MASTER LIBRARY
                     </h3>
                     <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', marginTop: '4px' }}>
-                        Master Library • {definitions.length} Available Crops
+                        {definitions.length} Available Crops
                     </div>
                 </div>
                 <div style={{ position: 'relative', width: '250px' }}>
