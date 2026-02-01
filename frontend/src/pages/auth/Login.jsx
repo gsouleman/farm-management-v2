@@ -29,8 +29,23 @@ const Login = () => {
         }}>
             <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '400px', padding: '40px' }}>
                 <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-                    <h2 style={{ fontSize: '28px', color: 'var(--primary)', marginBottom: '8px' }}>FARMER PRO</h2>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Sign in to manage your farm operations</p>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
+                        <div style={{
+                            backgroundColor: 'var(--primary)',
+                            color: 'white',
+                            padding: '4px 10px',
+                            borderRadius: '6px',
+                            fontWeight: '800',
+                            fontSize: '20px',
+                            letterSpacing: '0.5px'
+                        }}>
+                            PRO
+                        </div>
+                        <h2 style={{ fontSize: '24px', fontWeight: '800', color: 'var(--text-main)', margin: 0, letterSpacing: '-0.5px' }}>FARMER</h2>
+                    </div>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '12px', fontWeight: '600', letterSpacing: '2px', textTransform: 'uppercase' }}>
+                        Intelligent Agriculture
+                    </p>
                 </div>
 
                 {error && <div style={{ color: 'var(--error)', marginBottom: '20px', textAlign: 'center', fontSize: '14px', padding: '10px', backgroundColor: '#fee2e2', borderRadius: '4px' }}>{error}</div>}
