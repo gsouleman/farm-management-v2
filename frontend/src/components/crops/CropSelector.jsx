@@ -87,7 +87,7 @@ const CropSelector = ({ onAdd, onEdit }) => {
             <div style={{ backgroundColor: '#bb1919', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                     <h3 style={{ margin: 0, color: '#fff', fontSize: '14px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                        CROP MANAGEMENT
+                        LIST OF CULTIVATION
                     </h3>
                     <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', marginTop: '4px' }}>
                         {currentFarm?.name || 'All Farms'} • {sortedCrops.length} Records Found
@@ -123,7 +123,7 @@ const CropSelector = ({ onAdd, onEdit }) => {
                             boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
                         }}
                     >
-                        + NEW CROP
+                        + CREATE NEW CULTIVATION
                     </button>
                 </div>
             </div>
