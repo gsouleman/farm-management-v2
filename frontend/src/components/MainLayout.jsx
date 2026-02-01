@@ -175,7 +175,7 @@ const MainLayout = ({ children }) => {
                         onToggle={() => toggleGroup('cultivation')}
                     >
                         <SidebarLink to="/select-crops" icon="🌿" label="Manage Crops" sub onClick={handleNavItemClick} />
-                        <SidebarLink to="/crop-library" icon="✅" label="Create New Crops" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/crop-library" icon="↳" label="Create New Crops" sub nested onClick={handleNavItemClick} />
                         <SidebarLink to="/activities" icon="🚜" label="Farm Journal" sub onClick={handleNavItemClick} />
                         <SidebarLink to="/harvests" icon="🌾" label="Harvest Records" sub onClick={handleNavItemClick} />
                         <SidebarLink to="/planner" icon="📅" label="Production Planner" sub onClick={handleNavItemClick} />
@@ -279,7 +279,7 @@ const NavGroup = ({ label, children, isOpen, onToggle }) => (
     </div>
 );
 
-const SidebarLink = ({ to, icon, label, sub, onClick }) => (
+const SidebarLink = ({ to, icon, label, sub, nested, onClick }) => (
     <NavLink
         to={to}
         onClick={onClick}
@@ -287,19 +287,19 @@ const SidebarLink = ({ to, icon, label, sub, onClick }) => (
             display: 'flex',
             alignItems: 'center',
             gap: isActive && !sub ? '12px' : '12px',
-            padding: sub ? '8px 16px' : '12px 16px',
+            padding: sub ? (nested ? '8px 16px 8px 32px' : '8px 16px') : '12px 16px',
             color: isActive ? 'white' : '#aaa',
             textDecoration: 'none',
             backgroundColor: isActive ? '#cc0000' : 'transparent',
             margin: sub ? '2px 0' : '4px 0',
-            fontSize: sub ? '13px' : '14px',
+            fontSize: nested ? '12px' : (sub ? '13px' : '14px'),
             fontWeight: sub ? '500' : '700',
             transition: 'all 0.2s',
             borderLeft: isActive && !sub ? '4px solid white' : 'none'
         })}
     >
         {!sub && <span style={{ fontSize: '18px' }}>{icon}</span>}
-        {sub && icon && <span style={{ fontSize: '14px', marginRight: '4px' }}>{icon}</span>}
+        {sub && icon && <span style={{ fontSize: nested ? '12px' : '14px', marginRight: '4px' }}>{icon}</span>}
         <span>{label.toUpperCase()}</span>
     </NavLink>
 );
