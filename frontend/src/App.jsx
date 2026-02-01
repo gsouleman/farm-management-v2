@@ -13,6 +13,7 @@ import TeamManagement from './pages/TeamManagement';
 import Harvests from './pages/Harvests';
 import Crops from './pages/Crops';
 import SelectCropsPage from './pages/SelectCropsPage';
+import CropLibraryPage from './pages/CropLibraryPage';
 import InputListPage from './pages/InputListPage';
 import Planner from './pages/Planner';
 import WeatherCenter from './pages/WeatherCenter';
@@ -152,6 +153,13 @@ function App() {
           <ProtectedRoute>
             <MainLayout>
               <Stores />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/crop-library" element={
+          <ProtectedRoute>
+            <MainLayout>
+              <CropLibraryPage />
             </MainLayout>
           </ProtectedRoute>
         } />

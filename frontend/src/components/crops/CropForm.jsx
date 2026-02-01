@@ -1,17 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import useFarmStore from '../../store/farmStore';
 import useCropStore from '../../store/cropStore';
 import useInfrastructureStore from '../../store/infrastructureStore';
+import useCropDefinitionStore from '../../store/cropDefinitionStore';
 import useUIStore from '../../store/uiStore';
 import FieldMap from '../fields/FieldMap';
-import { CROP_CATEGORIES } from '../../constants/agriculturalData';
 import * as turf from '@turf/turf';
 
 const CropForm = ({ fieldId, onComplete, initialData }) => {
     const { createCrop, updateCrop, crops } = useCropStore();
     const { fields } = useFarmStore();
     const { infrastructure } = useInfrastructureStore();
+    const { definitions, fetchDefinitions, loading: loadingDefs } = useCropDefinitionStore();
     const { showNotification, showAlert } = useUIStore();
+
+    useEffect(() => {
+        fetchDefinitions();
+    }, []);
 
     const [selectedFieldId, setSelectedFieldId] = useState(
         initialData?.field_id ? initialData.field_id.toString() : (fieldId ? fieldId.toString() : '')
@@ -38,17 +43,18 @@ const CropForm = ({ fieldId, onComplete, initialData }) => {
     });
     const [loading, setLoading] = useState(false);
 
-    const cropCategories = CROP_CATEGORIES || {};
+    // Group active definitions by category
+    const activeDefinitions = definitions.filter(d => d.is_active);
+    const groupedCrops = activeDefinitions.reduce((acc, crop) => {
+        const cat = crop.category || 'Other';
+        if (!acc[cat]) acc[cat] = [];
+        acc[cat].push(crop);
+        return acc;
+    }, {});
 
-    const currentCropVarieties = (formData.crop_type && cropCategories)
-        ? Object.values(cropCategories)
-            .flat()
-            .find(c => c.id === formData.crop_type)?.varieties || []
-        : [];
-
-    const selectedCropLabel = formData.crop_type
-        ? Object.values(cropCategories).flat().find(c => c.id === formData.crop_type)?.label || formData.crop_type
-        : '';
+    const selectedCropDef = definitions.find(d => d.name === formData.crop_type);
+    const currentCropVarieties = selectedCropDef?.varieties || [];
+    const selectedCropLabel = selectedCropDef?.name || formData.crop_type;
 
 
 
@@ -144,10 +150,10 @@ const CropForm = ({ fieldId, onComplete, initialData }) => {
                             style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
                         >
                             <option value="">-- Select Crop --</option>
-                            {Object.entries(cropCategories || {}).map(([category, items]) => (
+                            {Object.entries(groupedCrops).map(([category, items]) => (
                                 <optgroup key={category} label={category}>
                                     {(items || []).map(item => (
-                                        <option key={item.id} value={item.id}>{item.label}</option>
+                                        <option key={item.id} value={item.name}>{item.icon} {item.name}</option>
                                     ))}
                                 </optgroup>
                             ))}
