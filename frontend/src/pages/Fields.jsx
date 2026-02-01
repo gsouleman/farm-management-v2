@@ -39,8 +39,7 @@ const Fields = () => {
                     <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Overview and boundaries for all parcels in {currentFarm?.name}.</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
-                    <button className="outline" onClick={() => navigate('/crops?view=add')}>+ Add Crop</button>
-                    <button className="primary" onClick={() => setView('add')}>+ Register New Field</button>
+                    <button className="primary" onClick={() => setView('add')}>+ Create New Farm</button>
                 </div>
             </div>
 
