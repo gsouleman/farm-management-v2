@@ -25,83 +25,82 @@ const InputList = ({ onAdd }) => {
     const categories = ['ALL', 'SEED', 'FERTILIZER', 'CHEMICAL', 'FUEL'];
 
     return (
-        <div className="card animate-fade-in" style={{ padding: '0', border: '1px solid #000', borderRadius: '0', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+        <div className="card animate-fade-in" style={{ padding: '0', border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
             {/* Header */}
-            <div style={{ backgroundColor: '#000', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ margin: 0, color: '#fff', fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                    INPUT INVENTORY
+            <div style={{ backgroundColor: '#fff', padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)' }}>
+                <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '16px', fontWeight: '700' }}>
+                    Input Inventory
                 </h3>
                 <button
+                    className="primary"
                     style={{
-                        backgroundColor: '#bb1919',
-                        color: 'white',
-                        border: 'none',
-                        padding: '4px 10px',
-                        fontSize: '10px',
-                        fontWeight: '800',
-                        textTransform: 'uppercase'
+                        padding: '8px 16px',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        textTransform: 'none',
+                        borderRadius: '8px'
                     }}
                     onClick={onAdd}
                 >
-                    + NEW STOCK
+                    + New Stock
                 </button>
             </div>
 
             {/* Filter Tabs */}
-            <div style={{ display: 'flex', borderBottom: '2px solid #000', backgroundColor: '#f5f5f5' }}>
+            <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', backgroundColor: '#fafafa', padding: '0 16px' }}>
                 {categories.map(cat => (
                     <button
                         key={cat}
                         onClick={() => setFilter(cat)}
                         style={{
-                            flex: 1,
-                            padding: '10px',
+                            padding: '12px 16px',
                             border: 'none',
-                            background: filter === cat ? '#fff' : 'transparent',
-                            color: filter === cat ? '#bb1919' : '#888',
-                            fontWeight: '900',
-                            fontSize: '10px',
+                            background: 'transparent',
+                            color: filter === cat ? 'var(--primary)' : 'var(--text-muted)',
+                            fontWeight: filter === cat ? '700' : '500',
+                            fontSize: '13px',
                             cursor: 'pointer',
-                            borderRight: '1px solid #ddd',
-                            borderBottom: filter === cat ? '2px solid #bb1919' : 'none'
+                            borderBottom: filter === cat ? '2px solid var(--primary)' : '2px solid transparent',
+                            transition: 'all 0.2s'
                         }}
                     >
-                        {cat}
+                        {cat === 'ALL' ? 'All Items' : cat.charAt(0) + cat.slice(1).toLowerCase()}
                     </button>
                 ))}
             </div>
 
             {/* Inventory List */}
-            <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+            <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
-                        <tr style={{ textAlign: 'left', fontSize: '10px', color: '#888', backgroundColor: '#fafafa', borderBottom: '1px solid #eee' }}>
-                            <th style={{ padding: '10px 15px' }}>ITEM NAME</th>
-                            <th style={{ padding: '10px 15px' }}>TYPE</th>
-                            <th style={{ padding: '10px 15px', textAlign: 'right' }}>STOCK LEVEL</th>
+                        <tr style={{ textAlign: 'left', fontSize: '12px', color: 'var(--text-secondary)', backgroundColor: '#fff', borderBottom: '1px solid var(--border)' }}>
+                            <th style={{ padding: '16px 24px', fontWeight: '600' }}>Item Name</th>
+                            <th style={{ padding: '16px 24px', fontWeight: '600' }}>Type</th>
+                            <th style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '600' }}>Stock Level</th>
                         </tr>
                     </thead>
                     <tbody>
                         {filteredInputs.map(item => (
-                            <tr key={item.id} style={{ borderBottom: '1px solid #eee', fontSize: '12px' }}>
-                                <td style={{ padding: '12px 15px', fontWeight: '700', color: '#000' }}>
+                            <tr key={item.id} style={{ borderBottom: '1px solid var(--border)', fontSize: '14px', transition: 'background 0.1s' }} className="hover-row">
+                                <td style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-primary)' }}>
                                     {item.name}
-                                    <div style={{ fontSize: '10px', color: '#666', fontWeight: '400' }}>SKU: {item.sku || 'N/A'}</div>
+                                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '400', marginTop: '2px' }}>SKU: {item.sku || '—'}</div>
                                 </td>
-                                <td style={{ padding: '12px 15px' }}>
+                                <td style={{ padding: '16px 24px' }}>
                                     <span style={{
-                                        fontSize: '9px',
-                                        fontWeight: '800',
-                                        padding: '2px 6px',
-                                        backgroundColor: '#eee',
-                                        color: '#555',
-                                        textTransform: 'uppercase'
+                                        fontSize: '11px',
+                                        fontWeight: '600',
+                                        padding: '4px 10px',
+                                        borderRadius: '20px',
+                                        backgroundColor: 'var(--bg-secondary)',
+                                        color: 'var(--text-secondary)',
+                                        textTransform: 'capitalize'
                                     }}>
-                                        {item.type}
+                                        {item.type.toLowerCase()}
                                     </span>
                                 </td>
-                                <td style={{ padding: '12px 15px', textAlign: 'right', fontWeight: '800' }}>
-                                    <span style={{ color: item.quantity < 10 ? '#bb1919' : '#000' }}>
+                                <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '600' }}>
+                                    <span style={{ color: item.quantity < 10 ? 'var(--error)' : 'var(--success)' }}>
                                         {item.quantity} {item.unit}
                                     </span>
                                 </td>
@@ -109,7 +108,7 @@ const InputList = ({ onAdd }) => {
                         ))}
                         {filteredInputs.length === 0 && (
                             <tr>
-                                <td colSpan="3" style={{ textAlign: 'center', padding: '40px', color: '#999', fontSize: '12px' }}>
+                                <td colSpan="3" style={{ textAlign: 'center', padding: '48px', color: 'var(--text-muted)', fontSize: '14px' }}>
                                     No inputs found for this category.
                                 </td>
                             </tr>
@@ -119,9 +118,11 @@ const InputList = ({ onAdd }) => {
             </div>
 
             {/* Status Bar */}
-            <div style={{ padding: '8px 15px', backgroundColor: '#000', color: '#fff', fontSize: '10px', display: 'flex', justifyContent: 'space-between' }}>
-                <span>TOTAL ITEMS: {inputs.length}</span>
-                <span style={{ color: '#bb1919', fontWeight: 'bold' }}>LOW STOCK ALERTS: {inputs.filter(i => i.quantity < 10).length}</span>
+            <div style={{ padding: '12px 24px', backgroundColor: '#fafafa', color: 'var(--text-secondary)', fontSize: '12px', display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border)' }}>
+                <span>Total Items: <strong>{inputs.length}</strong></span>
+                <span style={{ color: inputs.some(i => i.quantity < 10) ? 'var(--error)' : 'var(--success)', fontWeight: '600' }}>
+                    {inputs.filter(i => i.quantity < 10).length} Low Stock Alerts
+                </span>
             </div>
         </div>
     );

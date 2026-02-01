@@ -291,56 +291,68 @@ const Crops = () => {
                 <button className="primary" onClick={() => setView('add')}>+ Create New Cultivation</button>
             </div>
 
-            {/* AgriXP Style Summary Box */}
+            {/* Modern Metrics Grid */}
             <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
                 gap: '24px',
                 marginBottom: '32px'
             }}>
-                <div className="card" style={{ padding: '20px', borderLeft: '4px solid var(--primary)' }}>
-                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 'bold' }}>TOTAL PLANTED AREA</div>
-                    <div style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '8px' }}>
-                        {crops.reduce((sum, c) => sum + parseFloat(c.planted_area || 0), 0).toFixed(2)} ha
+                <div style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', border: '1px solid var(--border)' }}>
+                    <div style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: '600', marginBottom: '8px' }}>TOTAL PLANTED AREA</div>
+                    <div style={{ fontSize: '28px', fontWeight: '800', color: 'var(--primary)' }}>
+                        {crops.reduce((sum, c) => sum + parseFloat(c.planted_area || 0), 0).toFixed(2)} <span style={{ fontSize: '16px', color: 'var(--text-muted)' }}>ha</span>
                     </div>
                 </div>
-                <div className="card" style={{ padding: '20px', borderLeft: '4px solid #4a90e2' }}>
-                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 'bold' }}>CROP DIVERSITY</div>
-                    <div style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '8px' }}>
-                        {new Set(crops.map(c => c.crop_type)).size} Active Types
+                <div style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', border: '1px solid var(--border)' }}>
+                    <div style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: '600', marginBottom: '8px' }}>CROP DIVERSITY</div>
+                    <div style={{ fontSize: '28px', fontWeight: '800', color: '#4a90e2' }}>
+                        {new Set(crops.map(c => c.crop_type)).size} <span style={{ fontSize: '16px', color: 'var(--text-muted)' }}>Types</span>
                     </div>
                 </div>
-                <div className="card" style={{ padding: '20px', borderLeft: '4px solid #f5a623' }}>
-                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 'bold' }}>ESTIMATED TOTAL BUDGET</div>
-                    <div style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '8px' }}>
-                        {crops.reduce((sum, c) => sum + parseFloat(c.estimated_cost || 0), 0).toLocaleString()} <span style={{ fontSize: '14px' }}>XAF</span>
+                <div style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', border: '1px solid var(--border)' }}>
+                    <div style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: '600', marginBottom: '8px' }}>ESTIMATED BUDGET</div>
+                    <div style={{ fontSize: '28px', fontWeight: '800', color: '#f5a623' }}>
+                        {crops.reduce((sum, c) => sum + parseFloat(c.estimated_cost || 0), 0).toLocaleString()} <span style={{ fontSize: '16px', color: 'var(--text-muted)' }}>XAF</span>
                     </div>
                 </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
                 {crops.map(crop => (
-                    <div key={crop.id} className="card hover-glow" style={{ padding: '20px', cursor: 'pointer' }} onClick={() => handleViewDetails(crop)}>
+                    <div key={crop.id} className="card hover-glow" style={{
+                        padding: '24px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        border: '1px solid var(--border)',
+                        boxShadow: '0 4px 6px rgba(0,0,0,0.02)'
+                    }} onClick={() => handleViewDetails(crop)}>
                         <div className="flex j-between a-start">
                             <div style={{ fontSize: '32px' }}>🌱</div>
                             <span style={{
-                                fontSize: '10px',
-                                padding: '2px 8px',
-                                borderRadius: '10px',
-                                backgroundColor: crop.status === 'planted' ? '#e8f5e9' : '#fff3e0',
-                                color: crop.status === 'planted' ? '#2e7d32' : '#ef6c00',
-                                fontWeight: 'bold'
+                                fontSize: '11px',
+                                padding: '4px 10px',
+                                borderRadius: '20px',
+                                backgroundColor: crop.status === 'planted' ? 'var(--bg-success)' : '#fff3e0',
+                                color: crop.status === 'planted' ? 'var(--success)' : '#ef6c00',
+                                fontWeight: '700',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px'
                             }}>
                                 {crop.status.toUpperCase()}
                             </span>
                         </div>
-                        <h3 style={{ margin: '16px 0 8px 0' }}>{crop.crop_type}</h3>
-                        <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '16px' }}>
+                        <h3 style={{ margin: '16px 0 8px 0', fontSize: '18px', fontWeight: '700', color: 'var(--text-primary)' }}>{crop.crop_type}</h3>
+                        <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '20px' }}>
                             {crop.variety} • {crop.season}
                         </p>
-                        <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                            <div style={{ marginBottom: '4px' }}>📍 Field: {crop.Field?.name || 'N/A'}</div>
-                            <div>🗓️ Planted: {new Date(crop.planting_date).toLocaleDateString()}</div>
+                        <div style={{ fontSize: '13px', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span>📍</span> Field: <span style={{ fontWeight: '600' }}>{crop.Field?.name || 'N/A'}</span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span>🗓️</span> Planted: {new Date(crop.planting_date).toLocaleDateString()}
+                            </div>
                         </div>
                     </div>
                 ))}
