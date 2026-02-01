@@ -118,39 +118,35 @@ const Harvests = () => {
                         <select
                             value={selectedCropId}
                             onChange={(e) => setSelectedCropId(e.target.value)}
-                            style={{ width: '100%', padding: '15px', borderRadius: '0', border: '2px solid #ddd', fontSize: '14px', fontWeight: '700', backgroundColor: '#fff' }}
+                            style={{ width: '100%', padding: '15px', borderRadius: '0', border: '2px solid #000', fontSize: '14px', fontWeight: '700', backgroundColor: '#fff' }}
                         >
-                            <option value="">-- ARCHIVE LOOKUP: CHOOSE PLANTING --</option>
-                            <optgroup label="✅ ACTIVE FIELD PLANTINGS">
-                                {crops.map(crop => (
-                                    <option key={crop.id} value={crop.id}>
-                                        {crop.crop_type} - {crop.variety} (FIELD: {crop.Field?.name})
-                                    </option>
-                                ))}
-                            </optgroup>
-                            <optgroup label="📂 GLOBAL CROP CATALOG">
-                                {Object.entries(CROP_CATEGORIES).map(([category, items]) => (
-                                    <optgroup key={category} label={`   ${category.toUpperCase()}`}>
-                                        {items.map(item => {
-                                            const isPlanted = crops.some(c => c.crop_type === item.id);
-                                            return (
-                                                <option key={item.id} value={`TYPE:${item.id}`}>
-                                                    {item.label} {isPlanted ? ' (PLANTED)' : ''}
-                                                </option>
-                                            );
-                                        })}
-                                    </optgroup>
-                                ))}
-                            </optgroup>
+                            <option value="">-- ARCHIVE LOOKUP: CHOOSE ACTIVE PLANTING --</option>
+                            {crops.length > 0 ? (
+                                <optgroup label="✅ ACTIVE FIELD PLANTINGS">
+                                    {crops.map(crop => (
+                                        <option key={crop.id} value={crop.id}>
+                                            {crop.crop_type} - {crop.variety} (FIELD: {crop.Field?.name || 'GENERIC'})
+                                        </option>
+                                    ))}
+                                </optgroup>
+                            ) : (
+                                <option disabled value="no-plantings">⚠️ NO ACTIVE PLANTINGS DETECTED - REGISTER CROP FIRST</option>
+                            )}
                         </select>
                     </div>
 
                     <div style={{ display: 'flex', gap: '20px' }}>
                         <button
                             className="primary"
-                            disabled={!selectedCropId}
-                            onClick={() => setView('add-form')}
-                            style={{ flex: 2, padding: '18px', borderRadius: '0', backgroundColor: selectedCropId ? '#000' : '#ccc', color: '#fff', fontSize: '13px', fontWeight: '900', border: 'none', textTransform: 'uppercase', letterSpacing: '1px', cursor: selectedCropId ? 'pointer' : 'not-allowed' }}
+                            disabled={!selectedCropId || selectedCropId.startsWith('TYPE:') || selectedCropId === 'no-plantings'}
+                            onClick={() => {
+                                if (selectedCropId && !selectedCropId.startsWith('TYPE:')) {
+                                    setView('add-form');
+                                } else {
+                                    showNotification('OPERATIONAL ALERT: SELECT AN ACTIVE PLANTING FROM THE LIST', 'error');
+                                }
+                            }}
+                            style={{ flex: 2, padding: '18px', borderRadius: '0', backgroundColor: (selectedCropId && !selectedCropId.startsWith('TYPE:')) ? '#000' : '#ccc', color: '#fff', fontSize: '13px', fontWeight: '900', border: 'none', textTransform: 'uppercase', letterSpacing: '1px', cursor: (selectedCropId && !selectedCropId.startsWith('TYPE:')) ? 'pointer' : 'not-allowed' }}
                         >
                             Initialize Harvest Ledger
                         </button>

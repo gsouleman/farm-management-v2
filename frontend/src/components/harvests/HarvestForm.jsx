@@ -53,8 +53,12 @@ const HarvestForm = ({ cropId, onComplete, initialData }) => {
                 const msg = response?.notification?.message || 'HARVEST RECORD UPDATED SUCCESSFULLY - SYSTEM SYNCED';
                 showNotification(msg, 'success');
             } else {
-                if (!cropId || cropId === 'undefined') {
-                    showNotification('OPERATIONAL ALERT: NO CROP SELECTED', 'error');
+                const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+                const isValidId = cropId && uuidRegex.test(cropId);
+
+                if (!isValidId) {
+                    console.error('[HarvestForm] Submission blocked - Invalid cropId:', cropId);
+                    showNotification('OPERATIONAL ALERT: INVALID CROP REFERENCE - SELECT A VALID PLANTING', 'error');
                     setLoading(false);
                     return;
                 }

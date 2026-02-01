@@ -70,11 +70,15 @@ exports.createHarvest = async (req, res) => {
         };
 
         // UUID Validation
-        if (!cleanedData.crop_id || cleanedData.crop_id === 'undefined') {
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        const isValidCropId = cleanedData.crop_id && uuidRegex.test(cleanedData.crop_id);
+
+        if (!isValidCropId) {
+            console.warn(`[HarvestController] Blocked invalid crop_id: ${cleanedData.crop_id}`);
             return res.status(400).json({
-                message: 'Internal Error: Invalid Crop UUID',
+                message: 'Internal Error: Invalid Crop UUID format',
                 notification: {
-                    message: 'SYSTEM PROTOCOL ALERT: INVALID CROP REFERENCE',
+                    message: 'SYSTEM PROTOCOL ALERT: INVALID OR TEMPLATE CROP REFERENCE',
                     type: 'error'
                 }
             });
