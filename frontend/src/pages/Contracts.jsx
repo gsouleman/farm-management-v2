@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import useFarmStore from '../store/farmStore';
-import api from '../services/api';
+import ContractForm from '../components/contracts/ContractForm';
 
 const Contracts = () => {
     const { currentFarm } = useFarmStore();
@@ -9,10 +7,10 @@ const Contracts = () => {
     const [view, setView] = useState('list'); // list, add
 
     useEffect(() => {
-        if (currentFarm) {
+        if (currentFarm && view === 'list') {
             fetchContracts();
         }
-    }, [currentFarm]);
+    }, [currentFarm, view]);
 
     const fetchContracts = async () => {
         setLoading(true);
@@ -28,6 +26,10 @@ const Contracts = () => {
 
     if (!currentFarm) return <div style={{ padding: '24px' }}>Please select a farm.</div>;
 
+    if (view === 'add') {
+        return <ContractForm onComplete={() => setView('list')} />;
+    }
+
     const stats = [
         { label: 'Active Sales', value: (contracts || []).filter(c => c.contract_type === 'sales' && c.status === 'active').length, color: 'var(--success)' },
         { label: 'Pending Purchases', value: (contracts || []).filter(c => c.contract_type === 'purchase' && c.status === 'draft').length, color: 'var(--warning)' },
@@ -41,7 +43,7 @@ const Contracts = () => {
                     <h1 style={{ fontSize: '24px', margin: 0 }}>Contract Registry</h1>
                     <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Manage your sales and purchase agreements with partners.</p>
                 </div>
-                <button className="primary" onClick={() => { }}>+ New Contract</button>
+                <button className="primary" onClick={() => setView('add')}>+ New Contract</button>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '32px' }}>
