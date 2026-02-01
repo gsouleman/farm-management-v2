@@ -61,9 +61,9 @@ const WeatherWidget = () => {
             </div>
 
             {/* Forecast Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' }}>
-                {forecast.slice(0, 3).map((day, i) => (
-                    <div key={i} style={{ padding: '10px', textAlign: 'center', borderRight: i < 2 ? '1px solid #ddd' : 'none' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
+                {forecast.slice(0, 7).map((day, i) => (
+                    <div key={i} style={{ padding: '10px', textAlign: 'center', borderRight: i < 6 ? '1px solid #ddd' : 'none' }}>
                         <div style={{ fontSize: '9px', fontWeight: '900', color: '#bb1919', textTransform: 'uppercase', marginBottom: '4px' }}>
                             {new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })}
                         </div>

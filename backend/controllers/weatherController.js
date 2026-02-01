@@ -25,7 +25,7 @@ const generateWeatherData = (farm) => {
 const generateForecast = () => {
     const conditions = ['Sunny', 'Partly cloudy', 'Cloudy', 'Patchy rain possible'];
 
-    return Array.from({ length: 3 }).map((_, i) => {
+    return Array.from({ length: 7 }).map((_, i) => {
         const date = new Date();
         date.setDate(date.getDate() + i);
         const dateStr = date.toISOString().split('T')[0];

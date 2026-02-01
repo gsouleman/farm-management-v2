@@ -133,15 +133,42 @@ const Dashboard = () => {
 
         return (
             <div className="animate-fade-in">
+                {/* KPI Bar (Moved to Top) */}
+                <div style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '12px',
+                    backgroundColor: '#fff',
+                    padding: '12px',
+                    border: '1px solid var(--border)',
+                    boxShadow: 'var(--shadow-sm)',
+                    marginBottom: '24px'
+                }}>
+                    {stats.map((stat, i) => (
+                        <div
+                            key={i}
+                            onClick={stat.onClick}
+                            style={{
+                                flex: '1 1 100px',
+                                padding: '8px 12px',
+                                borderRight: i < stats.length - 1 ? '1px solid var(--border)' : 'none',
+                                cursor: stat.clickable ? 'pointer' : 'default',
+                                transition: 'all 0.2s ease',
+                            }}
+                        >
+                            <span style={{ fontSize: '9px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                                {stat.label}
+                            </span>
+                            <div style={{ fontSize: '16px', fontWeight: '800', color: stat.color || 'inherit', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <span>{stat.value}</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
                 {/* Section 1: Top Widgets (Clones) */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginBottom: '24px' }}>
                     <WeatherWidget />
                     <QuickLinks />
-                    <div className="card" style={{ padding: '0', border: '1px solid #000', borderRadius: '0', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#bb1919', color: 'white' }}>
-                        <div style={{ fontSize: '42px', fontWeight: '900' }}>{new Date().toLocaleDateString('en-US', { day: 'numeric' })}</div>
-                        <div style={{ fontSize: '14px', fontWeight: '900', textTransform: 'uppercase' }}>{new Date().toLocaleDateString('en-US', { month: 'long' })}</div>
-                        <div style={{ fontSize: '10px', marginTop: '8px', opacity: 0.8 }}>CY: 2026-Q1</div>
-                    </div>
                 </div>
 
                 {/* Section 2: Main Operations (Map + Lists) */}
@@ -153,37 +180,6 @@ const Dashboard = () => {
                     {/* Left: Map & Stats */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-                        {/* KPI Bar */}
-                        <div style={{
-                            display: 'flex',
-                            flexWrap: 'wrap',
-                            gap: '12px',
-                            backgroundColor: '#fff',
-                            padding: '12px',
-                            border: '1px solid var(--border)',
-                            boxShadow: 'var(--shadow-sm)'
-                        }}>
-                            {stats.map((stat, i) => (
-                                <div
-                                    key={i}
-                                    onClick={stat.onClick}
-                                    style={{
-                                        flex: '1 1 100px',
-                                        padding: '8px 12px',
-                                        borderRight: i < stats.length - 1 ? '1px solid var(--border)' : 'none',
-                                        cursor: stat.clickable ? 'pointer' : 'default',
-                                        transition: 'all 0.2s ease',
-                                    }}
-                                >
-                                    <span style={{ fontSize: '9px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-                                        {stat.label}
-                                    </span>
-                                    <div style={{ fontSize: '16px', fontWeight: '800', color: stat.color || 'inherit', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                        <span>{stat.value}</span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
 
                         <div className="card" style={{ padding: '0', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                             <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fafafa' }}>
