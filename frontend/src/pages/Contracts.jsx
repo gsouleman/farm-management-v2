@@ -40,7 +40,7 @@ const Contracts = () => {
     ];
 
     return (
-        <div className="animate-fade-in" style={{ padding: '24px' }}>
+        <div className="animate-fade-in" style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
             <div className="flex j-between a-center" style={{ marginBottom: '24px' }}>
                 <div>
                     <h1 style={{ fontSize: '24px', margin: 0 }}>Contract Registry</h1>
