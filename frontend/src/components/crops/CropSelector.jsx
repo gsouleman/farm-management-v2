@@ -3,7 +3,7 @@ import useCropStore from '../../store/cropStore';
 import useFarmStore from '../../store/farmStore';
 import useUIStore from '../../store/uiStore';
 
-const CropSelector = () => {
+const CropSelector = ({ onAdd }) => {
     const { currentFarm } = useFarmStore();
     const { crops, fetchCropsByFarm } = useCropStore();
     const { showNotification } = useUIStore();
@@ -111,7 +111,10 @@ const CropSelector = () => {
 
             {/* Footer */}
             <div style={{ padding: '12px', backgroundColor: '#f5f5f5', textAlign: 'center', borderTop: '1px solid #ddd' }}>
-                <button style={{ color: '#bb1919', fontWeight: '800', background: 'transparent', border: 'none', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1px', cursor: 'pointer' }}>
+                <button
+                    onClick={onAdd}
+                    style={{ color: '#bb1919', fontWeight: '800', background: 'transparent', border: 'none', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1px', cursor: 'pointer' }}
+                >
                     + ADD NEW VARIETY
                 </button>
             </div>
