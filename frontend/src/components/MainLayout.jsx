@@ -8,8 +8,13 @@ import syncService from '../services/syncService';
 
 const MainLayout = ({ children }) => {
     const { user, logout } = useAuthStore();
-    const { farms, currentFarm, setCurrentFarm } = useFarmStore();
+    const { farms, currentFarm, setCurrentFarm, fetchFarms } = useFarmStore();
     const navigate = useNavigate();
+
+    // Init: Load farms if empty
+    useEffect(() => {
+        fetchFarms();
+    }, [fetchFarms]);
 
     // Pull data from network on farm change/focus
     useEffect(() => {
