@@ -28,7 +28,8 @@ const models = {
     FarmUser: require('./FarmUser')(sequelize),
     Infrastructure: require('./Infrastructure')(sequelize),
     Contract: require('./Contract')(sequelize),
-    CostSetting: require('./CostSetting')(sequelize, Sequelize.DataTypes)
+    CostSetting: require('./CostSetting')(sequelize, Sequelize.DataTypes),
+    CropDefinition: require('./CropDefinition')(sequelize, Sequelize.DataTypes)
 };
 
 // Set up associations

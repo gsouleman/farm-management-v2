@@ -48,6 +48,7 @@ app.use('/api/infrastructure', require('./routes/infrastructureRoutes')); // Add
 app.use('/api/farm-users', require('./routes/teamRoutes'));
 app.use('/api/contracts', require('./routes/contractRoutes'));
 app.use('/api/system', require('./routes/systemRoutes'));
+app.use('/api/crop-definitions', require('./routes/cropDefinitionRoutes'));
 
 // Aggressive fallback routes for sync (handles ?farm_id=)
 app.get('/api/activities', auth, activityController.getFarmActivities);
