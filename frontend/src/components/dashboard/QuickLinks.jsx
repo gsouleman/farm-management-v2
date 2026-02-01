@@ -5,10 +5,10 @@ const QuickLinks = () => {
     const navigate = useNavigate();
 
     const links = [
-        { label: 'New Harvest', icon: '🌾', path: '/harvests', color: '#bb1919' },
-        { label: 'Add Expense', icon: '💸', path: '/production-costs?view=settings', color: '#000' },
-        { label: 'Scout Field', icon: '🔭', path: '/scouting', color: '#000' },
-        { label: 'Log Activity', icon: '🚜', path: '/planner', color: '#000' },
+        { label: 'Manage Cultivation', icon: '🌿', path: '/select-crops', color: '#bb1919' },
+        { label: 'Manage Harvest', icon: '🌾', path: '/harvests', color: '#000' },
+        { label: 'Manage Farm Journal', icon: '🚜', path: '/activities', color: '#000' },
+        { label: 'Manage Farm', icon: '🗺️', path: '/fields', color: '#000' },
     ];
 
     return (

@@ -165,8 +165,8 @@ const MainLayout = ({ children }) => {
                         isOpen={openGroups.estate}
                         onToggle={() => toggleGroup('estate')}
                     >
-                        <SidebarLink to="/fields" icon="🗺️" label="Farm" sub onClick={handleNavItemClick} />
-                        <SidebarLink to="/infrastructure" icon="🏗️" label="Infrastructure" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/fields" icon="🗺️" label="Manage Farm" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/infrastructure" icon="🏗️" label="Manage Infrastructure" sub onClick={handleNavItemClick} />
                     </NavGroup>
 
                     <NavGroup
@@ -176,9 +176,9 @@ const MainLayout = ({ children }) => {
                     >
                         <SidebarLink to="/select-crops" icon="🌿" label="Manage Cultivation" sub onClick={handleNavItemClick} />
                         <SidebarLink to="/crop-library" icon="✅" label="Manage Crops" sub onClick={handleNavItemClick} />
-                        <SidebarLink to="/activities" icon="🚜" label="Farm Journal" sub onClick={handleNavItemClick} />
-                        <SidebarLink to="/harvests" icon="🌾" label="Harvest Records" sub onClick={handleNavItemClick} />
-                        <SidebarLink to="/planner" icon="📅" label="Production Planner" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/activities" icon="🚜" label="Manage Farm Journal" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/harvests" icon="🌾" label="Manage Harvest" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/planner" icon="📅" label="Manage Production" sub onClick={handleNavItemClick} />
                     </NavGroup>
 
                     <NavGroup
