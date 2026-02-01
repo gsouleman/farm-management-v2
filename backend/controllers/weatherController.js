@@ -1,33 +1,46 @@
 const { Weather, Farm } = require('../models');
 
-// Simulated weather data generator
+// Simulated weather data generator matching WeatherAPI.com structure
 const generateWeatherData = (farm) => {
-    const conditions = ['Sunny', 'Cloudy', 'Partly Cloudy', 'Rainy', 'Stormy'];
-    const condition = conditions[Math.floor(Math.random() * conditions.length)];
+    const conditions = ['Sunny', 'Partly cloudy', 'Cloudy', 'Patchy rain possible', 'Thundery outbreaks possible'];
+    const conditionText = conditions[Math.floor(Math.random() * conditions.length)];
 
     return {
-        temperature: (20 + Math.random() * 15).toFixed(1),
+        temp_c: (20 + Math.random() * 15).toFixed(1),
         humidity: (40 + Math.random() * 40).toFixed(0),
-        windSpeed: (5 + Math.random() * 20).toFixed(1),
-        conditions: condition,
-        location: farm.city || farm.name,
-        timestamp: new Date()
+        wind_kph: (5 + Math.random() * 20).toFixed(1),
+        condition: {
+            text: conditionText,
+            icon: '//cdn.weatherapi.com/weather/64x64/day/113.png'
+        },
+        location: {
+            name: farm.name,
+            region: farm.region || 'Region',
+            country: 'Country'
+        },
+        last_updated: new Date().toISOString()
     };
 };
 
 const generateForecast = () => {
-    const conditions = ['Sunny', 'Cloudy', 'Partly Cloudy', 'Rainy'];
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const today = new Date().getDay();
+    const conditions = ['Sunny', 'Partly cloudy', 'Cloudy', 'Patchy rain possible'];
 
-    return Array.from({ length: 7 }).map((_, i) => {
-        const dayIndex = (today + i) % 7;
+    return Array.from({ length: 3 }).map((_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() + i);
+        const dateStr = date.toISOString().split('T')[0];
+
         return {
-            day: days[dayIndex],
-            tempHigh: (22 + Math.random() * 8).toFixed(0),
-            tempLow: (15 + Math.random() * 5).toFixed(0),
-            conditions: conditions[Math.floor(Math.random() * conditions.length)],
-            precipitation: (Math.random() * 100).toFixed(0) + '%'
+            date: dateStr,
+            day: {
+                maxtemp_c: (25 + Math.random() * 5).toFixed(1),
+                mintemp_c: (15 + Math.random() * 5).toFixed(1),
+                condition: {
+                    text: conditions[Math.floor(Math.random() * conditions.length)],
+                    icon: '//cdn.weatherapi.com/weather/64x64/day/113.png'
+                },
+                daily_chance_of_rain: (Math.random() * 100).toFixed(0)
+            }
         };
     });
 };
@@ -37,10 +50,11 @@ exports.getCurrentWeather = async (req, res) => {
         const farm = await Farm.findByPk(req.params.farmId);
         if (!farm) return res.status(404).json({ message: 'Farm not found' });
 
-        // In a real app, you'd call OpenWeatherMap here using farm coordinates
+        // In a real production app, use: axios.get(`https://api.weatherapi.com/v1/current.json?key=YOUR_KEY&q=${farm.coordinates.lat},${farm.coordinates.lng}`)
         const weather = generateWeatherData(farm);
         res.json(weather);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Error fetching weather data' });
     }
 };
@@ -53,6 +67,7 @@ exports.getForecast = async (req, res) => {
         const forecast = generateForecast();
         res.json(forecast);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Error fetching forecast' });
     }
 };
