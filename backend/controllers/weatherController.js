@@ -9,17 +9,8 @@ const generateWeatherData = (farm) => {
     // Since this is simulated without a GIS database, we validate against the farm's setting
     // In a real app, this would query a geo-database: WHERE ST_DWithin(village_loc, farm.boundary, 2000)
 
-    let locationName = farm.city || farm.address || farm.name;
+    let locationName = farm.name;
     let locationTag = "";
-
-    // Simulate standard/verified village checking
-    if (farm.city) {
-        locationName = farm.city;
-        locationTag = " (Verified < 2km)";
-    } else {
-        locationName = "Massoumbou"; // Default fallback for this specific project context
-        locationTag = " (Nearest Village < 2km)";
-    }
 
     return {
         temp_c: (20 + Math.random() * 15).toFixed(1),

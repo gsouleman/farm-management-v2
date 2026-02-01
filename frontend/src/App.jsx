@@ -22,7 +22,7 @@ import Infrastructure from './pages/Infrastructure';
 import ProductionCosts from './pages/ProductionCosts';
 import Contracts from './pages/Contracts';
 import Stores from './pages/Stores';
-import MobileApp from './pages/MobileApp';
+
 import MainLayout from './components/MainLayout';
 import GlobalNotification from './components/common/GlobalNotification';
 import IdleTimer from './components/common/IdleTimer';
@@ -37,31 +37,7 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-// Helper to auto-redirect mobile users
-const MobileRedirect = () => {
-  const { pathname } = window.location;
-  // Simple check: if width < 768px and not already on /mobile, redirect
-  // Note: We use window.location directly or we could use useLocation() from router
-  // but this component needs to be inside Router.
-  // Using simple useEffect.
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 768 && !pathname.startsWith('/mobile') && !pathname.startsWith('/login') && !pathname.startsWith('/register')) {
-        window.location.href = '/mobile'; // Hard redirect or use navigate if desired
-      }
-    };
-
-    // Check on mount
-    handleResize();
-
-    // Optional: Check on resize (debounced in prod, but fine here)
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [pathname]);
-
-  return null;
-};
 
 function App() {
   const { checkAuth, isAuthenticated } = useAuthStore();
@@ -79,7 +55,7 @@ function App() {
 
   return (
     <Router>
-      <MobileRedirect />
+
       <GlobalNotification />
       <IdleTimer />
       <Routes>
@@ -205,11 +181,7 @@ function App() {
             </MainLayout>
           </ProtectedRoute>
         } />
-        <Route path="/mobile" element={
-          <ProtectedRoute>
-            <MobileApp />
-          </ProtectedRoute>
-        } />
+
       </Routes>
     </Router>
   );

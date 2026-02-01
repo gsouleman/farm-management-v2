@@ -70,9 +70,7 @@ const MainLayout = ({ children }) => {
                         </div>
                     </div>
                 </div>
-                <button onClick={() => navigate('/mobile')} style={{ fontSize: '10px', fontWeight: 'bold', padding: '6px 12px', background: '#f5f5f5', borderRadius: '20px', color: '#333' }}>
-                    HOME
-                </button>
+
             </header>
 
             {/* Mobile Overlay */}
@@ -107,29 +105,7 @@ const MainLayout = ({ children }) => {
                         FARMER
                     </h2>
                     <div style={{ fontSize: '10px', color: '#666', marginTop: '6px', fontWeight: 'bold', letterSpacing: '1px' }}>GLOBAL AGRICULTURE NETWORK</div>
-                    <div
-                        onClick={() => navigate('/mobile')}
-                        style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            marginTop: '12px',
-                            padding: '6px 12px',
-                            backgroundColor: '#222',
-                            color: '#fff',
-                            fontSize: '10px',
-                            fontWeight: 'bold',
-                            textDecoration: 'none',
-                            borderRadius: '4px',
-                            border: '1px solid #333',
-                            transition: 'all 0.2s',
-                            cursor: 'pointer'
-                        }}
-                        onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#cc0000'; e.currentTarget.style.color = '#cc0000'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#333'; e.currentTarget.style.color = '#fff'; }}
-                    >
-                        <span style={{ fontSize: '14px' }}>📱</span> MOBILE VERSION
-                    </div>
+
                 </div>
 
                 {/* Farm Selector - CNN Styled */}
