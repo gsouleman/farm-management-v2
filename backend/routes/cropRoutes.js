@@ -5,17 +5,19 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 router.use(authMiddleware);
 
-router.get('/:id', cropController.getCropById);
-router.get('/:id/timeline', cropController.getCropTimeline);
-router.put('/:id', cropController.updateCrop);
-router.delete('/:id', cropController.deleteCrop);
-
-// These will also be mounted on /api/fields and /api/farms for convenience
+// IMPORTANT: Specific routes MUST come before parameterized routes
+// Otherwise /all will match /:id and call getCropById with id="all"
+router.get('/all', cropController.getAllCrops);
 router.get('/field/:fieldId', cropController.getCropsByField);
 router.get('/farm/:farmId', cropController.getFarmCrops);
-router.get('/all', cropController.getAllCrops);
 router.get('/', cropController.getFarmCrops); // Fallback for ?farm_id=
 router.post('/', cropController.createCrop);
+
+// Parameterized routes come last
+router.get('/:id/timeline', cropController.getCropTimeline);
+router.get('/:id', cropController.getCropById);
+router.put('/:id', cropController.updateCrop);
+router.delete('/:id', cropController.deleteCrop);
 
 // Activity sub-routes
 const activityController = require('../controllers/activityController');
