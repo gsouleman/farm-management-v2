@@ -83,9 +83,17 @@ const Dashboard = () => {
 
 
     // Derived Statistics
-    const totalPlantedArea = useMemo(() => (activeCrops || [])
-        .filter(c => c.status === 'planted' || c.status === 'active' || c.status === 'growing')
-        .reduce((sum, c) => sum + parseFloat(c.planted_area || 0), 0), [activeCrops]);
+    console.log('[DEBUG] Starting derived statistics calculations...');
+    console.log('[DEBUG] activeCrops:', activeCrops);
+    console.log('[DEBUG] activeFarms:', activeFarms);
+    console.log('[DEBUG] activeActivities:', activeActivities);
+
+    const totalPlantedArea = useMemo(() => {
+        console.log('[DEBUG] Calculating totalPlantedArea, activeCrops:', activeCrops);
+        return (activeCrops || [])
+            .filter(c => c.status === 'planted' || c.status === 'active' || c.status === 'growing')
+            .reduce((sum, c) => sum + parseFloat(c.planted_area || 0), 0);
+    }, [activeCrops]);
 
     const totalFarmArea = useMemo(() => (activeFarms || [])
         .reduce((sum, f) => sum + parseFloat(f.total_area || 0), 0), [activeFarms]);
