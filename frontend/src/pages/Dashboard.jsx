@@ -61,25 +61,23 @@ const Dashboard = () => {
     const activeFarms = isGlobalView ? farms : (currentFarm ? [currentFarm] : []);
 
     const activeCrops = useMemo(() => {
+        if (!crops || !Array.isArray(crops)) return [];
         return isGlobalView
             ? crops
-            : crops.filter(c => c.Field?.farm_id === currentFarm?.id); // Filtering by associated field's farm_id
+            : crops.filter(c => c.Field?.farm_id === currentFarm?.id);
     }, [crops, isGlobalView, currentFarm]);
 
     const activeActivities = useMemo(() => {
+        if (!activities || !Array.isArray(activities)) return [];
         return isGlobalView
             ? activities
             : activities.filter(a => a.farm_id === currentFarm?.id);
     }, [activities, isGlobalView, currentFarm]);
 
     const activeFields = useMemo(() => {
+        if (!fields || !Array.isArray(fields)) return [];
         return isGlobalView
-            ? fields // fieldStore currently overwrites 'fields' on fetch. We need to fix fieldStore to hold all or accumulate?
-            // fieldStore.js usually has `fields: []`. If we call fetchFields(id1) then fetchFields(id2), it likely replaces. 
-            // CHECK FIELDSTORE! If it replaces, we can't show all fields globally without "fetchAllFields". 
-            // QUICK FIX: For now, assume fields are current farm specific in store. 
-            // Ideally we need aggregated fields. 
-            // Let's rely on 'farms' for boundary polygons in global view.
+            ? fields
             : fields;
     }, [fields, isGlobalView]);
 

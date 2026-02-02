@@ -1,4 +1,5 @@
-const { Crop, Field, Activity, Harvest, Input } = require('../models');
+const { Crop, Field, Activity, Harvest, Input, Farm } = require('../models');
+const { Op } = require('sequelize');
 
 exports.getCropById = async (req, res) => {
     try {
@@ -9,6 +10,44 @@ exports.getCropById = async (req, res) => {
         res.json(crop);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching crop details' });
+    }
+};
+
+// ... existing getCropTimeline ...
+// ... existing getCropsByField ...
+// ... existing getFarmCrops ...
+
+exports.getAllCrops = async (req, res) => {
+    try {
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
+        // Find all farms owned by user first
+        const userFarms = await Farm.findAll({
+            where: { owner_id: req.user.id },
+            attributes: ['id']
+        });
+
+        const farmIds = userFarms.map(f => f.id);
+
+        if (farmIds.length === 0) return res.json([]);
+
+        const crops = await Crop.findAll({
+            include: [{
+                model: Field,
+                required: true,
+                where: {
+                    farm_id: { [Op.in]: farmIds }
+                },
+                include: [{ model: Farm, attributes: ['name', 'id'] }]
+            }]
+        });
+
+        res.json(crops);
+    } catch (error) {
+        console.error('Error fetching all user crops:', error);
+        res.status(500).json({ message: 'Error fetching all crops: ' + error.message });
     }
 };
 
@@ -88,33 +127,6 @@ exports.getFarmCrops = async (req, res) => {
     }
 };
 
-exports.getAllCrops = async (req, res) => {
-    try {
-        // Find all farms owned by user first, then get their crops efficiently
-        const { Farm } = require('../models');
-        const userFarms = await Farm.findAll({
-            where: { owner_id: req.user.id },
-            attributes: ['id']
-        });
-
-        const farmIds = userFarms.map(f => f.id);
-
-        if (farmIds.length === 0) return res.json([]);
-
-        const crops = await Crop.findAll({
-            include: [{
-                model: Field,
-                where: { farm_id: farmIds },
-                include: [{ model: Farm, attributes: ['name', 'id'] }]
-            }]
-        });
-
-        res.json(crops);
-    } catch (error) {
-        console.error('Error fetching all user crops:', error);
-        res.status(500).json({ message: 'Error fetching all crops' });
-    }
-};
 
 exports.createCrop = async (req, res) => {
     try {
