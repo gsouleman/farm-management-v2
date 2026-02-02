@@ -20,8 +20,11 @@ exports.getCropById = async (req, res) => {
 exports.getAllCrops = async (req, res) => {
     try {
         if (!req.user || !req.user.id) {
+            console.log('[GetAllCrops] No user ID found');
             return res.status(401).json({ message: 'Unauthorized' });
         }
+
+        console.log('[GetAllCrops] Fetching farms for user:', req.user.id);
 
         // Find all farms owned by user first
         const userFarms = await Farm.findAll({
@@ -29,25 +32,31 @@ exports.getAllCrops = async (req, res) => {
             attributes: ['id']
         });
 
+        console.log('[GetAllCrops] Found farms:', userFarms.length);
+
         const farmIds = userFarms.map(f => f.id);
 
         if (farmIds.length === 0) return res.json([]);
+
+        console.log('[GetAllCrops] Fetching crops for farm IDs:', farmIds);
 
         const crops = await Crop.findAll({
             include: [{
                 model: Field,
                 required: true,
                 where: {
-                    farm_id: { [Op.in]: farmIds }
+                    farm_id: farmIds // Simplified IN syntax
                 },
                 include: [{ model: Farm, attributes: ['name', 'id'] }]
             }]
         });
 
+        console.log('[GetAllCrops] Found crops:', crops.length);
+
         res.json(crops);
     } catch (error) {
-        console.error('Error fetching all user crops:', error);
-        res.status(500).json({ message: 'Error fetching all crops: ' + error.message });
+        console.error('Error fetching all user crops DETAIL:', error);
+        res.status(500).json({ message: 'Internal Error: ' + error.message });
     }
 };
 
