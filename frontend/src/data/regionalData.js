@@ -75,11 +75,11 @@ export const REGIONAL_CROP_DATA = {
         { crop: 'Sweet Potato', duration: '4-5 Months', campaigns: '2 Campaigns', window: 'May - Sep', type: 'Cover Crop' }
     ],
     'Fruit Trees': [
-        { crop: 'Avocado', duration: 'Perennial', campaigns: 'Seasonal Harvest', window: 'Mar - Aug', type: 'High Demand' },
-        { crop: 'Safou (African Plum)', duration: 'Perennial', campaigns: 'Seasonal Harvest', window: 'Jun - Sep', type: 'Local Specialist' },
-        { crop: 'Coffee (Arabica)', duration: 'Perennial', campaigns: 'Annual Harvest', window: 'Oct - Dec', type: 'Cash Crop' },
-        { crop: 'Mango', duration: 'Perennial', campaigns: 'Seasonal Harvest', window: 'Mar - May', type: 'Tree Crop' },
-        { crop: 'Kola Nut', duration: 'Perennial', campaigns: 'Continuous', window: 'Year-round', type: 'Cultural' }
+        { crop: 'Avocado', duration: '2-3 Years (Grafted)', campaigns: 'Seasonal Harvest', window: 'Mar - Aug', type: 'High Demand' },
+        { crop: 'Safou (African Plum)', duration: '3-4 Years (Grafted)', campaigns: 'Seasonal Harvest', window: 'Jun - Sep', type: 'Local Specialist' },
+        { crop: 'Coffee (Arabica)', duration: '2-3 Years', campaigns: 'Annual Harvest', window: 'Oct - Dec', type: 'Cash Crop' },
+        { crop: 'Mango', duration: '2-4 Years (Grafted)', campaigns: 'Seasonal Harvest', window: 'Mar - May', type: 'Tree Crop' },
+        { crop: 'Kola Nut', duration: '4-5 Years (Grafted)', campaigns: 'Continuous', window: 'Year-round', type: 'Cultural' }
     ],
     Fruits: [
         { crop: 'Banana', duration: '9-12 Months', campaigns: 'Continuous', window: 'Year-round', type: 'Staple Fruit' },
