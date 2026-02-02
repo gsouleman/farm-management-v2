@@ -89,8 +89,14 @@ const useFarmStore = create(
                 try {
                     const response = await api.put(`/farms/${id}`, farmData);
                     const updatedFarm = response.data.data || response.data; // Handle wrapper
+
+                    // Update Local Cache to prevent stale reads
+                    const currentFarms = get().farms;
+                    const updatedList = currentFarms.map(f => f.id === id ? updatedFarm : f);
+                    await saveToLocal('farms', updatedList);
+
                     set((state) => ({
-                        farms: state.farms.map(f => f.id === id ? updatedFarm : f),
+                        farms: updatedList,
                         currentFarm: state.currentFarm?.id === id ? updatedFarm : state.currentFarm
                     }));
                     return response.data;

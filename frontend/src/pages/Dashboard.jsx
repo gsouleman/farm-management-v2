@@ -127,7 +127,7 @@ const Dashboard = () => {
 
     const renderContent = () => {
         if (view === 'add-farm') return <FarmForm onComplete={() => { setView('overview'); fetchFarms(); }} />;
-        if (view === 'edit-farm') return <FarmForm initialData={currentFarm} onComplete={() => { setView('overview'); fetchFarms(); }} />;
+        if (view === 'edit-farm') return <FarmForm initialData={currentFarm} onComplete={() => setView('overview')} />;
         if (view === 'add-field') return <FieldForm onComplete={() => { setView('overview'); fetchFields(currentFarm.id); }} />;
         if (view === 'field-details') return <FieldDetails field={selectedField} onBack={() => setView('overview')} />;
         if (view === 'crop-breakdown') return renderCropBreakdown();

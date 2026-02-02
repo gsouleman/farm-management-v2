@@ -115,13 +115,19 @@ const FarmForm = ({ onComplete, initialData }) => {
 
         setLoading(true);
         try {
+            const payload = {
+                ...formData,
+                total_area: parseFloat(formData.total_area),
+                perimeter: parseFloat(formData.perimeter)
+            };
+
             if (initialData?.id) {
                 // UPDATE MODE
-                await updateFarm(initialData.id, formData);
+                await updateFarm(initialData.id, payload);
                 showNotification('Farm details updated successfully (Size/Boundary adjusted)', 'success');
             } else {
                 // CREATE MODE
-                const response = await createFarm(formData);
+                const response = await createFarm(payload);
                 showNotification(response?.notification?.message || 'Farm registered successfully', 'success');
             }
             if (onComplete) onComplete();
