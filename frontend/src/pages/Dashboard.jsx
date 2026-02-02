@@ -91,12 +91,12 @@ const Dashboard = () => {
         .reduce((sum, f) => sum + parseFloat(f.total_area || 0), 0), [activeFarms]);
 
     const totalRevenue = useMemo(() =>
-        activeActivities.filter(a => a.transaction_type === 'income' || a.activity_type === 'harvesting')
+        (activeActivities || []).filter(a => a.transaction_type === 'income' || a.activity_type === 'harvesting')
             .reduce((sum, a) => sum + (parseFloat(a.total_cost) || parseFloat(a.labor_cost) || 0), 0)
         , [activeActivities]);
 
     const totalExpenses = useMemo(() =>
-        activeActivities.filter(a => a.transaction_type === 'expense')
+        (activeActivities || []).filter(a => a.transaction_type === 'expense')
             .reduce((sum, a) => sum + (parseFloat(a.total_cost) || parseFloat(a.labor_cost) || 0), 0)
         , [activeActivities]);
 
