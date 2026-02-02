@@ -45,7 +45,7 @@ const Dashboard = () => {
             // However, fetchFields is specific.
             fetchInfrastructure(currentFarm.id);
             fetchCropBudgets(currentFarm.id);
-        } else if (isGlobalView && farms.length > 0) {
+        } else if (isGlobalView && farms && farms.length > 0) {
             // In global, we might want to fetch ALL fields? fieldStore doesn't have fetchAllFields yet... 
             // For now, if global, we aggregate fields from currentFarm? No.
             // Limitations: Fields are fetched by farm. Map will only show fields of selected farm if we don't fetch all.
@@ -55,7 +55,7 @@ const Dashboard = () => {
             // Let's iterate fetchFields for all farms if global?
             farms.forEach(f => fetchFields(f.id)); // This might be heavy but ensures map has all fields.
         }
-    }, [currentFarm, isGlobalView, farms.length]);
+    }, [currentFarm, isGlobalView, farms?.length]);
 
     // FILTER DATA BASED ON VIEW MODE
     const activeFarms = isGlobalView ? (farms || []) : (currentFarm ? [currentFarm] : []);
