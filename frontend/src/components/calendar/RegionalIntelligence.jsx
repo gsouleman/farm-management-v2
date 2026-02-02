@@ -66,27 +66,24 @@ const ZONE_CENTER = getCentroid(MALOURE_ZONE_BOUNDARY);
 
 const REGIONAL_CROP_DATA = {
     Cereals: [
-        { crop: 'Maize', duration: '4 Months', campaigns: '2-3 Campaigns', window: 'Mar - Jun / Aug - Nov', type: 'Optimal' },
-        { crop: 'Corn', duration: '4 Months', campaigns: '2-3 Campaigns', window: 'Mar - Jun / Aug - Nov', type: 'Optimal' },
-        { crop: 'Rice', duration: '5 Months', campaigns: '2-3 Campaigns', window: 'Year-round', type: 'Intensive' },
-        { crop: 'Wheat', duration: '5 Months', campaigns: '2-3 Campaigns', window: 'Nov - Mar', type: 'Cool Season' },
-        { crop: 'Sorghum', duration: '4 Months', campaigns: '2-3 Campaigns', window: 'Mar - Jun', type: 'Drought Resistant' },
-        { crop: 'Millet', duration: '3 Months', campaigns: '2-3 Campaigns', window: 'May - Aug', type: 'Short Cycle' }
+        { crop: 'Maize', duration: '4 Months', campaigns: '2 Campaigns', window: 'Mar - Jun / Aug - Nov', type: 'Staple Crop' },
+        { crop: 'Rice', duration: '5 Months', campaigns: '1-2 Campaigns', window: 'Year-round (Lowland)', type: 'Intensive' }
     ],
     Tubers: [
         { crop: 'Cassava', duration: '12 Months', campaigns: '1-3 Campaigns', window: 'Year-round', type: 'Long Cycle' },
         { crop: 'Yam', duration: '8 Months', campaigns: '1-3 Campaigns', window: 'Nov - Jun', type: 'Seasonal' },
-        { crop: 'Potato', duration: '3 Months', campaigns: '1-3 Campaigns', window: 'Nov - Feb', type: 'High Altitude' }
+        { crop: 'Potato', duration: '3-4 Months', campaigns: '2 Campaigns', window: 'Mar - Jun / Sep - Dec', type: 'High Altitude' }
     ],
     Fruit: [
         { crop: 'Banana', duration: '9-12 Months', campaigns: 'Continuous', window: 'Year-round', type: 'Perennial' },
         { crop: 'Pineapple', duration: '14-18 Months', campaigns: '1 Campaign', window: 'Year-round', type: 'Biennial' },
-        { crop: 'Papaya', duration: '6-9 Months', campaigns: 'Continuous', window: 'Year-round', type: 'Fast Growth' }
+        { crop: 'Papaya', duration: '6-9 Months', campaigns: 'Continuous', window: 'Year-round', type: 'Fast Growth' },
+        { crop: 'Avocado', duration: '5-7 Months (Fruit)', campaigns: 'Seasonal', window: 'Mar - Aug', type: 'Tree Crop' }
     ],
     Legumes: [
-        { crop: 'Beans', duration: '2-3 Months', campaigns: '3-4 Campaigns', window: 'Mar - May / Sep - Nov', type: 'Nitrogen Fixer' },
-        { crop: 'Soybean', duration: '3-4 Months', campaigns: '2 Campaigns', window: 'Mar - Jun', type: 'Industrial' },
-        { crop: 'Groundnut', duration: '4 Months', campaigns: '2 Campaigns', window: 'May - Sep', type: 'Cover Crop' }
+        { crop: 'Beans', duration: '2-3 Months', campaigns: '2-3 Campaigns', window: 'Mar - May / Aug - Nov', type: 'Nitrogen Fixer' },
+        { crop: 'Soybean', duration: '3-4 Months', campaigns: '1-2 Campaigns', window: 'Mar - Jun', type: 'Industrial' },
+        { crop: 'Groundnut', duration: '4 Months', campaigns: '2 Campaigns', window: 'Mar - Jul', type: 'Cover Crop' }
     ]
 };
 
