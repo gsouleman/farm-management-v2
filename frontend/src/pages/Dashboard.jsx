@@ -263,7 +263,7 @@ const Dashboard = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {farms.map(f => (
+                                    {(farms || []).map(f => (
                                         <tr key={f.id} style={{ borderBottom: '1px solid #f5f5f5', fontSize: '13px', backgroundColor: '#f0f7f0' }}>
                                             <td style={{ padding: '10px 16px', fontWeight: '800', color: 'var(--primary)' }}>{f.name.toUpperCase()}</td>
                                             <td style={{ padding: '10px 16px', fontWeight: '600' }}>{parseFloat(f.total_area || 0).toFixed(2)} ha</td>
@@ -297,7 +297,7 @@ const Dashboard = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {fields.map(f => {
+                                    {(fields || []).map(f => {
                                         let fieldDisplayArea = parseFloat(f.area || 0);
                                         if (fieldDisplayArea === 0 && f.boundary?.coordinates?.[0]) {
                                             try {
