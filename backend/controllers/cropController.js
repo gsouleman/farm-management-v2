@@ -24,34 +24,35 @@ exports.getAllCrops = async (req, res) => {
             return res.status(401).json({ message: 'Unauthorized' });
         }
 
-        console.log('[GetAllCrops] Fetching farms for user:', req.user.id);
-
-        // Find all farms owned by user first
+        // 1. Find all farms owned by user
         const userFarms = await Farm.findAll({
             where: { owner_id: req.user.id },
             attributes: ['id']
         });
-
-        console.log('[GetAllCrops] Found farms:', userFarms.length);
-
         const farmIds = userFarms.map(f => f.id);
 
         if (farmIds.length === 0) return res.json([]);
 
-        console.log('[GetAllCrops] Fetching crops for farm IDs:', farmIds);
+        // 2. Find all fields in those farms
+        // We split this to avoid complex nested JOIN filtering which can cause Sequelize errors
+        const fields = await Field.findAll({
+            where: { farm_id: farmIds }, // Standard IN query
+            attributes: ['id']
+        });
+        const fieldIds = fields.map(f => f.id);
 
+        if (fieldIds.length === 0) return res.json([]);
+
+        // 3. Find crops in those fields
         const crops = await Crop.findAll({
+            where: {
+                field_id: fieldIds // Standard IN query
+            },
             include: [{
                 model: Field,
-                required: true,
-                where: {
-                    farm_id: farmIds // Simplified IN syntax
-                },
                 include: [{ model: Farm, attributes: ['name', 'id'] }]
             }]
         });
-
-        console.log('[GetAllCrops] Found crops:', crops.length);
 
         res.json(crops);
     } catch (error) {
