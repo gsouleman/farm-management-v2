@@ -95,20 +95,32 @@ const Dashboard = () => {
             .reduce((sum, c) => sum + parseFloat(c.planted_area || 0), 0);
     }, [activeCrops]);
 
-    const totalFarmArea = useMemo(() => (activeFarms || [])
-        .reduce((sum, f) => sum + parseFloat(f.total_area || 0), 0), [activeFarms]);
+    const totalFarmArea = useMemo(() => {
+        console.log('[DEBUG] Calculating totalFarmArea, activeFarms:', activeFarms);
+        return (activeFarms || [])
+            .reduce((sum, f) => sum + parseFloat(f.total_area || 0), 0);
+    }, [activeFarms]);
+    console.log('[DEBUG] totalFarmArea calculated:', totalFarmArea);
 
-    const totalRevenue = useMemo(() =>
-        (activeActivities || []).filter(a => a.transaction_type === 'income' || a.activity_type === 'harvesting')
-            .reduce((sum, a) => sum + (parseFloat(a.total_cost) || parseFloat(a.labor_cost) || 0), 0)
-        , [activeActivities]);
+    const totalRevenue = useMemo(() => {
+        console.log('[DEBUG] Calculating totalRevenue, activeActivities:', activeActivities);
+        return (activeActivities || []).filter(a => a.transaction_type === 'income' || a.activity_type === 'harvesting')
+            .reduce((sum, a) => sum + (parseFloat(a.total_cost) || parseFloat(a.labor_cost) || 0), 0);
+    }, [activeActivities]);
+    console.log('[DEBUG] totalRevenue calculated:', totalRevenue);
 
-    const totalExpenses = useMemo(() =>
-        (activeActivities || []).filter(a => a.transaction_type === 'expense')
-            .reduce((sum, a) => sum + (parseFloat(a.total_cost) || parseFloat(a.labor_cost) || 0), 0)
-        , [activeActivities]);
+    const totalExpenses = useMemo(() => {
+        console.log('[DEBUG] Calculating totalExpenses');
+        return (activeActivities || []).filter(a => a.transaction_type === 'expense')
+            .reduce((sum, a) => sum + (parseFloat(a.total_cost) || parseFloat(a.labor_cost) || 0), 0);
+    }, [activeActivities]);
+    console.log('[DEBUG] totalExpenses calculated:', totalExpenses);
 
-    const netCashFlow = useMemo(() => totalRevenue - totalExpenses, [totalRevenue, totalExpenses]);
+    const netCashFlow = useMemo(() => {
+        console.log('[DEBUG] Calculating netCashFlow');
+        return totalRevenue - totalExpenses;
+    }, [totalRevenue, totalExpenses]);
+    console.log('[DEBUG] netCashFlow calculated:', netCashFlow);
 
     const formatToXAF = (value) => {
         return new Intl.NumberFormat('en-US').format(Math.round(value)) + ' XAF';
