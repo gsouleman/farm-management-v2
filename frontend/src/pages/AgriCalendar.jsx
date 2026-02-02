@@ -13,10 +13,12 @@ import '../App.css';
 
 import RegionalIntelligence from '../components/calendar/RegionalIntelligence.jsx';
 
+import RegionalSummary from '../components/calendar/RegionalSummary.jsx';
+
 const AgriCalendar = () => {
     const { currentFarm } = useFarmStore();
     const [events, setEvents] = useState([]);
-    const [viewMode, setViewMode] = useState('calendar'); // 'calendar' or 'regional'
+    const [viewMode, setViewMode] = useState('calendar'); // 'calendar', 'regional', 'summary'
 
     // Sample events to demonstrate functionality
     useEffect(() => {
@@ -43,7 +45,7 @@ const AgriCalendar = () => {
                 </div>
 
                 {/* View Switcher */}
-                <div style={{ display: 'flex', backgroundColor: '#e2e8f0', padding: '4px', borderRadius: '12px' }}>
+                <div style={{ display: 'flex', backgroundColor: '#e2e8f0', padding: '4px', borderRadius: '12px', gap: '4px' }}>
                     <button
                         onClick={() => setViewMode('calendar')}
                         style={{
@@ -76,6 +78,22 @@ const AgriCalendar = () => {
                     >
                         Regional Guidelines
                     </button>
+                    <button
+                        onClick={() => setViewMode('summary')}
+                        style={{
+                            padding: '8px 16px',
+                            borderRadius: '10px',
+                            border: 'none',
+                            backgroundColor: viewMode === 'summary' ? 'white' : 'transparent',
+                            color: viewMode === 'summary' ? '#c53030' : '#718096',
+                            fontWeight: 'bold',
+                            boxShadow: viewMode === 'summary' ? '0 2px 5px rgba(0,0,0,0.05)' : 'none',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        Summary
+                    </button>
                 </div>
 
                 <div style={{ display: 'flex', gap: '12px' }}>
@@ -84,7 +102,7 @@ const AgriCalendar = () => {
             </div>
 
             <div className="card" style={{ flex: 1, padding: '20px', borderRadius: '16px', overflow: viewMode === 'calendar' ? 'hidden' : 'auto' }}>
-                {viewMode === 'calendar' ? (
+                {viewMode === 'calendar' && (
                     <FullCalendar
                         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                         initialView="dayGridMonth"
@@ -102,9 +120,9 @@ const AgriCalendar = () => {
                         editable={true}
                         selectable={true}
                     />
-                ) : (
-                    <RegionalIntelligence currentFarm={currentFarm} />
                 )}
+                {viewMode === 'regional' && <RegionalIntelligence currentFarm={currentFarm} />}
+                {viewMode === 'summary' && <RegionalSummary />}
             </div>
         </div>
     );
