@@ -144,7 +144,7 @@ const Dashboard = () => {
                             <td style={{ padding: '12px 8px', fontWeight: 'bold' }}>{c.crop_type}</td>
                             <td style={{ padding: '12px 8px' }}>{c.variety}</td>
                             <td style={{ padding: '12px 8px', fontWeight: 'bold', color: 'var(--secondary)' }}>{parseFloat(c.planted_area || 0).toFixed(2)} ha</td>
-                            <td style={{ padding: '12px 8px' }}>{c.Field?.Farm?.name || fields.find(f => f.id === c.field_id)?.name || 'N/A'}</td>
+                            <td style={{ padding: '12px 8px' }}>{c.Field?.Farm?.name || (fields || []).find(f => f.id === c.field_id)?.name || 'N/A'}</td>
                         </tr>
                     ))}
                     {activeCrops.length === 0 && (
