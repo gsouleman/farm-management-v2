@@ -64,8 +64,13 @@ const CropForm = ({ fieldId, onComplete, initialData }) => {
     // --- AUTOMATION HELPERS ---
 
     const findRegionalData = (cropName) => {
+        if (!cropName) return null;
         for (const category in REGIONAL_CROP_DATA) {
-            const crop = REGIONAL_CROP_DATA[category].find(c => c.crop === cropName);
+            // Case-insensitive match or contains
+            const crop = REGIONAL_CROP_DATA[category].find(c =>
+                c.crop.toLowerCase() === cropName.toLowerCase() ||
+                cropName.toLowerCase().includes(c.crop.toLowerCase())
+            );
             if (crop) return crop;
         }
         return null;
@@ -110,9 +115,17 @@ const CropForm = ({ fieldId, onComplete, initialData }) => {
 
             if (startIndex === -1 || endIndex === -1) continue;
 
-            // Handle wrap around year ?? (Assuming regional data is mainly single year ranges for now from data view)
-            if (monthIndex >= startIndex && monthIndex <= endIndex) {
-                return { inWindow: true, campaign: i === 0 ? 'Major Campaign' : 'Minor Campaign' };
+            // Handle normal range (Mar-Jun) vs wrap-around (Nov-Feb)
+            if (startIndex <= endIndex) {
+                if (monthIndex >= startIndex && monthIndex <= endIndex) {
+                    return { inWindow: true, campaign: i === 0 ? 'Major Campaign' : 'Minor Campaign' };
+                }
+            } else {
+                // Wrap around (e.g. Nov=10 to Feb=1)
+                // Current month is valid if >= Nov OR <= Feb
+                if (monthIndex >= startIndex || monthIndex <= endIndex) {
+                    return { inWindow: true, campaign: i === 0 ? 'Major Campaign' : 'Minor Campaign' };
+                }
             }
         }
 
@@ -123,10 +136,13 @@ const CropForm = ({ fieldId, onComplete, initialData }) => {
     useEffect(() => {
         if (!formData.crop_type || !formData.planting_date) return;
 
+        console.log('[Automation] Finding data for:', formData.crop_type);
         const regionalData = findRegionalData(formData.crop_type);
+        console.log('[Automation] Found Data:', regionalData);
         if (regionalData) {
             // 1. Auto-Calculate Harvest Date
             const autoHarvest = parseDuration(regionalData.duration, formData.planting_date);
+            console.log('[Automation] Calculated Harvest:', autoHarvest);
             if (autoHarvest && (!initialData || formData.expected_harvest_date === initialData?.expected_harvest_date)) {
                 // Only update if user hasn't manually edited it significantly or it matches initial (smart update)
                 // We'll simplisticly verify if expected_harvest_date is empty or we are just changing stuff
@@ -142,6 +158,7 @@ const CropForm = ({ fieldId, onComplete, initialData }) => {
                 setComplianceStatus({ inWindow: false, campaign: 'Off-Season', requiredIrrigation: true });
             }
         } else {
+            console.log('[Automation] No regional data found.');
             setComplianceStatus({ inWindow: true, campaign: '', requiredIrrigation: false });
         }
     }, [formData.crop_type, formData.planting_date]);
