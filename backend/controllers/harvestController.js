@@ -44,20 +44,27 @@ exports.getFarmHarvests = async (req, res) => {
 
 exports.getAllHarvests = async (req, res) => {
     try {
-        const { Farm } = require('../models');
+        const { Farm, Field } = require('../models');
+
+        // 1. Get Farms
         const userFarms = await Farm.findAll({ where: { owner_id: req.user.id }, attributes: ['id'] });
         const farmIds = userFarms.map(f => f.id);
-
         if (farmIds.length === 0) return res.json([]);
 
+        // 2. Get Fields
+        const fields = await Field.findAll({ where: { farm_id: farmIds }, attributes: ['id'] });
+        const fieldIds = fields.map(f => f.id);
+        if (fieldIds.length === 0) return res.json([]);
+
+        // 3. Get Harvests via Crop match
         const harvests = await Harvest.findAll({
             include: [{
                 model: Crop,
                 required: true,
+                where: { field_id: fieldIds },
                 include: [{
-                    model: Field,
-                    required: true,
-                    where: { farm_id: farmIds }
+                    model: Field, // Optional for display
+                    attributes: ['name', 'id']
                 }]
             }]
         });

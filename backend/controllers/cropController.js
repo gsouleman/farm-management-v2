@@ -50,7 +50,8 @@ exports.getAllCrops = async (req, res) => {
             },
             include: [{
                 model: Field,
-                include: [{ model: Farm, attributes: ['name', 'id'] }]
+                required: true,
+                include: [{ model: Farm, attributes: ['name', 'id'], required: false }]
             }]
         });
 

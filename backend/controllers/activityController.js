@@ -92,21 +92,28 @@ exports.getFarmActivities = async (req, res) => {
 
 exports.getAllActivities = async (req, res) => {
     try {
-        const { Farm } = require('../models');
-        const userFarms = await Farm.findAll({ where: { owner_id: req.user.id }, attributes: ['id'] });
+        // 1. Find all farms
+        const { Farm } = require('../models'); // Keep require here if not at top, but better at top. 
+        // Actually, userFarms query is same.
+        const userFarms = await Farm.findAll({
+            where: { owner_id: req.user.id },
+            attributes: ['id']
+        });
         const farmIds = userFarms.map(f => f.id);
 
         if (farmIds.length === 0) return res.json([]);
 
+        // 2. Fetch directly with farm_id (Activity has farm_id column!)
+        // Activity has farm_id, so we don't need deep nested joins for filtering!
+        // We only need includes for data display.
         const activities = await Activity.findAll({
+            where: { farm_id: farmIds }, // Simple IN
             include: [
                 {
                     model: Crop,
-                    required: true,
                     include: [{
                         model: Field,
-                        required: true,
-                        where: { farm_id: farmIds }
+                        required: false
                     }]
                 },
                 { model: Input }
