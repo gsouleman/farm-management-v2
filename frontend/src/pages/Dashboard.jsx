@@ -58,7 +58,7 @@ const Dashboard = () => {
     }, [currentFarm, isGlobalView, farms.length]);
 
     // FILTER DATA BASED ON VIEW MODE
-    const activeFarms = isGlobalView ? farms : (currentFarm ? [currentFarm] : []);
+    const activeFarms = isGlobalView ? (farms || []) : (currentFarm ? [currentFarm] : []);
 
     const activeCrops = useMemo(() => {
         if (!crops || !Array.isArray(crops)) return [];
