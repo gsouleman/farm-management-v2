@@ -66,8 +66,8 @@ const ZONE_CENTER = getCentroid(MALOURE_ZONE_BOUNDARY);
 
 const REGIONAL_CROP_DATA = {
     Cereals: [
-        { crop: 'Maize', duration: '4 Months', campaigns: '2 Campaigns', window: 'Mar - Jun / Aug - Nov', type: 'Staple Crop' },
-        { crop: 'Rice', duration: '5 Months', campaigns: '1-2 Campaigns', window: 'Year-round (Lowlands)', type: 'Intensive' }
+        { crop: 'Maize', duration: '4 Months', campaigns: '2 Campaigns', window: 'Mar - Jun / Aug - Nov', type: 'Staple (Njimom)' },
+        { crop: 'Rice', duration: '5 Months', campaigns: '1-2 Campaigns', window: 'Year-round (Noun Plain)', type: 'Intensive' }
     ],
     Tubers: [
         { crop: 'Irish Potato', duration: '3-4 Months', campaigns: '2 Campaigns', window: 'Mar - Jun / Sep - Dec', type: 'High Value' },
