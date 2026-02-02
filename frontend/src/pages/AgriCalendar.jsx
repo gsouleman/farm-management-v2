@@ -5,40 +5,82 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import useAuthStore from '../store/authStore';
 import useFarmStore from '../store/farmStore';
+import useActivityStore from '../store/activityStore';
+import useUIStore from '../store/uiStore';
 import '../App.css';
 
-// Basic mock data fetcher or store connector in the future
-// For now, we will use some placeholder events or try to fetch from an activities store if available.
-// Since we don't have a direct "calendar events" endpoint, we might map activities to events.
-
 import RegionalIntelligence from '../components/calendar/RegionalIntelligence.jsx';
-
 import RegionalSummary from '../components/calendar/RegionalSummary.jsx';
-
 import ActivityForm from '../components/activities/ActivityForm';
 
 const AgriCalendar = () => {
     const { currentFarm } = useFarmStore();
+    const { activities, fetchActivitiesByFarm, deleteActivity } = useActivityStore();
+    const { showNotification, showAlert } = useUIStore();
+
     const [events, setEvents] = useState([]);
     const [viewMode, setViewMode] = useState('calendar'); // 'calendar', 'regional', 'summary'
     const [showActivityModal, setShowActivityModal] = useState(false);
+    const [selectedActivity, setSelectedActivity] = useState(null);
 
-    // Sample events to demonstrate functionality
     useEffect(() => {
         if (currentFarm) {
-            setEvents([
-                { title: 'Planting Season Start', date: new Date().toISOString().split('T')[0], color: '#2f855a' },
-                { title: 'Fertilizer Application', date: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0], color: '#dd6b20' },
-                { title: 'Harvest Estimate', date: new Date(Date.now() + 86400000 * 14).toISOString().split('T')[0], color: '#e53e3e' }
-            ]);
+            fetchActivitiesByFarm(currentFarm.id);
         }
-    }, [currentFarm]);
+    }, [currentFarm, fetchActivitiesByFarm]);
+
+    useEffect(() => {
+        if (activities && activities.length > 0) {
+            const mappedEvents = activities.map(act => ({
+                id: act.id,
+                title: `${act.activity_type} - ${act.field?.name || 'Field'}`,
+                date: act.activity_date,
+                extendedProps: { ...act },
+                color: getEventColor(act.activity_type)
+            }));
+            setEvents(mappedEvents);
+        } else {
+            setEvents([]);
+        }
+    }, [activities]);
+
+    const getEventColor = (type) => {
+        switch (type) {
+            case 'planting': return '#2f855a';
+            case 'harvesting': return '#c05621';
+            case 'fertilizing': return '#dd6b20';
+            case 'spraying': return '#e53e3e';
+            case 'irrigation': return '#3182ce';
+            default: return '#718096';
+        }
+    };
 
     const handleDateClick = (arg) => {
-        // Placeholder for adding new events
-        // alert('Date clicked: ' + arg.dateStr);
-        // Optional: Pre-fill date when clicking on calendar
+        setSelectedActivity(null); // Clear selection for new event
+        // Optional: Pass clicked date as initialData if ActivityForm supports it
+        // For now just open clean form
         setShowActivityModal(true);
+    };
+
+    const handleEventClick = (info) => {
+        const activityData = info.event.extendedProps;
+        setSelectedActivity(activityData);
+        setShowActivityModal(true);
+    };
+
+    const handleDelete = async () => {
+        if (!selectedActivity) return;
+
+        if (window.confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
+            try {
+                await deleteActivity(selectedActivity.id);
+                showNotification('Event deleted successfully', 'success');
+                setShowActivityModal(false);
+            } catch (error) {
+                console.error('Failed to delete activity:', error);
+                showAlert('DELETE_FAILED');
+            }
+        }
     };
 
     return (
@@ -104,7 +146,10 @@ const AgriCalendar = () => {
                 <div style={{ display: 'flex', gap: '12px' }}>
                     <button
                         className="primary"
-                        onClick={() => setShowActivityModal(true)}
+                        onClick={() => {
+                            setSelectedActivity(null);
+                            setShowActivityModal(true);
+                        }}
                     >
                         + Add Event
                     </button>
@@ -124,9 +169,7 @@ const AgriCalendar = () => {
                         height="100%"
                         events={events}
                         dateClick={handleDateClick}
-                        eventClick={(info) => {
-                            alert('Event: ' + info.event.title);
-                        }}
+                        eventClick={handleEventClick}
                         editable={true}
                         selectable={true}
                     />
@@ -158,9 +201,31 @@ const AgriCalendar = () => {
                         borderRadius: '16px',
                         overflowY: 'auto',
                         padding: '20px',
-                        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+                        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                        position: 'relative'
                     }}>
-                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                            {/* Delete Button (Only if editing) */}
+                            {selectedActivity ? (
+                                <button
+                                    onClick={handleDelete}
+                                    style={{
+                                        backgroundColor: '#fff5f5',
+                                        color: '#c53030',
+                                        border: '1px solid #fc8181',
+                                        borderRadius: '8px',
+                                        padding: '8px 16px',
+                                        fontWeight: '700',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px'
+                                    }}
+                                >
+                                    🗑️ Delete Event
+                                </button>
+                            ) : <div></div>}
+
                             <button
                                 onClick={() => setShowActivityModal(false)}
                                 style={{
@@ -174,7 +239,10 @@ const AgriCalendar = () => {
                                 ✕
                             </button>
                         </div>
-                        <ActivityForm onComplete={() => setShowActivityModal(false)} />
+                        <ActivityForm
+                            onComplete={() => setShowActivityModal(false)}
+                            initialData={selectedActivity}
+                        />
                     </div>
                 </div>
             )}
