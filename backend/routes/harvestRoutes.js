@@ -5,7 +5,9 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 router.use(authMiddleware);
 
-router.get('/', harvestController.getHarvests);
+// router.get('/', harvestController.getHarvests); // This was global admin maybe?
+router.get('/all', harvestController.getAllHarvests);
+router.get('/farm/:farmId', harvestController.getFarmHarvests);
 router.get('/:id', harvestController.getHarvestById);
 router.put('/:id', harvestController.updateHarvest);
 router.delete('/:id', harvestController.deleteHarvest);

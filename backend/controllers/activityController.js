@@ -90,6 +90,37 @@ exports.getFarmActivities = async (req, res) => {
     }
 };
 
+exports.getAllActivities = async (req, res) => {
+    try {
+        const { Farm } = require('../models');
+        const userFarms = await Farm.findAll({ where: { owner_id: req.user.id }, attributes: ['id'] });
+        const farmIds = userFarms.map(f => f.id);
+
+        if (farmIds.length === 0) return res.json([]);
+
+        const activities = await Activity.findAll({
+            include: [
+                {
+                    model: Crop,
+                    required: true,
+                    include: [{
+                        model: Field,
+                        required: true,
+                        where: { farm_id: farmIds }
+                    }]
+                },
+                { model: Input }
+            ],
+            order: [['activity_date', 'DESC']]
+        });
+
+        res.json(activities);
+    } catch (error) {
+        console.error('Error fetching all activities:', error);
+        res.status(500).json({ message: 'Error fetching all activities' });
+    }
+};
+
 exports.createActivity = async (req, res) => {
     try {
         console.log('[CreateActivity] Initial req.body:', JSON.stringify(req.body, null, 2));

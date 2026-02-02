@@ -13,6 +13,7 @@ router.delete('/:id', cropController.deleteCrop);
 // These will also be mounted on /api/fields and /api/farms for convenience
 router.get('/field/:fieldId', cropController.getCropsByField);
 router.get('/farm/:farmId', cropController.getFarmCrops);
+router.get('/all', cropController.getAllCrops);
 router.get('/', cropController.getFarmCrops); // Fallback for ?farm_id=
 router.post('/', cropController.createCrop);
 

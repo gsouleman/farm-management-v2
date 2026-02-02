@@ -30,6 +30,17 @@ const useCropStore = create((set, get) => ({
         }
     },
 
+    fetchAllCrops: async () => {
+        set({ loading: true, error: null });
+        try {
+            const response = await api.get('/crops/all');
+            set({ crops: response.data, loading: false });
+        } catch (error) {
+            console.error('[CropStore] Fetch all error:', error);
+            set({ error: error.response?.data?.message || 'Failed to fetch all crops', loading: false });
+        }
+    },
+
 
     fetchCropDetails: async (id) => {
         set({ loading: true });

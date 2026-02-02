@@ -42,6 +42,32 @@ exports.getFarmHarvests = async (req, res) => {
     }
 };
 
+exports.getAllHarvests = async (req, res) => {
+    try {
+        const { Farm } = require('../models');
+        const userFarms = await Farm.findAll({ where: { owner_id: req.user.id }, attributes: ['id'] });
+        const farmIds = userFarms.map(f => f.id);
+
+        if (farmIds.length === 0) return res.json([]);
+
+        const harvests = await Harvest.findAll({
+            include: [{
+                model: Crop,
+                required: true,
+                include: [{
+                    model: Field,
+                    required: true,
+                    where: { farm_id: farmIds }
+                }]
+            }]
+        });
+        res.json(harvests);
+    } catch (error) {
+        console.error('Error fetching all harvests:', error);
+        res.status(500).json({ message: 'Error fetching all harvests' });
+    }
+};
+
 exports.getCropHarvests = async (req, res) => {
     try {
         const harvests = await Harvest.findAll({

@@ -88,6 +88,34 @@ exports.getFarmCrops = async (req, res) => {
     }
 };
 
+exports.getAllCrops = async (req, res) => {
+    try {
+        // Find all farms owned by user first, then get their crops efficiently
+        const { Farm } = require('../models');
+        const userFarms = await Farm.findAll({
+            where: { owner_id: req.user.id },
+            attributes: ['id']
+        });
+
+        const farmIds = userFarms.map(f => f.id);
+
+        if (farmIds.length === 0) return res.json([]);
+
+        const crops = await Crop.findAll({
+            include: [{
+                model: Field,
+                where: { farm_id: farmIds },
+                include: [{ model: Farm, attributes: ['name', 'id'] }]
+            }]
+        });
+
+        res.json(crops);
+    } catch (error) {
+        console.error('Error fetching all user crops:', error);
+        res.status(500).json({ message: 'Error fetching all crops' });
+    }
+};
+
 exports.createCrop = async (req, res) => {
     try {
         const {

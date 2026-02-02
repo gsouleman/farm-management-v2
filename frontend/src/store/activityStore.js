@@ -24,6 +24,17 @@ const useActivityStore = create((set, get) => ({
         }
     },
 
+    fetchAllActivities: async () => {
+        set({ loading: true });
+        try {
+            const response = await api.get('/activities/all');
+            set({ activities: response.data, loading: false });
+        } catch (error) {
+            console.error('[ActivityStore] Fetch all error:', error);
+            set({ loading: false });
+        }
+    },
+
     fetchActivitiesByFarm: async (farmId) => {
         set({ loading: true });
 

@@ -106,7 +106,7 @@ const PolygonLabel = ({ coordinates, label, cropType }) => {
     }
 };
 
-const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundary, manualCoordinates, onBoundaryCreate, editable = true, currentLabel }) => {
+const FieldMap = ({ center, fields, crops = [], infrastructure = [], farms = [], manualCoordinates, onBoundaryCreate, editable = true, currentLabel }) => {
     const mapRef = useRef();
     const containerRef = useRef();
     const navigate = useNavigate();
@@ -155,16 +155,21 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
         }
     };
 
-    // Convert fields boundary format for React-Leaflet
+    // Convert fields boundary format
     const fieldPolygons = fields?.map(field => ({
         id: field.id,
         name: field.name,
-        positions: field.boundary?.coordinates?.[0]?.map(coord => [coord[1], coord[0]]) || [] // [lat, lng]
+        positions: field.boundary?.coordinates?.[0]?.map(coord => [coord[1], coord[0]]) || []
     })) || [];
 
-    // Convert farm boundary if present
-    const farmPolygon = farmBoundary && farmBoundary.coordinates ?
-        farmBoundary.coordinates[0].map(coord => [coord[1], coord[0]]) : null;
+    // Process all farms for visualization
+    const farmPolygons = farms?.filter(f => f.boundary && f.boundary.coordinates).map(f => ({
+        id: f.id,
+        name: f.name,
+        positions: f.boundary.coordinates[0].map(coord => [coord[1], coord[0]]),
+        rawCoords: f.boundary.coordinates[0]
+    })) || [];
+
 
     return (
         <div
@@ -229,19 +234,14 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
                             position="topright"
                             onCreated={handleCreated}
                             draw={{
-                                rectangle: {
-                                    showArea: false, // Set to false to avoid ReferenceError: type is not defined
-                                    shapeOptions: {
-                                        color: 'var(--primary)'
-                                    }
-                                },
+                                rectangle: false,
                                 circle: false,
                                 circlemarker: false,
                                 marker: false,
                                 polyline: false,
                                 polygon: {
                                     allowIntersection: false,
-                                    showArea: false, // Set to false to avoid ReferenceError: type is not defined
+                                    showArea: false,
                                     metric: true,
                                     shapeOptions: {
                                         color: 'var(--primary)'
@@ -251,18 +251,29 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
                         />
                     )}
 
-                    {/* Farm Boundary Highlight */}
-                    {farmPolygon && (
-                        <Polygon
-                            positions={farmPolygon}
-                            pathOptions={{
-                                color: '#ff9800',
-                                weight: 3,
-                                dashArray: '10, 10',
-                                fillOpacity: 0.1
-                            }}
-                        />
-                    )}
+                    {/* Render ALL Farm Boundaries */}
+                    {farmPolygons.map(farm => (
+                        <React.Fragment key={farm.id}>
+                            <Polygon
+                                positions={farm.positions}
+                                pathOptions={{
+                                    color: '#ff9800', // Orange for Farm Boundary
+                                    weight: 4,
+                                    dashArray: '10, 10',
+                                    fillOpacity: 0.1,
+                                    fillColor: '#ff9800'
+                                }}
+                            >
+                                <Popup>{farm.name} Boundary</Popup>
+                            </Polygon>
+                            {/* Farm Name Label */}
+                            <PolygonLabel
+                                coordinates={farm.rawCoords}
+                                label={farm.name}
+                                cropType="infrastructure" // Use strong font
+                            />
+                        </React.Fragment>
+                    ))}
 
                     {fieldPolygons.map(field => (
                         <Polygon
@@ -297,28 +308,6 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
                                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', backgroundColor: '#fffbe6', padding: '8px', borderRadius: '4px' }}>
                                                 <span style={{ fontWeight: '600' }}>Surface Area:</span>
                                                 <span style={{ color: '#b7791f', fontWeight: 'bold' }}>{crop.planted_area} ha</span>
-                                            </div>
-
-                                            <div style={{ fontWeight: '600', fontSize: '11px', color: '#4a5568', textTransform: 'uppercase', marginBottom: '5px' }}>
-                                                Allocation Corners (lat, lng):
-                                            </div>
-                                            <div style={{
-                                                backgroundColor: '#f7fafc',
-                                                padding: '10px',
-                                                borderRadius: '4px',
-                                                fontSize: '10.5px',
-                                                maxHeight: '120px',
-                                                overflowY: 'auto',
-                                                fontFamily: 'monospace',
-                                                lineHeight: '1.4',
-                                                border: '1px solid #e2e8f0'
-                                            }}>
-                                                {crop.boundary.coordinates[0].map((c, i) => (
-                                                    <div key={i} style={{ borderBottom: i < crop.boundary.coordinates[0].length - 1 ? '1px solid #edf2f7' : 'none', padding: '2px 0' }}>
-                                                        <span style={{ color: '#718096', marginRight: '5px' }}>{i + 1}.</span>
-                                                        {c[1].toFixed(6)}, {c[0].toFixed(6)}
-                                                    </div>
-                                                ))}
                                             </div>
 
                                             <div style={{ marginTop: '12px', textAlign: 'center' }}>
@@ -369,40 +358,13 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
                                             <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1a365d' }}>{infra.name}</div>
                                             <div style={{ fontSize: '12px', color: '#718096' }}>{infra.type}</div>
                                         </div>
-
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', backgroundColor: '#ebf8ff', padding: '8px', borderRadius: '4px' }}>
-                                            <span style={{ fontWeight: '600' }}>Surface Area:</span>
-                                            <span style={{ color: '#2b6cb0', fontWeight: 'bold' }}>{infra.area_sqm} m²</span>
-                                        </div>
-
-                                        <div style={{ fontWeight: '600', fontSize: '11px', color: '#4a5568', textTransform: 'uppercase', marginBottom: '5px' }}>
-                                            Infrastructure Corners (lat, lng):
-                                        </div>
-                                        <div style={{
-                                            backgroundColor: '#f7fafc',
-                                            padding: '10px',
-                                            borderRadius: '4px',
-                                            fontSize: '10.5px',
-                                            maxHeight: '120px',
-                                            overflowY: 'auto',
-                                            fontFamily: 'monospace',
-                                            lineHeight: '1.4',
-                                            border: '1px solid #e2e8f0'
-                                        }}>
-                                            {infra.boundary.coordinates[0].map((c, i) => (
-                                                <div key={i} style={{ borderBottom: i < infra.boundary.coordinates[0].length - 1 ? '1px solid #edf2f7' : 'none', padding: '2px 0' }}>
-                                                    <span style={{ color: '#718096', marginRight: '5px' }}>{i + 1}.</span>
-                                                    {c[1].toFixed(6)}, {c[0].toFixed(6)}
-                                                </div>
-                                            ))}
-                                        </div>
                                     </div>
                                 </Popup>
                             </Polygon>
                             <PolygonLabel
                                 coordinates={infra.boundary.coordinates[0]}
                                 label={infra.name}
-                                cropType="infrastructure" // This will use default white style
+                                cropType="infrastructure"
                             />
                         </React.Fragment>
                     ))}
@@ -452,9 +414,10 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farmBoundar
                             return <ZoomToData bounds={validCoords} />;
                         }
                     }
+                    // Zoom to ALL farms and fields
                     const allB = [
-                        ...fieldPolygons.flatMap(p => p.positions),
-                        ...(farmPolygon || [])
+                        ...(farmPolygons.flatMap(p => p.positions)),
+                        ...(fieldPolygons.flatMap(p => p.positions))
                     ];
                     return allB.length > 0 ? <ZoomToData bounds={allB} /> : null;
                 })()}
