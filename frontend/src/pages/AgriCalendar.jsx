@@ -15,10 +15,13 @@ import RegionalIntelligence from '../components/calendar/RegionalIntelligence.js
 
 import RegionalSummary from '../components/calendar/RegionalSummary.jsx';
 
+import ActivityForm from '../components/activities/ActivityForm';
+
 const AgriCalendar = () => {
     const { currentFarm } = useFarmStore();
     const [events, setEvents] = useState([]);
     const [viewMode, setViewMode] = useState('calendar'); // 'calendar', 'regional', 'summary'
+    const [showActivityModal, setShowActivityModal] = useState(false);
 
     // Sample events to demonstrate functionality
     useEffect(() => {
@@ -33,11 +36,13 @@ const AgriCalendar = () => {
 
     const handleDateClick = (arg) => {
         // Placeholder for adding new events
-        alert('Date clicked: ' + arg.dateStr);
+        // alert('Date clicked: ' + arg.dateStr);
+        // Optional: Pre-fill date when clicking on calendar
+        setShowActivityModal(true);
     };
 
     return (
-        <div className="animate-fade-in" style={{ padding: '24px', height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <div className="animate-fade-in" style={{ padding: '24px', height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
             <div className="flex j-between a-center" style={{ marginBottom: '24px' }}>
                 <div>
                     <h1 style={{ fontSize: '28px', fontWeight: '800', margin: 0, color: 'var(--secondary)' }}>Planner</h1>
@@ -97,7 +102,12 @@ const AgriCalendar = () => {
                 </div>
 
                 <div style={{ display: 'flex', gap: '12px' }}>
-                    <button className="primary">+ Add Event</button>
+                    <button
+                        className="primary"
+                        onClick={() => setShowActivityModal(true)}
+                    >
+                        + Add Event
+                    </button>
                 </div>
             </div>
 
@@ -124,6 +134,50 @@ const AgriCalendar = () => {
                 {viewMode === 'regional' && <RegionalIntelligence currentFarm={currentFarm} />}
                 {viewMode === 'summary' && <RegionalSummary />}
             </div>
+
+            {/* Activity Form Modal */}
+            {showActivityModal && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 1000,
+                    backdropFilter: 'blur(5px)'
+                }}>
+                    <div style={{
+                        backgroundColor: 'white',
+                        width: '90%',
+                        maxWidth: '1000px',
+                        height: '90vh',
+                        borderRadius: '16px',
+                        overflowY: 'auto',
+                        padding: '20px',
+                        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <button
+                                onClick={() => setShowActivityModal(false)}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    fontSize: '24px',
+                                    cursor: 'pointer',
+                                    padding: '8px'
+                                }}
+                            >
+                                ✕
+                            </button>
+                        </div>
+                        <ActivityForm onComplete={() => setShowActivityModal(false)} />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
