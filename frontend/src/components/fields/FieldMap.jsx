@@ -252,7 +252,7 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farms = [],
                     )}
 
                     {/* Render ALL Farm Boundaries */}
-                    {farmPolygons.map(farm => (
+                    {(farmPolygons || []).map(farm => (
                         <React.Fragment key={farm.id}>
                             <Polygon
                                 positions={farm.positions}
@@ -275,7 +275,7 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farms = [],
                         </React.Fragment>
                     ))}
 
-                    {fieldPolygons.map(field => (
+                    {(fieldPolygons || []).map(field => (
                         <Polygon
                             key={field.id}
                             positions={field.positions}
