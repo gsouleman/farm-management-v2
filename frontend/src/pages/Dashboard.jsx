@@ -127,6 +127,7 @@ const Dashboard = () => {
 
     const renderContent = () => {
         if (view === 'add-farm') return <FarmForm onComplete={() => { setView('overview'); fetchFarms(); }} />;
+        if (view === 'edit-farm') return <FarmForm initialData={currentFarm} onComplete={() => { setView('overview'); fetchFarms(); }} />;
         if (view === 'add-field') return <FieldForm onComplete={() => { setView('overview'); fetchFields(currentFarm.id); }} />;
         if (view === 'field-details') return <FieldDetails field={selectedField} onBack={() => setView('overview')} />;
         if (view === 'crop-breakdown') return renderCropBreakdown();
@@ -268,6 +269,22 @@ const Dashboard = () => {
                     </h1>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '8px' }}>
                         <span style={{ fontSize: '12px', color: 'var(--success)', fontWeight: '700', padding: '4px 10px', backgroundColor: 'rgba(46, 125, 50, 0.1)', borderRadius: '12px' }}>● SYSTEM OPTIMAL</span>
+                        <button
+                            onClick={() => setView('edit-farm')}
+                            style={{
+                                marginLeft: '12px',
+                                border: '1px solid #ddd',
+                                backgroundColor: 'white',
+                                fontSize: '11px',
+                                padding: '4px 12px',
+                                borderRadius: '12px',
+                                cursor: 'pointer',
+                                fontWeight: '700',
+                                color: '#555'
+                            }}
+                        >
+                            ⚙️ EDIT CONFIGURATION
+                        </button>
                     </div>
                 </div>
                 {view !== 'overview' && (

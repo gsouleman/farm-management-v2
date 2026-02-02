@@ -1,26 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import useFarmStore from '../../store/farmStore';
 import useUIStore from '../../store/uiStore';
 
-const FarmForm = ({ onComplete }) => {
-    const { createFarm } = useFarmStore();
-    const { showAlert } = useUIStore();
+const FarmForm = ({ onComplete, initialData }) => {
+    const { createFarm, updateFarm } = useFarmStore();
+    const { showAlert, showNotification } = useUIStore();
+
+    // Parse initial coordinates to string for resizing/editing
+    const getInitialCoordsText = () => {
+        if (!initialData?.boundary_coordinates) return '';
+        if (Array.isArray(initialData.boundary_coordinates)) {
+            return initialData.boundary_coordinates.map(p => `${p.lat}, ${p.lng}`).join('\n');
+        }
+        return '';
+    };
+
     const [formData, setFormData] = useState({
-        name: '',
-        address: '',
-        city: '',
-        state: '',
-        country: '',
-        postal_code: '',
-        farm_type: 'crop_production',
-        total_area: '',
-        area_unit: 'hectares',
-        latitude: '',
-        longitude: '',
-        perimeter: ''
+        name: initialData?.name || '',
+        address: initialData?.address || '',
+        city: initialData?.city || '',
+        state: initialData?.state || '',
+        country: initialData?.country || '',
+        postal_code: initialData?.postal_code || '',
+        farm_type: initialData?.farm_type || 'crop_production',
+        total_area: initialData?.total_area || '',
+        area_unit: initialData?.area_unit || 'hectares',
+        latitude: initialData?.latitude || '',
+        longitude: initialData?.longitude || '',
+        perimeter: initialData?.perimeter || '',
+        boundary_coordinates: initialData?.boundary_coordinates || []
     });
-    const [coordsText, setCoordsText] = useState('');
+
+    const [coordsText, setCoordsText] = useState(getInitialCoordsText());
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (initialData) {
+            setCoordsText(getInitialCoordsText());
+        }
+    }, [initialData]);
 
     const calculateMetrics = (text) => {
         const lines = text.trim().split('\n');
@@ -68,7 +86,6 @@ const FarmForm = ({ onComplete }) => {
         area = Math.abs(area) / 2;
 
         const areaHa = (area / 10000).toFixed(2);
-        const areaAc = (area / 4046.86).toFixed(2);
 
         setFormData(prev => ({
             ...prev,
@@ -90,16 +107,23 @@ const FarmForm = ({ onComplete }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!formData.boundary_coordinates || formData.boundary_coordinates.length === 0) {
+        // Allow update without boundary change if it's already set
+        if ((!formData.boundary_coordinates || formData.boundary_coordinates.length === 0) && !initialData) {
             showAlert('NO_BOUNDARY');
             return;
         }
 
         setLoading(true);
         try {
-            const response = await createFarm(formData);
-            const { showNotification } = (await import('../../store/uiStore')).default.getState();
-            showNotification(response?.notification?.message || 'Farm registered successfully', 'success');
+            if (initialData?.id) {
+                // UPDATE MODE
+                await updateFarm(initialData.id, formData);
+                showNotification('Farm details updated successfully (Size/Boundary adjusted)', 'success');
+            } else {
+                // CREATE MODE
+                const response = await createFarm(formData);
+                showNotification(response?.notification?.message || 'Farm registered successfully', 'success');
+            }
             if (onComplete) onComplete();
         } catch (error) {
             console.error(error);
@@ -112,7 +136,9 @@ const FarmForm = ({ onComplete }) => {
     return (
         <div className="card animate-fade-in" style={{ maxWidth: '800px', margin: '0 auto' }}>
             <div className="card-header">
-                <h3 style={{ margin: 0, fontSize: '18px' }}>Register New Agricultural Enterprise</h3>
+                <h3 style={{ margin: 0, fontSize: '18px' }}>
+                    {initialData ? 'Update Enterprise & Land Details' : 'Register New Agricultural Enterprise'}
+                </h3>
             </div>
             <form onSubmit={handleSubmit}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
@@ -210,7 +236,10 @@ const FarmForm = ({ onComplete }) => {
                 </div>
 
                 <div className="card" style={{ backgroundColor: '#f8f9fa', borderStyle: 'dashed', marginBottom: '20px' }}>
-                    <label style={{ color: 'var(--primary)', fontWeight: '700' }}>🗺️ Boundary Coordinates (lat,lng per line)</label>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <label style={{ color: 'var(--primary)', fontWeight: '700' }}>🗺️ Boundary Coordinates (lat,lng per line)</label>
+                        <span style={{ fontSize: '11px', color: '#666' }}>Edit logic: Modify coordinates to resize farm</span>
+                    </div>
                     <textarea
                         rows="5"
                         value={coordsText}
@@ -262,7 +291,7 @@ const FarmForm = ({ onComplete }) => {
 
                 <div style={{ display: 'flex', gap: '12px', marginTop: '30px' }}>
                     <button type="submit" className="primary" style={{ flex: 1 }} disabled={loading}>
-                        {loading ? 'Processing...' : 'Register Farm'}
+                        {loading ? 'Processing...' : (initialData ? 'Update & Resize Farm' : 'Register Farm')}
                     </button>
                     <button type="button" onClick={onComplete} className="outline" style={{ flex: 1 }}>Cancel</button>
                 </div>
