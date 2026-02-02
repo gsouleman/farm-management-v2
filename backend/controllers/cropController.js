@@ -25,37 +25,52 @@ exports.getAllCrops = async (req, res) => {
         }
 
         // 1. Find all farms owned by user
-        const userFarms = await Farm.findAll({
-            where: { owner_id: req.user.id },
-            attributes: ['id']
-        });
-        const farmIds = userFarms.map(f => f.id);
+        let farmIds = [];
+        try {
+            const userFarms = await Farm.findAll({
+                where: { owner_id: req.user.id },
+                attributes: ['id']
+            });
+            farmIds = userFarms.map(f => f.id);
+        } catch (farmError) {
+            console.error('[GetAllCrops] Failed to fetch farms:', farmError);
+            return res.status(500).json({ message: 'Error fetching farms: ' + farmError.message });
+        }
 
         if (farmIds.length === 0) return res.json([]);
 
         // 2. Find all fields in those farms
-        // We split this to avoid complex nested JOIN filtering which can cause Sequelize errors
-        const fields = await Field.findAll({
-            where: { farm_id: farmIds }, // Standard IN query
-            attributes: ['id']
-        });
-        const fieldIds = fields.map(f => f.id);
+        let fieldIds = [];
+        try {
+            const fields = await Field.findAll({
+                where: { farm_id: farmIds },
+                attributes: ['id']
+            });
+            fieldIds = fields.map(f => f.id);
+        } catch (fieldError) {
+            console.error('[GetAllCrops] Failed to fetch fields:', fieldError);
+            return res.status(500).json({ message: 'Error fetching fields: ' + fieldError.message });
+        }
 
         if (fieldIds.length === 0) return res.json([]);
 
         // 3. Find crops in those fields
-        const crops = await Crop.findAll({
-            where: {
-                field_id: fieldIds // Standard IN query
-            },
-            include: [{
-                model: Field,
-                required: true,
-                include: [{ model: Farm, attributes: ['name', 'id'], required: false }]
-            }]
-        });
+        // Simple include for Farm to avoid alias conflicts.
+        try {
+            const crops = await Crop.findAll({
+                where: { field_id: fieldIds },
+                include: [{
+                    model: Field,
+                    // Remove required: true to be safe
+                    include: [{ model: Farm, attributes: ['name', 'id'] }]
+                }]
+            });
+            res.json(crops);
+        } catch (cropError) {
+            console.error('[GetAllCrops] Failed to fetch crops final step:', cropError);
+            return res.status(500).json({ message: 'Error fetching crops data: ' + cropError.message });
+        }
 
-        res.json(crops);
     } catch (error) {
         console.error('Error fetching all user crops DETAIL:', error);
         res.status(500).json({ message: 'Internal Error: ' + error.message });
