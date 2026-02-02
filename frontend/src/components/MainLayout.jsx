@@ -170,7 +170,7 @@ const MainLayout = ({ children }) => {
                         <SidebarLink to="/fields" icon="🗺️" label="Map & Fields" sub onClick={handleNavItemClick} />
                         <SidebarLink to="/infrastructure" icon="🏗️" label="Infrastructure" sub onClick={handleNavItemClick} />
                         <SidebarLink to="/weather" icon="☁️" label="Weather" sub onClick={handleNavItemClick} />
-                        <SidebarLink to="/agri-calendar" icon="📅" label="Planner" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/agri-calendar" icon="📅" label="Scheduler" sub onClick={handleNavItemClick} />
                         <SidebarLink to="/advanced-features" icon="🚀" label="Advanced Features" sub onClick={handleNavItemClick} />
                     </NavGroup>
 
