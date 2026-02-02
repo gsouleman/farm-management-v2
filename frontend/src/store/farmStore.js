@@ -76,8 +76,9 @@ const useFarmStore = create(
             createFarm: async (farmData) => {
                 try {
                     const response = await api.post('/farms', farmData);
-                    set((state) => ({ farms: [...state.farms, response.data] }));
-                    if (!get().currentFarm) set({ currentFarm: response.data });
+                    const newFarm = response.data.data || response.data; // Handle wrapper
+                    set((state) => ({ farms: [...state.farms, newFarm] }));
+                    if (!get().currentFarm) set({ currentFarm: newFarm });
                     return response.data;
                 } catch (error) {
                     throw error;
@@ -87,9 +88,10 @@ const useFarmStore = create(
             updateFarm: async (id, farmData) => {
                 try {
                     const response = await api.put(`/farms/${id}`, farmData);
+                    const updatedFarm = response.data.data || response.data; // Handle wrapper
                     set((state) => ({
-                        farms: state.farms.map(f => f.id === id ? response.data : f),
-                        currentFarm: state.currentFarm?.id === id ? response.data : state.currentFarm
+                        farms: state.farms.map(f => f.id === id ? updatedFarm : f),
+                        currentFarm: state.currentFarm?.id === id ? updatedFarm : state.currentFarm
                     }));
                     return response.data;
                 } catch (error) {
