@@ -15,17 +15,17 @@ const RegionalIntelligence = ({ currentFarm }) => {
             <div style={{
                 marginBottom: '24px',
                 padding: '20px',
-                backgroundColor: '#ebf8ff',
+                backgroundColor: 'var(--bg-main)',
                 borderRadius: '12px',
-                border: '1px solid #bee3f8',
+                border: '1px solid var(--border)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '16px'
             }}>
                 <div style={{ fontSize: '32px' }}>🌍</div>
                 <div>
-                    <h3 style={{ margin: '0 0 5px 0', color: '#2b6cb0', fontSize: '18px' }}>Regional Intelligence: Maloure / Njimoun Zone</h3>
-                    <p style={{ margin: 0, color: '#4a5568', fontSize: '14px' }}>
+                    <h3 style={{ margin: '0 0 5px 0', color: 'var(--secondary)', fontSize: '18px' }}>Regional Intelligence: Maloure / Njimoun Zone</h3>
+                    <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '14px' }}>
                         Based on the <strong>Western Region</strong> boundary defined by coordinates <strong>{displayCoordinates.lat.toFixed(6)}, {displayCoordinates.lng.toFixed(6)}</strong>.
                         These standards are optimized for this specific agricultural zone.
                     </p>
@@ -41,9 +41,9 @@ const RegionalIntelligence = ({ currentFarm }) => {
                         style={{
                             padding: '10px 20px',
                             borderRadius: '20px',
-                            border: 'none',
-                            backgroundColor: activeTab === group ? 'var(--primary)' : '#e2e8f0',
-                            color: activeTab === group ? 'white' : '#4a5568',
+                            border: '1px solid var(--border)',
+                            backgroundColor: activeTab === group ? 'var(--primary)' : 'white',
+                            color: activeTab === group ? 'white' : 'var(--text-muted)',
                             fontWeight: '600',
                             cursor: 'pointer',
                             transition: 'all 0.2s',
@@ -58,15 +58,15 @@ const RegionalIntelligence = ({ currentFarm }) => {
             {/* Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
                 {REGIONAL_CROP_DATA[activeTab].map((crop, idx) => (
-                    <div key={idx} className="card hover-glow" style={{ padding: '20px', borderRadius: '16px', borderLeft: '5px solid var(--primary)' }}>
+                    <div key={idx} className="card hover-glow" style={{ padding: '20px', borderRadius: '16px', borderLeft: '5px solid var(--primary)', marginBottom: 0 }}>
                         <div className="flex j-between a-start" style={{ marginBottom: '12px' }}>
-                            <h3 style={{ margin: 0, fontSize: '18px', color: '#2d3748' }}>{crop.crop}</h3>
+                            <h3 style={{ margin: 0, fontSize: '18px', color: 'var(--text-main)' }}>{crop.crop}</h3>
                             <span style={{
                                 fontSize: '10px',
                                 padding: '2px 8px',
-                                backgroundColor: '#edf2f7',
+                                backgroundColor: 'var(--bg-main)',
                                 borderRadius: '10px',
-                                color: '#718096',
+                                color: 'var(--text-muted)',
                                 fontWeight: 'bold'
                             }}>
                                 {crop.type}

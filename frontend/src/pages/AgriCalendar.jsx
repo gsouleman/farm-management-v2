@@ -40,22 +40,22 @@ const AgriCalendar = () => {
         <div className="animate-fade-in" style={{ padding: '24px', height: '100%', display: 'flex', flexDirection: 'column' }}>
             <div className="flex j-between a-center" style={{ marginBottom: '24px' }}>
                 <div>
-                    <h1 style={{ fontSize: '28px', fontWeight: '800', margin: 0, color: '#1a365d' }}>Agri Calendar</h1>
-                    <p style={{ color: '#4a5568', fontSize: '15px' }}>Schedule and track farm operations for <strong>{currentFarm?.name || 'Loading...'}</strong></p>
+                    <h1 style={{ fontSize: '28px', fontWeight: '800', margin: 0, color: 'var(--secondary)' }}>Agri Calendar</h1>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '15px' }}>Schedule and track farm operations for <strong>{currentFarm?.name || 'Loading...'}</strong></p>
                 </div>
 
                 {/* View Switcher */}
-                <div style={{ display: 'flex', backgroundColor: '#e2e8f0', padding: '4px', borderRadius: '12px', gap: '4px' }}>
+                <div style={{ display: 'flex', backgroundColor: 'var(--bg-main)', padding: '4px', borderRadius: '12px', gap: '4px', border: '1px solid var(--border)' }}>
                     <button
                         onClick={() => setViewMode('calendar')}
                         style={{
                             padding: '8px 16px',
-                            borderRadius: '10px',
-                            border: 'none',
-                            backgroundColor: viewMode === 'calendar' ? 'white' : 'transparent',
-                            color: viewMode === 'calendar' ? '#1a365d' : '#718096',
-                            fontWeight: 'bold',
-                            boxShadow: viewMode === 'calendar' ? '0 2px 5px rgba(0,0,0,0.05)' : 'none',
+                            borderRadius: '8px',
+                            border: viewMode === 'calendar' ? '1px solid var(--border)' : 'none',
+                            backgroundColor: viewMode === 'calendar' ? 'var(--bg-card)' : 'transparent',
+                            color: viewMode === 'calendar' ? 'var(--primary)' : 'var(--text-muted)',
+                            fontWeight: '600',
+                            boxShadow: viewMode === 'calendar' ? 'var(--shadow-sm)' : 'none',
                             cursor: 'pointer',
                             transition: 'all 0.2s'
                         }}
@@ -66,12 +66,12 @@ const AgriCalendar = () => {
                         onClick={() => setViewMode('regional')}
                         style={{
                             padding: '8px 16px',
-                            borderRadius: '10px',
-                            border: 'none',
-                            backgroundColor: viewMode === 'regional' ? 'white' : 'transparent',
-                            color: viewMode === 'regional' ? 'var(--primary)' : '#718096',
-                            fontWeight: 'bold',
-                            boxShadow: viewMode === 'regional' ? '0 2px 5px rgba(0,0,0,0.05)' : 'none',
+                            borderRadius: '8px',
+                            border: viewMode === 'regional' ? '1px solid var(--border)' : 'none',
+                            backgroundColor: viewMode === 'regional' ? 'var(--bg-card)' : 'transparent',
+                            color: viewMode === 'regional' ? 'var(--primary)' : 'var(--text-muted)',
+                            fontWeight: '600',
+                            boxShadow: viewMode === 'regional' ? 'var(--shadow-sm)' : 'none',
                             cursor: 'pointer',
                             transition: 'all 0.2s'
                         }}
@@ -82,12 +82,12 @@ const AgriCalendar = () => {
                         onClick={() => setViewMode('summary')}
                         style={{
                             padding: '8px 16px',
-                            borderRadius: '10px',
-                            border: 'none',
-                            backgroundColor: viewMode === 'summary' ? 'white' : 'transparent',
-                            color: viewMode === 'summary' ? '#c53030' : '#718096',
-                            fontWeight: 'bold',
-                            boxShadow: viewMode === 'summary' ? '0 2px 5px rgba(0,0,0,0.05)' : 'none',
+                            borderRadius: '8px',
+                            border: viewMode === 'summary' ? '1px solid var(--border)' : 'none',
+                            backgroundColor: viewMode === 'summary' ? 'var(--bg-card)' : 'transparent',
+                            color: viewMode === 'summary' ? 'var(--primary)' : 'var(--text-muted)',
+                            fontWeight: '600',
+                            boxShadow: viewMode === 'summary' ? 'var(--shadow-sm)' : 'none',
                             cursor: 'pointer',
                             transition: 'all 0.2s'
                         }}
