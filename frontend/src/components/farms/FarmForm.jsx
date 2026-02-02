@@ -41,11 +41,16 @@ const FarmForm = ({ onComplete, initialData }) => {
     }, [initialData]);
 
     const calculateMetrics = (text) => {
-        const lines = text.trim().split('\n');
+        // Split by newline first
+        const lines = text.trim().split(/\r?\n/);
         const points = lines.map(line => {
-            const [lat, lng] = line.split(',').map(v => parseFloat(v.trim()));
+            // Flexible delimiter: comma, space, tab
+            const parts = line.split(/[,\s\t]+/).filter(v => v.trim() !== '');
+            if (parts.length < 2) return null;
+            const lat = parseFloat(parts[0]);
+            const lng = parseFloat(parts[1]);
             return { lat, lng };
-        }).filter(p => !isNaN(p.lat) && !isNaN(p.lng));
+        }).filter(p => p && !isNaN(p.lat) && !isNaN(p.lng));
 
         if (points.length < 3) return;
 
@@ -220,12 +225,16 @@ const FarmForm = ({ onComplete, initialData }) => {
                         />
                     </div>
                     <div>
-                        <label>Total Size</label>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <label>Total Size</label>
+                            {(formData.boundary_coordinates?.length > 2) && <span style={{ fontSize: '10px', color: 'var(--success)', fontWeight: 'bold' }}>AUTO-CALCULATED</span>}
+                        </div>
                         <input
                             type="number"
                             step="0.01"
                             value={formData.total_area}
                             onChange={(e) => setFormData({ ...formData, total_area: e.target.value })}
+                            style={{ backgroundColor: (formData.boundary_coordinates?.length > 2) ? '#f0fff4' : 'white' }}
                         />
                     </div>
                     <div>
