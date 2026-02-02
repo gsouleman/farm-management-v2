@@ -319,7 +319,7 @@ const Dashboard = () => {
                                             </tr>
                                         );
                                     })}
-                                    {fields.length === 0 && <tr><td colSpan="5" style={{ padding: '20px', textAlign: 'center' }}>No fields. Click +BOUNDARY on the map to add one.</td></tr>}
+                                    {(!fields || fields.length === 0) && <tr><td colSpan="5" style={{ padding: '20px', textAlign: 'center' }}>No fields. Click +BOUNDARY on the map to add one.</td></tr>}
                                 </tbody>
                             </table>
                         </div>
