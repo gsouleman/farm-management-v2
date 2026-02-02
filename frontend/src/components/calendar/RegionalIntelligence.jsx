@@ -1,6 +1,69 @@
 import React, { useState } from 'react';
 import RegionalCycleChart from './RegionalCycleChart';
 
+// Full coordinate list for the Maloure / Njimoun Zone
+const MALOURE_ZONE_BOUNDARY = [
+    { lat: 5.916982, lng: 11.043742 },
+    { lat: 5.916900, lng: 11.043799 },
+    { lat: 5.916782, lng: 11.043831 },
+    { lat: 5.916697, lng: 11.043867 },
+    { lat: 5.916613, lng: 11.043936 },
+    { lat: 5.916517, lng: 11.043929 },
+    { lat: 5.916437, lng: 11.043976 },
+    { lat: 5.916115, lng: 11.044077 },
+    { lat: 5.916020, lng: 11.044109 },
+    { lat: 5.915929, lng: 11.044099 },
+    { lat: 5.915125, lng: 11.043647 },
+    { lat: 5.915238, lng: 11.043546 },
+    { lat: 5.915256, lng: 11.043455 },
+    { lat: 5.915182, lng: 11.043350 },
+    { lat: 5.915284, lng: 11.043182 },
+    { lat: 5.915373, lng: 11.043159 },
+    { lat: 5.915403, lng: 11.043061 },
+    { lat: 5.915478, lng: 11.042981 },
+    { lat: 5.915540, lng: 11.042902 },
+    { lat: 5.915534, lng: 11.042803 },
+    { lat: 5.915590, lng: 11.042720 },
+    { lat: 5.915636, lng: 11.042568 },
+    { lat: 5.915782, lng: 11.042593 },
+    { lat: 5.915728, lng: 11.042490 },
+    { lat: 5.915781, lng: 11.042401 },
+    { lat: 5.915875, lng: 11.042403 },
+    { lat: 5.916010, lng: 11.042282 },
+    { lat: 5.916124, lng: 11.042298 },
+    { lat: 5.916186, lng: 11.042372 },
+    { lat: 5.916285, lng: 11.042421 },
+    { lat: 5.916379, lng: 11.042475 },
+    { lat: 5.916413, lng: 11.042574 },
+    { lat: 5.916504, lng: 11.042636 },
+    { lat: 5.916574, lng: 11.042693 },
+    { lat: 5.916661, lng: 11.042756 },
+    { lat: 5.916920, lng: 11.043128 },
+    { lat: 5.917008, lng: 11.043099 },
+    { lat: 5.917022, lng: 11.043211 },
+    { lat: 5.917050, lng: 11.043316 },
+    { lat: 5.917080, lng: 11.043421 },
+    { lat: 5.917047, lng: 11.043509 },
+    { lat: 5.917074, lng: 11.043622 },
+    { lat: 5.916943, lng: 11.043740 }
+];
+
+// Calculate Representative Point (Centroid approx)
+const getCentroid = (coords) => {
+    let latSum = 0;
+    let lngSum = 0;
+    coords.forEach(c => {
+        latSum += c.lat;
+        lngSum += c.lng;
+    });
+    return {
+        lat: latSum / coords.length,
+        lng: lngSum / coords.length
+    };
+};
+
+const ZONE_CENTER = getCentroid(MALOURE_ZONE_BOUNDARY);
+
 const REGIONAL_CROP_DATA = {
     Cereals: [
         { crop: 'Maize', duration: '4 Months', campaigns: '2-3 Campaigns', window: 'Mar - Jun / Aug - Nov', type: 'Optimal' },
@@ -30,8 +93,9 @@ const REGIONAL_CROP_DATA = {
 const RegionalIntelligence = ({ currentFarm }) => {
     const [activeTab, setActiveTab] = useState('Cereals');
 
-    // Mock coordinates if farm doesn't have them
-    const coordinates = currentFarm?.location?.coordinates || { lat: 5.916982, lng: 11.043742 }; // Maloure / Njimoun Zone
+    // Usage: Strictly use the Zone Center for Regional Intelligence default
+    // The user requested to "Use only the coordinate provided for all details"
+    const displayCoordinates = ZONE_CENTER;
 
     return (
         <div className="animate-fade-in" style={{ padding: '0 10px' }}>
@@ -47,10 +111,10 @@ const RegionalIntelligence = ({ currentFarm }) => {
             }}>
                 <div style={{ fontSize: '32px' }}>🌍</div>
                 <div>
-                    <h3 style={{ margin: '0 0 5px 0', color: '#2b6cb0', fontSize: '18px' }}>Regional Intelligence for {currentFarm?.name}</h3>
+                    <h3 style={{ margin: '0 0 5px 0', color: '#2b6cb0', fontSize: '18px' }}>Regional Intelligence: Maloure / Njimoun Zone</h3>
                     <p style={{ margin: 0, color: '#4a5568', fontSize: '14px' }}>
-                        Based on coordinates <strong>{coordinates.lat?.toFixed(6)}, {coordinates.lng?.toFixed(6)}</strong> within the <strong>Maloure / Njimoun Zone (Western Region)</strong>.
-                        These are the recommended standards for optimal yield.
+                        Based on the <strong>Western Region</strong> boundary defined by coordinates <strong>{displayCoordinates.lat.toFixed(6)}, {displayCoordinates.lng.toFixed(6)}</strong>.
+                        These standards are optimized for this specific agricultural zone.
                     </p>
                 </div>
             </div>
