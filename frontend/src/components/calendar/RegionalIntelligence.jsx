@@ -31,7 +31,7 @@ const RegionalIntelligence = ({ currentFarm }) => {
     const [activeTab, setActiveTab] = useState('Cereals');
 
     // Mock coordinates if farm doesn't have them
-    const coordinates = currentFarm?.location?.coordinates || { lat: 4.05, lng: 9.70 }; // Default to Douala/Cameroon region approx
+    const coordinates = currentFarm?.location?.coordinates || { lat: 5.916982, lng: 11.043742 }; // Maloure / Njimoun Zone
 
     return (
         <div className="animate-fade-in" style={{ padding: '0 10px' }}>
@@ -49,7 +49,7 @@ const RegionalIntelligence = ({ currentFarm }) => {
                 <div>
                     <h3 style={{ margin: '0 0 5px 0', color: '#2b6cb0', fontSize: '18px' }}>Regional Intelligence for {currentFarm?.name}</h3>
                     <p style={{ margin: 0, color: '#4a5568', fontSize: '14px' }}>
-                        Based on coordinates <strong>{coordinates.lat?.toFixed(4)}, {coordinates.lng?.toFixed(4)}</strong> within the <strong>Littoral Zone</strong>.
+                        Based on coordinates <strong>{coordinates.lat?.toFixed(6)}, {coordinates.lng?.toFixed(6)}</strong> within the <strong>Maloure / Njimoun Zone (Western Region)</strong>.
                         These are the recommended standards for optimal yield.
                     </p>
                 </div>
