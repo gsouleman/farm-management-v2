@@ -6,6 +6,7 @@ import useCropDefinitionStore from '../../store/cropDefinitionStore';
 import useUIStore from '../../store/uiStore';
 import FieldMap from '../fields/FieldMap';
 import * as turf from '@turf/turf';
+import { REGIONAL_CROP_DATA } from '../../data/regionalData';
 
 const CropForm = ({ fieldId, onComplete, initialData }) => {
     const { createCrop, updateCrop, crops } = useCropStore();
@@ -43,6 +44,10 @@ const CropForm = ({ fieldId, onComplete, initialData }) => {
     });
     const [loading, setLoading] = useState(false);
 
+    // Automation State
+    const [complianceStatus, setComplianceStatus] = useState({ inWindow: true, campaign: '', requiredIrrigation: false });
+    const [hasIrrigation, setHasIrrigation] = useState(false);
+
     // Group active definitions by category
     const activeDefinitions = definitions.filter(d => d.is_active);
     const groupedCrops = activeDefinitions.reduce((acc, crop) => {
@@ -56,11 +61,103 @@ const CropForm = ({ fieldId, onComplete, initialData }) => {
     const currentCropVarieties = selectedCropDef?.varieties || [];
     const selectedCropLabel = selectedCropDef?.name || formData.crop_type;
 
+    // --- AUTOMATION HELPERS ---
+
+    const findRegionalData = (cropName) => {
+        for (const category in REGIONAL_CROP_DATA) {
+            const crop = REGIONAL_CROP_DATA[category].find(c => c.crop === cropName);
+            if (crop) return crop;
+        }
+        return null;
+    };
+
+    const parseDuration = (durationStr, plantingDateStr) => {
+        if (!durationStr || !plantingDateStr) return '';
+        const date = new Date(plantingDateStr);
+        const lower = durationStr.toLowerCase();
+
+        if (lower.includes('month')) {
+            const months = parseInt(durationStr.match(/\d+/)[0], 10);
+            date.setMonth(date.getMonth() + months);
+        } else if (lower.includes('year')) {
+            const years = parseInt(durationStr.match(/\d+/)[0], 10);
+            date.setFullYear(date.getFullYear() + years);
+        } else if (lower.includes('day')) {
+            const days = parseInt(durationStr.match(/\d+/)[0], 10);
+            date.setDate(date.getDate() + days);
+        }
+        return date.toISOString().split('T')[0];
+    };
+
+    const checkPlantingWindow = (plantingDateStr, windowStr) => {
+        if (!windowStr || windowStr.toLowerCase().includes('year-round')) {
+            return { inWindow: true, campaign: 'Continuous / Year-Round' };
+        }
+
+        const date = new Date(plantingDateStr);
+        const monthIndex = date.getMonth(); // 0-11
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        // Split windows (e.g., "Mar - Jun / Aug - Nov")
+        const windows = windowStr.split('/').map(w => w.trim());
+
+        for (let i = 0; i < windows.length; i++) {
+            const range = windows[i];
+            const [start, end] = range.split('-').map(s => s.trim());
+
+            const startIndex = monthNames.findIndex(m => start.includes(m));
+            const endIndex = monthNames.findIndex(m => end.includes(m));
+
+            if (startIndex === -1 || endIndex === -1) continue;
+
+            // Handle wrap around year ?? (Assuming regional data is mainly single year ranges for now from data view)
+            if (monthIndex >= startIndex && monthIndex <= endIndex) {
+                return { inWindow: true, campaign: i === 0 ? 'Major Campaign' : 'Minor Campaign' };
+            }
+        }
+
+        return { inWindow: false, campaign: 'Off-Season' };
+    };
+
+    // --- EFFECT: Automation & Validation logic ---
+    useEffect(() => {
+        if (!formData.crop_type || !formData.planting_date) return;
+
+        const regionalData = findRegionalData(formData.crop_type);
+        if (regionalData) {
+            // 1. Auto-Calculate Harvest Date
+            const autoHarvest = parseDuration(regionalData.duration, formData.planting_date);
+            if (autoHarvest && (!initialData || formData.expected_harvest_date === initialData?.expected_harvest_date)) {
+                // Only update if user hasn't manually edited it significantly or it matches initial (smart update)
+                // We'll simplisticly verify if expected_harvest_date is empty or we are just changing stuff
+                setFormData(prev => ({ ...prev, expected_harvest_date: autoHarvest }));
+            }
+
+            // 2. Validate Planting Window
+            const check = checkPlantingWindow(formData.planting_date, regionalData.window);
+
+            if (check.inWindow) {
+                setComplianceStatus({ inWindow: true, campaign: check.campaign, requiredIrrigation: false });
+            } else {
+                setComplianceStatus({ inWindow: false, campaign: 'Off-Season', requiredIrrigation: true });
+            }
+        } else {
+            setComplianceStatus({ inWindow: true, campaign: '', requiredIrrigation: false });
+        }
+    }, [formData.crop_type, formData.planting_date]);
 
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+
+        // Validation: Block if off-season and irrigation not confirmed
+        if (complianceStatus.requiredIrrigation && !hasIrrigation) {
+            showAlert('IRRIGATION_REQUIRED'); // You might need to add this template or use showNotification
+            showNotification('Planting date is outside regional window. You must confirm irrigation capabilities.', 'error');
+            setLoading(false);
+            return;
+        }
 
         const targetFieldId = selectedFieldId === 'undefined' ? null : selectedFieldId;
 
@@ -90,7 +187,9 @@ const CropForm = ({ fieldId, onComplete, initialData }) => {
                 estimated_cost: parseNum(formData.estimated_cost),
                 year: parseInt(formData.year, 10) || new Date().getFullYear(),
                 expected_harvest_date: formData.expected_harvest_date || null,
-                planting_date: formData.planting_date || null
+                planting_date: formData.planting_date || null,
+                // Append compliance note
+                notes: `${formData.notes || ''}\n[System Automated]: Campaign=${complianceStatus.campaign}, Irrigation Override=${hasIrrigation}`.trim()
             };
 
             console.log('Normalized Data for Submission:', normalizedData);
@@ -192,6 +291,43 @@ const CropForm = ({ fieldId, onComplete, initialData }) => {
                     </div>
                 </div>
 
+                {/* PROACTIVE AUTOMATION BANNER */}
+                {formData.crop_type && complianceStatus.campaign && (
+                    <div className="animate-fade-in" style={{
+                        marginBottom: '20px',
+                        padding: '12px 16px',
+                        backgroundColor: complianceStatus.requiredIrrigation ? '#fff5f5' : '#f0fff4',
+                        borderLeft: `4px solid ${complianceStatus.requiredIrrigation ? '#c53030' : '#2f855a'}`,
+                        borderRadius: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between'
+                    }}>
+                        <div>
+                            <div style={{ fontWeight: '700', color: complianceStatus.requiredIrrigation ? '#c53030' : '#22543d', fontSize: '13px' }}>
+                                {complianceStatus.requiredIrrigation ? '⚠️ OFF-SEASON PLANTING DETECTED' : '✅ OPTIMAL PLANTING WINDOW'}
+                            </div>
+                            <div style={{ fontSize: '12px', color: '#555', marginTop: '4px' }}>
+                                Detected Season: <strong style={{ color: '#000' }}>{complianceStatus.campaign}</strong> based on Scheduler data.
+                            </div>
+                        </div>
+                        {complianceStatus.requiredIrrigation && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'white', padding: '6px 12px', borderRadius: '6px', border: '1px solid #fc8181' }}>
+                                <input
+                                    type="checkbox"
+                                    id="irrigation_override"
+                                    checked={hasIrrigation}
+                                    onChange={(e) => setHasIrrigation(e.target.checked)}
+                                    style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                                />
+                                <label htmlFor="irrigation_override" style={{ fontSize: '11px', fontWeight: '700', cursor: 'pointer', color: '#c53030' }}>
+                                    CONFIRM IRRIGATION SYSTEM ACTIVE
+                                </label>
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {/* Timing Section */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '24px' }}>
                     <div>
@@ -219,7 +355,10 @@ const CropForm = ({ fieldId, onComplete, initialData }) => {
                         />
                     </div>
                     <div>
-                        <label htmlFor="expected_harvest_date" style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Exp. Harvest Date</label>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <label htmlFor="expected_harvest_date" style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>Exp. Harvest Date</label>
+                            {formData.expected_harvest_date && <span style={{ fontSize: '10px', color: 'var(--primary)', fontWeight: 'bold' }}>AUTO-ESTIMATED</span>}
+                        </div>
                         <input
                             id="expected_harvest_date"
                             name="expected_harvest_date"
