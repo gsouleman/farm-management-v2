@@ -47,6 +47,7 @@ app.use('/api/farm-users', require('./routes/teamRoutes'));
 app.use('/api/contracts', require('./routes/contractRoutes'));
 app.use('/api/system', require('./routes/systemRoutes'));
 app.use('/api/crop-definitions', require('./routes/cropDefinitionRoutes'));
+app.use('/api/infrastructure-definitions', require('./routes/infrastructureDefinitionRoutes'));
 
 
 

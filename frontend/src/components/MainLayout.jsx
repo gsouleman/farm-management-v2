@@ -187,6 +187,7 @@ const MainLayout = ({ children }) => {
                         <SidebarLink to="/harvests" icon="🌾" label="Harvest Records" sub onClick={handleNavItemClick} />
                         <SidebarLink to="/planner" icon="📅" label="Crop Planner" sub onClick={handleNavItemClick} />
                         <SidebarLink to="/crop-library" icon="📚" label="Crop Library" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/infrastructure-library" icon="🏗️" label="Infra Library" sub onClick={handleNavItemClick} />
                     </NavGroup>
 
                     <NavGroup

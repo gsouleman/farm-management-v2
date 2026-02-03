@@ -14,6 +14,7 @@ import Harvests from './pages/Harvests';
 import Crops from './pages/Crops';
 import SelectCropsPage from './pages/SelectCropsPage';
 import CropLibraryPage from './pages/CropLibraryPage';
+import InfrastructureLibraryPage from './pages/InfrastructureLibraryPage';
 import InputListPage from './pages/InputListPage';
 import Planner from './pages/Planner';
 import WeatherCenter from './pages/WeatherCenter';
@@ -166,6 +167,13 @@ function App() {
           <ProtectedRoute>
             <MainLayout>
               <CropLibraryPage />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/infrastructure-library" element={
+          <ProtectedRoute>
+            <MainLayout>
+              <InfrastructureLibraryPage />
             </MainLayout>
           </ProtectedRoute>
         } />
