@@ -6,6 +6,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import * as turf from '@turf/turf';
+import { getCameroonRegion } from '../../utils/locationUtils';
 
 // Fix Leaflet icon issue
 delete L.Icon.Default.prototype._getIconUrl;
@@ -270,7 +271,7 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farms = [],
                             {/* Farm Name Label */}
                             <PolygonLabel
                                 coordinates={farm.rawCoords}
-                                label={`${farm.name} (${parseFloat(farm.area || 0).toFixed(2)} HA)`}
+                                label={`${farm.name} [${getCameroonRegion(farm.rawCoords[0][1], farm.rawCoords[0][0])}] (${parseFloat(farm.area || 0).toFixed(2)} HA)`}
                                 cropType="infrastructure" // Use strong font
                             />
                         </React.Fragment>

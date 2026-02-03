@@ -14,6 +14,7 @@ import FieldDetails from '../components/fields/FieldDetails';
 import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import WeatherWidget from '../components/weather/WeatherWidget';
 import QuickLinks from '../components/dashboard/QuickLinks';
+import { getCameroonRegion } from '../utils/locationUtils';
 import api from '../services/api';
 
 const Dashboard = () => {
@@ -300,7 +301,12 @@ const Dashboard = () => {
                                         <tr key={f.id} style={{ borderBottom: '1px solid #f5f5f5', fontSize: '13px', backgroundColor: '#f0f7f0' }}>
                                             <td style={{ padding: '10px 16px', fontWeight: '800', color: 'var(--primary)' }}>{f.name.toUpperCase()}</td>
                                             <td style={{ padding: '10px 16px', fontWeight: '600' }}>{parseFloat(f.total_area || 0).toFixed(2)} ha</td>
-                                            <td style={{ padding: '10px 16px' }}>{f.city}, {f.country}</td>
+                                            <td style={{ padding: '10px 16px' }}>
+                                                <span style={{ fontWeight: '700', color: 'var(--secondary)' }}>
+                                                    {getCameroonRegion(f.coordinates?.coordinates?.[1], f.coordinates?.coordinates?.[0]).toUpperCase()}
+                                                </span>
+                                                <div style={{ fontSize: '10px', color: '#888' }}>{f.city}, {f.country}</div>
+                                            </td>
                                             <td style={{ padding: '10px 16px', textAlign: 'right' }}>
                                                 <button onClick={() => {
                                                     loadFarm(f.id);
