@@ -16,10 +16,9 @@ import WeatherWidget from '../components/weather/WeatherWidget';
 import QuickLinks from '../components/dashboard/QuickLinks';
 import api from '../services/api';
 
-// TEST VERSION 2: All imports + ALL STORE HOOKS, but no useEffect/useMemo
-// This tests if the crash is in the store hooks themselves
+// TEST VERSION 3: Store hooks + useEffect (NO useMemo)
 const Dashboard = () => {
-    console.log('[TEST 2] Dashboard with all store hooks...');
+    console.log('[TEST 3] Dashboard with store hooks + useEffect...');
 
     // Store hooks
     const { fetchFarms, farms, currentFarm, fields, fetchFields, loading, loadFarm } = useFarmStore();
@@ -35,12 +34,33 @@ const Dashboard = () => {
     const [selectedField, setSelectedField] = useState(null);
     const navigate = useNavigate();
 
-    console.log('[TEST 2] Store hooks called, farms:', farms, 'loading:', loading);
+    // useEffect 1: Initial fetch
+    useEffect(() => {
+        console.log('[TEST 3] useEffect 1 - fetching data...');
+        fetchFarms();
+        fetchAllCrops();
+        fetchAllActivities();
+        fetchAllHarvests();
+    }, []);
+
+    // useEffect 2: Farm/view change handler
+    useEffect(() => {
+        console.log('[TEST 3] useEffect 2 - farm/view change...');
+        if (!isGlobalView && currentFarm?.id) {
+            fetchFields(currentFarm.id);
+            fetchInfrastructure(currentFarm.id);
+            fetchCropBudgets(currentFarm.id);
+        } else if (isGlobalView && farms && farms.length > 0) {
+            farms.forEach(f => fetchFields(f.id));
+        }
+    }, [currentFarm, isGlobalView, farms?.length]);
+
+    console.log('[TEST 3] About to render, farms:', farms?.length, 'loading:', loading);
 
     return (
         <div style={{ padding: '40px', textAlign: 'center' }}>
-            <h1>🧪 TEST 2: Store Hooks</h1>
-            <p>If you see this, store hooks are fine.</p>
+            <h1>🧪 TEST 3: useEffect Hooks</h1>
+            <p>If you see this, useEffect hooks are fine.</p>
             <p>farms.length: {farms?.length || 0}, loading: {String(loading)}</p>
         </div>
     );
