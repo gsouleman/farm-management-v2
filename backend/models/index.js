@@ -29,7 +29,8 @@ const models = {
     Infrastructure: require('./Infrastructure')(sequelize),
     Contract: require('./Contract')(sequelize),
     CostSetting: require('./CostSetting')(sequelize, Sequelize.DataTypes),
-    CropDefinition: require('./CropDefinition')(sequelize, Sequelize.DataTypes)
+    CropDefinition: require('./CropDefinition')(sequelize, Sequelize.DataTypes),
+    InfrastructureDefinition: require('./InfrastructureDefinition')(sequelize, Sequelize.DataTypes)
 };
 
 // Set up associations

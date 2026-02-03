@@ -27,14 +27,15 @@ const INITIAL_INFRASTRUCTURE = [
 
 exports.getAllDefinitions = async (req, res) => {
     try {
-        let definitions = await InfrastructureDefinition.findAll({ order: [['name', 'ASC']] });
-
-        // Auto-seed if empty
-        if (definitions.length === 0) {
-            await InfrastructureDefinition.bulkCreate(INITIAL_INFRASTRUCTURE);
-            definitions = await InfrastructureDefinition.findAll({ order: [['name', 'ASC']] });
+        // Ensure all initial infrastructure types exist
+        for (const item of INITIAL_INFRASTRUCTURE) {
+            await InfrastructureDefinition.findOrCreate({
+                where: { name: item.name },
+                defaults: item
+            });
         }
 
+        const definitions = await InfrastructureDefinition.findAll({ order: [['name', 'ASC']] });
         res.json(definitions);
     } catch (error) {
         console.error('Error fetching infrastructure definitions:', error);
