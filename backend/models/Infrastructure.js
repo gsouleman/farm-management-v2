@@ -56,7 +56,10 @@ module.exports = (sequelize) => {
     Infrastructure.associate = (models) => {
         Infrastructure.belongsTo(models.Farm, { foreignKey: 'farm_id' });
         Infrastructure.belongsTo(models.Field, { foreignKey: 'field_id' });
-        Infrastructure.hasMany(models.Activity, { foreignKey: 'infrastructure_id' });
+        Infrastructure.hasMany(models.Activity, {
+            foreignKey: 'infrastructure_id',
+            onDelete: 'SET NULL'
+        });
     };
 
     return Infrastructure;

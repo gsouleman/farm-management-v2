@@ -110,9 +110,40 @@ exports.updateInfrastructure = async (req, res) => {
 };
 
 exports.deleteInfrastructure = async (req, res) => {
+    const { id } = req.params;
+    console.log(`[InfrastructureController] DELETION PROTOCOL INITIATED FOR ASSET: ${id}`);
+
     try {
-        const { id } = req.params;
-        await Infrastructure.destroy({ where: { id } });
+        // 1. Get Activity model safely (avoids circular require issues)
+        const Activity = Infrastructure.sequelize.models.Activity;
+
+        if (Activity) {
+            console.log(`[InfrastructureController] NULLIFYING ASSOCIATED ACTIVITIES FOR ASSET: ${id}...`);
+            await Activity.update(
+                { infrastructure_id: null },
+                { where: { infrastructure_id: id } }
+            );
+            console.log(`[InfrastructureController] ACTIVITIES DISCONNECTED SUCCESSFULLY.`);
+        } else {
+            console.warn(`[InfrastructureController] WARNING: ACTIVITY MODEL NOT FOUND IN SEQUELIZE INSTANCE. PROCEEDING WITH DIRECT DELETION.`);
+        }
+
+        // 2. Perform direct deletion
+        console.log(`[InfrastructureController] DESTROYING ASSET RECORD: ${id}...`);
+        const deleted = await Infrastructure.destroy({ where: { id } });
+
+        if (!deleted) {
+            console.warn(`[InfrastructureController] DELETION FAILED: ASSET ${id} NOT LOCATED IN ARCHIVE.`);
+            return res.status(404).json({
+                message: 'Infrastructure not found',
+                notification: {
+                    message: 'DELETION FAILED: ASSET NOT FOUND',
+                    type: 'warning'
+                }
+            });
+        }
+
+        console.log(`[InfrastructureController] ASSET ${id} PERMANENTLY REMOVED.`);
         res.json({
             message: 'Infrastructure deleted',
             notification: {
@@ -121,12 +152,20 @@ exports.deleteInfrastructure = async (req, res) => {
             }
         });
     } catch (error) {
+        console.error('[InfrastructureController] CRITICAL DELETION ERROR:', error);
+
+        // Detailed error reporting to frontend to help with diagnostics
+        const detailedError = error.original?.message || error.message;
+        const errorCode = error.parent?.code || error.name;
+
         res.status(500).json({
             message: 'Error deleting infrastructure',
             notification: {
-                message: 'DECOMMISSIONING FAILED: ASSET PROTECTED',
+                message: `DECOMMISSIONING FAILED: ${errorCode}`,
                 type: 'error'
-            }
+            },
+            error: detailedError,
+            code: errorCode
         });
     }
 };

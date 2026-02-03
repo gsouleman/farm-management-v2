@@ -294,8 +294,7 @@ const FieldMap = ({
                                 positions={farm.positions}
                                 pathOptions={{
                                     color: '#ff9800', // Orange for Farm Boundary
-                                    weight: 4,
-                                    dashArray: '10, 10',
+                                    weight: 6, // Very bold
                                     fillOpacity: 0.1,
                                     fillColor: '#ff9800'
                                 }}
@@ -311,14 +310,34 @@ const FieldMap = ({
                         </React.Fragment>
                     ))}
 
-                    {(fieldPolygons || []).map(field => (
-                        <Polygon
-                            key={field.id}
-                            positions={field.positions}
-                            pathOptions={{ color: 'var(--primary)', fillOpacity: 0.1, weight: 1.5 }}
-                        >
-                        </Polygon>
-                    ))}
+                    {(fieldPolygons || []).map(field => {
+                        const fieldData = fields.find(f => f.id === field.id);
+                        let area = parseFloat(fieldData?.area || 0);
+                        if (area === 0 && fieldData?.boundary?.coordinates?.[0]) {
+                            try {
+                                const poly = turf.polygon(fieldData.boundary.coordinates);
+                                area = turf.area(poly) / 10000;
+                            } catch (e) { }
+                        }
+
+                        return (
+                            <React.Fragment key={field.id}>
+                                <Polygon
+                                    positions={field.positions}
+                                    pathOptions={{
+                                        color: 'var(--primary)',
+                                        fillOpacity: 0.1,
+                                        weight: 4 // Bold solid primary border
+                                    }}
+                                />
+                                <PolygonLabel
+                                    coordinates={fieldData?.boundary?.coordinates?.[0]}
+                                    label={`${field.name} (${area.toFixed(2)} HA)`}
+                                    cropType="infrastructure" // Use strong font
+                                />
+                            </React.Fragment>
+                        );
+                    })}
 
                     {/* Current Parcel Label (for registration) */}
                     {parcelName && manualCoordinates?.length > 0 && (

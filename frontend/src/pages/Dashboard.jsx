@@ -100,8 +100,20 @@ const Dashboard = () => {
             .reduce((sum, c) => sum + parseFloat(c.planted_area || 0), 0);
     }, [activeCrops]);
 
-    const totalFarmArea = useMemo(() => (activeFarms || [])
-        .reduce((sum, f) => sum + parseFloat(f.total_area || 0), 0), [activeFarms]);
+    const totalFarmArea = useMemo(() => {
+        // Aggregate parcel areas from Parcel Management (fields)
+        return (activeFields || [])
+            .reduce((sum, f) => {
+                let area = parseFloat(f.area || 0);
+                if (area === 0 && f.boundary?.coordinates?.[0]) {
+                    try {
+                        const poly = turf.polygon(f.boundary.coordinates);
+                        area = turf.area(poly) / 10000;
+                    } catch (e) { }
+                }
+                return sum + area;
+            }, 0);
+    }, [activeFields]);
 
     const totalRevenue = useMemo(() =>
         (activeActivities || []).filter(a => a.transaction_type === 'income' || a.activity_type === 'harvesting')
@@ -131,7 +143,7 @@ const Dashboard = () => {
             onClick: () => setView('crop-breakdown'),
             clickable: true
         },
-        { label: 'Farms Active', value: activeFarms.length, icon: '🚜' } // Changed from Fields to Farms count or Fields count?
+        { label: 'ACTIVE FARM', value: activeFarms.length, icon: '🚜' } // Renamed from Farms Active to ACTIVE FARM
     ], [totalRevenue, totalExpenses, netCashFlow, totalFarmArea, totalPlantedArea, activeFarms.length]);
 
 
