@@ -65,16 +65,22 @@ const useFarmStore = create(
             fetchFields: async (farmId) => {
                 set({ loading: true });
 
-                // Load from local DB
+                // Merge with existing fields to support global view
                 const localData = await getFromLocal('fields', { farm_id: farmId });
                 if (localData.length > 0) {
-                    set({ fields: localData, loading: false });
+                    set(state => ({
+                        fields: [...state.fields.filter(f => f.farm_id !== farmId), ...localData],
+                        loading: false
+                    }));
                 }
 
                 try {
                     const response = await api.get(`/farms/${farmId}/fields`);
                     await saveToLocal('fields', response.data);
-                    set({ fields: response.data, loading: false });
+                    set(state => ({
+                        fields: [...state.fields.filter(f => f.farm_id !== farmId), ...response.data],
+                        loading: false
+                    }));
                 } catch (error) {
                     set({ loading: false });
                 }
@@ -173,7 +179,8 @@ const useFarmStore = create(
 
                     set((state) => ({
                         farms: updatedFarms,
-                        currentFarm: state.currentFarm?.id === id ? updatedFarms[0] || null : state.currentFarm
+                        currentFarm: state.currentFarm?.id === id ? updatedFarms[0] || null : state.currentFarm,
+                        fields: state.fields.filter(f => f.farm_id !== id)
                     }));
                     return response.data;
                 } catch (error) {

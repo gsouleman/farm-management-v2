@@ -126,7 +126,7 @@ const Fields = () => {
 
             {activeTab === 'parcels' ? (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
-                    {fields.map(field => {
+                    {fields.filter(f => f.farm_id === currentFarm?.id).map(field => {
                         const fieldCrops = crops.filter(c => c.field_id === field.id);
                         const fieldInfra = infrastructure.filter(i => i.field_id === field.id);
 

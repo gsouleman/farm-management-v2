@@ -88,8 +88,8 @@ const Dashboard = () => {
         if (!fields || !Array.isArray(fields)) return [];
         return isGlobalView
             ? fields
-            : fields;
-    }, [fields, isGlobalView]);
+            : fields.filter(f => f.farm_id === currentFarm?.id);
+    }, [fields, isGlobalView, currentFarm]);
 
 
     // Derived Statistics
