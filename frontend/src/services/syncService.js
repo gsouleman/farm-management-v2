@@ -48,7 +48,7 @@ const syncService = {
                 api.get(`/infrastructure/farm/${farmId}`)
             ]);
 
-            // Persist to local DB
+            // Persist to local DB (Note: saveToLocal now handles payload extraction)
             await Promise.all([
                 saveToLocal('activities', activities.data),
                 saveToLocal('crops', crops.data),

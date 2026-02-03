@@ -121,7 +121,9 @@ const FieldMap = ({
     farms = [],
     manualCoordinates,
     onBoundaryCreate,
+    onBoundaryUpdate, // New: for vertex editing
     editable = true,
+    isMapEditable = false, // New: toggle for interactive editing
     currentLabel,
     parcelName, // New prop for current parcel being registered
     subAllocations = [] // Polygons already sketched in this session
@@ -438,12 +440,51 @@ const FieldMap = ({
                         </React.Fragment>
                     ))}
 
-                    {/* Manual Entry Highlight */}
+                    {/* Manual Entry Highlight (Current Parcel) */}
                     {manualCoordinates?.length > 0 && (() => {
                         const style = getCropStyle(currentLabel);
+                        const positions = manualCoordinates.map(coord => [coord[1], coord[0]]);
+
+                        const handleVertexDrag = (idx, e) => {
+                            if (!onBoundaryUpdate) return;
+                            const newCoords = [...manualCoordinates];
+                            const { lat, lng } = e.target.getLatLng();
+                            newCoords[idx] = [lng, lat];
+
+                            // Re-calculate area/perimeter
+                            const poly = turf.polygon([newCoords.length >= 3 ? [...newCoords, newCoords[0]] : newCoords]);
+                            const area = turf.area(poly) / 10000;
+                            const perimeter = turf.length(poly, { units: 'meters' });
+
+                            onBoundaryUpdate({
+                                coordinates: newCoords,
+                                area: area.toFixed(2),
+                                perimeter: perimeter.toFixed(2)
+                            });
+                        };
+
                         return (
                             <>
-                                {manualCoordinates.filter(c => c && c.length >= 2).map((coord, idx) => (
+                                {/* Draggable Pointers for Editing */}
+                                {isMapEditable && manualCoordinates.map((coord, idx) => (
+                                    <Marker
+                                        key={`vertex-${idx}`}
+                                        position={[coord[1], coord[0]]}
+                                        draggable={true}
+                                        eventHandlers={{
+                                            dragend: (e) => handleVertexDrag(idx, e)
+                                        }}
+                                        icon={L.divIcon({
+                                            className: 'vertex-edit-icon',
+                                            html: `<div style="width: 12px; height: 12px; background: white; border: 2px solid ${style.color}; border-radius: 50%; box-shadow: 0 0 5px rgba(0,0,0,0.5);"></div>`,
+                                            iconSize: [12, 12],
+                                            iconAnchor: [6, 6]
+                                        })}
+                                    />
+                                ))}
+
+                                {/* Static Points (if not editing) */}
+                                {!isMapEditable && manualCoordinates.filter(c => c && c.length >= 2).map((coord, idx) => (
                                     <CircleMarker
                                         key={`manual-point-${idx}`}
                                         center={[coord[1], coord[0]]}
@@ -451,22 +492,31 @@ const FieldMap = ({
                                         radius={4}
                                     />
                                 ))}
+
                                 {manualCoordinates.length === 2 && manualCoordinates.every(c => c && c.length >= 2) && (
                                     <Polyline
-                                        positions={manualCoordinates.map(coord => [coord[1], coord[0]])}
-                                        pathOptions={{ color: style.color, weight: 2, dashArray: '5, 5' }}
+                                        positions={positions}
+                                        pathOptions={{
+                                            color: style.color,
+                                            weight: 6, // Very bold
+                                            dashArray: '5, 5'
+                                        }}
                                     />
                                 )}
                                 {manualCoordinates.length >= 3 && manualCoordinates.every(c => c && c.length >= 2) && (
                                     <Polygon
-                                        positions={manualCoordinates.map(coord => [coord[1], coord[0]])}
-                                        pathOptions={{ color: style.color, weight: 2, dashArray: '5, 5', fillOpacity: 0.3 }}
+                                        positions={positions}
+                                        pathOptions={{
+                                            color: style.color,
+                                            weight: 6, // Very bold
+                                            fillOpacity: 0.3
+                                        }}
                                     />
                                 )}
-                                {manualCoordinates.length >= 3 && currentLabel && (
+                                {manualCoordinates.length >= 3 && (parcelName || currentLabel) && (
                                     <PolygonLabel
                                         coordinates={manualCoordinates}
-                                        label={currentLabel}
+                                        label={parcelName || currentLabel}
                                         cropType={currentLabel}
                                     />
                                 )}

@@ -60,11 +60,27 @@ const FieldForm = ({ onComplete, initialData }) => {
         }
     }, [fetchCropLib, fetchInfraLib, initialData]);
 
-    const [calculatedArea, setCalculatedArea] = useState(0);
     const [calculatedPerimeter, setCalculatedPerimeter] = useState(0);
     const [coordsText, setCoordsText] = useState('');
     const [loading, setLoading] = useState(false);
     const [detectedRegion, setDetectedRegion] = useState('Center');
+    const [isMapEditable, setIsMapEditable] = useState(false); // New toggle state
+
+    const handleBoundaryUpdate = (data) => {
+        // Update both coordinates and metrics from map interaction
+        setFormData(prev => ({ ...prev, boundary_coordinates: data.coordinates }));
+        setCalculatedArea(data.area);
+        setCalculatedPerimeter(data.perimeter);
+
+        // Update text field to reflect map changes [lat, lng format]
+        const text = data.coordinates.map(c => `${c[1].toFixed(6)},${c[0].toFixed(6)}`).join('\n');
+        setCoordsText(text);
+
+        if (data.coordinates.length > 0) {
+            const region = getCameroonRegion(data.coordinates[0][1], data.coordinates[0][0]);
+            setDetectedRegion(region);
+        }
+    };
 
     const updateFarmLocation = async (coords) => {
         if (!selectedFarmId) return;
@@ -260,6 +276,52 @@ const FieldForm = ({ onComplete, initialData }) => {
                         </div>
                     )}
 
+                    {/* Interactive Mode Slider */}
+                    <div style={{
+                        marginBottom: '16px',
+                        padding: '12px',
+                        backgroundColor: isMapEditable ? '#f0fff4' : '#f7fafc',
+                        border: `1px solid ${isMapEditable ? '#68d391' : '#e2e8f0'}`,
+                        borderRadius: '8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between'
+                    }}>
+                        <div>
+                            <div style={{ fontSize: '13px', fontWeight: 'bold', color: isMapEditable ? '#2f855a' : '#4a5568' }}>
+                                {isMapEditable ? '🟢 INTERACTIVE EDITING ENABLED' : '⚪ MAP INTERACTION DISABLED'}
+                            </div>
+                            <div style={{ fontSize: '10px', color: '#718096' }}>Drag markers on the map to resize parcel</div>
+                        </div>
+                        <label className="switch" style={{ position: 'relative', display: 'inline-block', width: '50px', height: '24px' }}>
+                            <input
+                                type="checkbox"
+                                checked={isMapEditable}
+                                onChange={(e) => setIsMapEditable(e.target.checked)}
+                                style={{ opacity: 0, width: 0, height: 0 }}
+                            />
+                            <span style={{
+                                position: 'absolute',
+                                cursor: 'pointer',
+                                top: 0, left: 0, right: 0, bottom: 0,
+                                backgroundColor: isMapEditable ? '#48bb78' : '#cbd5e0',
+                                transition: '.4s',
+                                borderRadius: '24px'
+                            }}>
+                                <span style={{
+                                    position: 'absolute',
+                                    content: '""',
+                                    height: '18px', width: '18px',
+                                    left: isMapEditable ? '28px' : '4px',
+                                    bottom: '3px',
+                                    backgroundColor: 'white',
+                                    transition: '.4s',
+                                    borderRadius: '50%'
+                                }}></span>
+                            </span>
+                        </label>
+                    </div>
+
                     {/* Basic Info & Coordinates Card */}
                     <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
                         <div style={{ marginBottom: '16px' }}>
@@ -392,7 +454,9 @@ const FieldForm = ({ onComplete, initialData }) => {
                         <FieldMap
                             center={currentFarm?.coordinates?.coordinates ? [currentFarm.coordinates.coordinates[1], currentFarm.coordinates.coordinates[0]] : [37.7749, -122.4194]}
                             onBoundaryCreate={handleBoundarySave}
+                            onBoundaryUpdate={handleBoundaryUpdate}
                             editable={true}
+                            isMapEditable={isMapEditable}
                             manualCoordinates={formData.boundary_coordinates}
                             parcelName={formData.name}
                             subAllocations={pendingAllocations}

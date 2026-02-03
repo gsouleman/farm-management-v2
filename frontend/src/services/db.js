@@ -15,10 +15,30 @@ db.version(3).stores({
 });
 
 export const saveToLocal = async (table, data) => {
-    if (Array.isArray(data)) {
-        return await db[table].bulkPut(data);
+    // 1. Robust Data Extraction (Handle Axios response or wrapped {data: ...})
+    let actualData = data;
+    if (data && data.data && !Array.isArray(data)) {
+        actualData = data.data;
     }
-    return await db[table].put(data);
+
+    // 2. Handle Arrays (Bulk Save)
+    if (Array.isArray(actualData)) {
+        // Filter out items without an ID to prevent "DataError: key path did not yield a value"
+        const validItems = actualData.filter(item => item && (item.id || item._id));
+        if (validItems.length > 0) {
+            return await db[table].bulkPut(validItems);
+        }
+        return;
+    }
+
+    // 3. Handle Single Object
+    if (actualData && (actualData.id || actualData._id)) {
+        return await db[table].put(actualData);
+    }
+
+    if (actualData) {
+        console.warn(`[DB] Save to ${table} skipped: Object missing primary key (id)`, actualData);
+    }
 };
 
 export const getFromLocal = async (table, criteria = {}) => {

@@ -144,6 +144,7 @@ const useFarmStore = create(
                     set((state) => ({
                         fields: state.fields.map(f => f.id === id ? updatedField : f)
                     }));
+                    await saveToLocal('fields', updatedField);
                     return updatedField;
                 } catch (error) {
                     throw error;
