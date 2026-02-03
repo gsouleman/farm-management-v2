@@ -134,22 +134,10 @@ const Dashboard = () => {
 
     // LOADING GUARD: After all hooks, before JSX rendering
     if (loading || (!farms || farms.length === 0)) {
-        return (
-            <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '60vh',
-                flexDirection: 'column',
-                gap: '16px'
-            }}>
-                <div style={{ fontSize: '32px' }}>🌾</div>
-                <div style={{ fontSize: '14px', fontWeight: '600', color: '#666' }}>
-                    Loading Dashboard...
-                </div>
-            </div>
-        );
+        console.log('[LOADING GUARD] Returning loading state...');
+        return <div style={{ padding: '40px', textAlign: 'center' }}>Loading Dashboard...</div>;
     }
+    console.log('[LOADING GUARD] Passed! Rendering full dashboard...');
 
     const renderCropBreakdown = () => (
         <div className="animate-fade-in card">
