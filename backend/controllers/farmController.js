@@ -121,27 +121,79 @@ exports.updateFarm = async (req, res) => {
 };
 
 exports.deleteFarm = async (req, res) => {
+    const { id } = req.params;
+    console.log(`[FarmController] DELETION PROTOCOL INITIATED FOR ENTERPRISE: ${id}`);
+
     try {
         const farm = await Farm.findOne({
-            where: { id: req.params.id, owner_id: req.user.id }
+            where: { id, owner_id: req.user.id }
         });
-        if (!farm) return res.status(404).json({ message: 'Farm not found' });
 
+        if (!farm) {
+            console.warn(`[FarmController] DELETION FAILED: ENTERPRISE ${id} NOT FOUND OR ACCESS DENIED.`);
+            return res.status(404).json({ message: 'Farm not found' });
+        }
+
+        const { Field, Activity, Infrastructure, Crop, Input, Weather, Document, FarmUser, Harvest, ActivityInput } = require('../models');
+
+        // 1. Get all fields to find related crops
+        const fields = await Field.findAll({ where: { farm_id: id } });
+        const fieldIds = fields.map(f => f.id);
+
+        // 2. Multi-stage cleanup
+        console.log(`[FarmController] CLEANING UP DEPENDENCIES FOR ENTERPRISE: ${id}...`);
+
+        // Activities & Dependencies
+        if (Activity) {
+            const activities = await Activity.findAll({ where: { farm_id: id } });
+            const activityIds = activities.map(a => a.id);
+
+            if (ActivityInput) {
+                await ActivityInput.destroy({ where: { activity_id: activityIds } });
+            }
+            await Activity.destroy({ where: { farm_id: id } });
+        }
+
+        // Crops & Harvests
+        if (Crop) {
+            const crops = await Crop.findAll({ where: { field_id: fieldIds } });
+            const cropIds = crops.map(c => c.id);
+
+            if (Harvest) {
+                await Harvest.destroy({ where: { crop_id: cropIds } });
+            }
+            await Crop.destroy({ where: { field_id: fieldIds } });
+        }
+
+        // Other Assets
+        if (Infrastructure) await Infrastructure.destroy({ where: { farm_id: id } });
+        if (Field) await Field.destroy({ where: { farm_id: id } });
+        if (Input) await Input.destroy({ where: { farm_id: id } });
+        if (Weather) await Weather.destroy({ where: { farm_id: id } });
+        if (Document) await Document.destroy({ where: { farm_id: id } });
+        if (FarmUser) await FarmUser.destroy({ where: { farm_id: id } });
+
+        // 3. Delete the Farm
+        console.log(`[FarmController] DESTROYING PRIMARY ENTERPRISE RECORD: ${id}...`);
         await farm.destroy();
+
+        console.log(`[FarmController] ENTERPRISE ${id} AND ALL ASSOCIATED DATA PURGED.`);
         res.json({
-            message: 'Farm deleted successfully',
+            message: 'Farm and all associated data deleted successfully',
             notification: {
                 message: 'ENTERPRISE RECORD PERMANENTLY LIQUIDATED',
                 type: 'success'
             }
         });
     } catch (error) {
+        console.error('[FarmController] CRITICAL DELETION ERROR:', error);
         res.status(500).json({
             message: 'Error deleting farm',
             notification: {
-                message: 'DELETE FAILURE: ENTERPRISE DATA PROTECTED',
+                message: `DELETE FAILURE: ${error.message.toUpperCase()}`,
                 type: 'error'
-            }
+            },
+            error: error.message
         });
     }
 };
