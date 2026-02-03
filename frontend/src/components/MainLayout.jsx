@@ -111,7 +111,7 @@ const MainLayout = ({ children }) => {
                 {/* Farm Selector */}
                 <div style={{ padding: '20px 24px', backgroundColor: 'rgba(255,255,255,0.03)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                        <label style={{ fontSize: '11px', color: '#888', fontWeight: '600' }}>ACTIVE STATION</label>
+                        <label style={{ fontSize: '11px', color: '#888', fontWeight: '600' }}>ACTIVE FARM</label>
                         <button
                             onClick={() => {
                                 navigate('/');

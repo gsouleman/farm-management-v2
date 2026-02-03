@@ -65,7 +65,7 @@ const Fields = () => {
             <div className="flex j-between a-center" style={{ marginBottom: '32px' }}>
                 <div>
                     <h1 style={{ fontSize: '24px', margin: 0 }}>Parcel Management</h1>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Strategic management of agricultural parcels, infrastructure, and cultivation cycles.</p>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Define and manage the physical land boundaries (Parcels) for your active farms. All geo-spatial operations are centralized here.</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
                     {activeTab === 'parcels' ? (

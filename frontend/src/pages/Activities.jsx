@@ -89,7 +89,7 @@ const Activities = () => {
             doc.setTextColor(255, 255, 255);
             doc.setFontSize(9);
             const dateStr = new Date().toLocaleDateString();
-            doc.text(`STATION / UNIT: ${currentFarm?.name?.toUpperCase()}`, 220, 18);
+            doc.text(`FARM / UNIT: ${currentFarm?.name?.toUpperCase()}`, 220, 18);
             doc.text(`LEDGER DATE: ${dateStr}`, 220, 24);
             doc.text(`STATUS: CERTIFIED FINANCIAL RECORD`, 220, 30);
 

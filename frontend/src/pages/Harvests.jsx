@@ -164,7 +164,7 @@ const Harvests = () => {
                         Harvest Records
                     </h1>
                     <div style={{ display: 'flex', gap: '20px', marginTop: '8px', fontSize: '13px', color: 'var(--text-secondary)', fontWeight: '500' }}>
-                        <span>STATION: {currentFarm?.name}</span>
+                        <span>FARM: {currentFarm?.name}</span>
                         <span style={{ opacity: 0.3 }}>|</span>
                         <span>DEPT: YIELD INTELLIGENCE</span>
                     </div>

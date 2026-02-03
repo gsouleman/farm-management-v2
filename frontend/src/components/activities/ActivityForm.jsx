@@ -140,7 +140,7 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                         Log Field Operations
                     </h1>
                     <div style={{ display: 'flex', gap: '20px', marginTop: '8px', fontSize: '13px', color: 'var(--text-secondary)', fontWeight: '500' }}>
-                        <span>STATION: {currentFarm?.name}</span>
+                        <span>FARM: {currentFarm?.name}</span>
                         <span style={{ opacity: 0.3 }}>|</span>
                         <span>TYPE: CROP & LAND MAINTENANCE</span>
                     </div>

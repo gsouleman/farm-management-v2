@@ -145,16 +145,21 @@ const FarmForm = ({ onComplete, initialData }) => {
         }
     };
 
+    const isNew = !initialData;
+
     return (
-        <div className="card animate-fade-in" style={{ maxWidth: '800px', margin: '0 auto' }}>
+        <div className="card animate-fade-in" style={{ maxWidth: '600px', margin: '0 auto' }}>
             <div className="card-header">
                 <h3 style={{ margin: 0, fontSize: '18px' }}>
-                    {initialData ? 'Update Enterprise & Land Details' : 'Register New Agricultural Enterprise'}
+                    {initialData ? 'Update Enterprise Profile' : 'Register New Agricultural Farm'}
                 </h3>
             </div>
+            <p style={{ padding: '0 24px', fontSize: '13px', color: '#666' }}>
+                {isNew ? 'Enter basic identity details to initialize your farm container.' : 'Refine enterprise details and high-level categorization.'}
+            </p>
             <form onSubmit={handleSubmit}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-                    <div>
+                <div style={{ padding: '24px' }}>
+                    <div style={{ marginBottom: '20px' }}>
                         <label>Business Name</label>
                         <input
                             type="text"
@@ -164,7 +169,7 @@ const FarmForm = ({ onComplete, initialData }) => {
                             required
                         />
                     </div>
-                    <div>
+                    <div style={{ marginBottom: '20px' }}>
                         <label>Operation Type</label>
                         <select
                             value={formData.farm_type}
@@ -177,139 +182,46 @@ const FarmForm = ({ onComplete, initialData }) => {
                             <option value="vineyard">Vineyard</option>
                         </select>
                     </div>
-                </div>
 
-                <div style={{ marginBottom: '20px' }}>
-                    <label>Street Address</label>
-                    <input
-                        type="text"
-                        value={formData.address}
-                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                        placeholder="Rural Route or Physical Address"
-                    />
-                </div>
+                    {!isNew && (
+                        <div className="animate-fade-in">
+                            <div style={{ marginBottom: '20px' }}>
+                                <label>Street Address</label>
+                                <input
+                                    type="text"
+                                    value={formData.address}
+                                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                                    placeholder="Rural Route or Physical Address"
+                                />
+                            </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '20px' }}>
-                    <div>
-                        <label>City</label>
-                        <input
-                            type="text"
-                            value={formData.city}
-                            onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                        />
-                    </div>
-                    <div>
-                        <label>State / Province</label>
-                        <input
-                            type="text"
-                            value={formData.state}
-                            onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                        />
-                    </div>
-                    <div>
-                        <label>Postal Code</label>
-                        <input
-                            type="text"
-                            value={formData.postal_code}
-                            onChange={(e) => setFormData({ ...formData, postal_code: e.target.value })}
-                        />
-                    </div>
-                </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+                                <div>
+                                    <label>City</label>
+                                    <input
+                                        type="text"
+                                        value={formData.city}
+                                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                                    />
+                                </div>
+                                <div>
+                                    <label>Country</label>
+                                    <input
+                                        type="text"
+                                        value={formData.country}
+                                        onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-                    <div>
-                        <label>Country</label>
-                        <input
-                            type="text"
-                            value={formData.country}
-                            onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                        />
+                    <div style={{ display: 'flex', gap: '12px', marginTop: '30px' }}>
+                        <button type="submit" className="primary" style={{ flex: 1 }} disabled={loading}>
+                            {loading ? 'Processing...' : (initialData ? 'Update Profile' : 'Quick Register Farm')}
+                        </button>
+                        <button type="button" onClick={onComplete} className="outline" style={{ flex: 1 }}>Cancel</button>
                     </div>
-                    <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <label>Total Size</label>
-                            {(formData.boundary_coordinates?.length > 2) && <span style={{ fontSize: '10px', color: 'var(--success)', fontWeight: 'bold' }}>AUTO-CALCULATED</span>}
-                        </div>
-                        <input
-                            type="number"
-                            step="0.01"
-                            value={formData.total_area}
-                            onChange={(e) => setFormData({ ...formData, total_area: e.target.value })}
-                            style={{ backgroundColor: (formData.boundary_coordinates?.length > 2) ? '#f0fff4' : 'white' }}
-                        />
-                    </div>
-                    <div>
-                        <label>Area Unit</label>
-                        <select
-                            value={formData.area_unit}
-                            onChange={(e) => setFormData({ ...formData, area_unit: e.target.value })}
-                        >
-                            <option value="hectares">Hectares (ha)</option>
-                            <option value="acres">Acres (ac)</option>
-                            <option value="sq_meters">Sq Meters (m²)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div className="card" style={{ backgroundColor: '#f8f9fa', borderStyle: 'dashed', marginBottom: '20px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <label style={{ color: 'var(--primary)', fontWeight: '700' }}>🗺️ Boundary Coordinates (lat,lng per line)</label>
-                        <span style={{ fontSize: '11px', color: '#666' }}>Edit logic: Modify coordinates to resize farm</span>
-                    </div>
-                    <textarea
-                        rows="5"
-                        value={coordsText}
-                        onChange={handleCoordsChange}
-                        placeholder="45.4215,-75.6972&#10;45.4220,-75.6980&#10;45.4210,-75.6990"
-                        style={{ marginTop: '10px', fontSize: '13px', fontFamily: 'monospace' }}
-                    />
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '16px' }}>
-                        <div className="card" style={{ padding: '12px', textAlign: 'center', backgroundColor: 'white' }}>
-                            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Surface Area</div>
-                            <div style={{ fontWeight: 'bold' }}>{formData.total_area || '0'} ha</div>
-                        </div>
-                        <div className="card" style={{ padding: '12px', textAlign: 'center', backgroundColor: 'white' }}>
-                            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Surface Area</div>
-                            <div style={{ fontWeight: 'bold' }}>{(formData.total_area * 2.47105).toFixed(2) || '0'} ac</div>
-                        </div>
-                        <div className="card" style={{ padding: '12px', textAlign: 'center', backgroundColor: 'white' }}>
-                            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Perimeter</div>
-                            <div style={{ fontWeight: 'bold' }}>{formData.perimeter || '0'} km</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="card" style={{ backgroundColor: '#f8f9fa', borderStyle: 'solid', borderColor: '#eee' }}>
-                    <label style={{ color: 'var(--primary)', fontWeight: '700' }}>📍 Secondary Location Info</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '10px' }}>
-                        <div>
-                            <label style={{ fontSize: '11px' }}>Latitude (auto-filled)</label>
-                            <input
-                                type="text"
-                                value={formData.latitude}
-                                onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
-                                placeholder="e.g. 45.4215"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label style={{ fontSize: '11px' }}>Longitude (auto-filled)</label>
-                            <input
-                                type="text"
-                                value={formData.longitude}
-                                onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
-                                placeholder="e.g. -75.6972"
-                                required
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: '12px', marginTop: '30px' }}>
-                    <button type="submit" className="primary" style={{ flex: 1 }} disabled={loading}>
-                        {loading ? 'Processing...' : (initialData ? 'Update & Resize Farm' : 'Register Farm')}
-                    </button>
-                    <button type="button" onClick={onComplete} className="outline" style={{ flex: 1 }}>Cancel</button>
                 </div>
             </form>
         </div>
