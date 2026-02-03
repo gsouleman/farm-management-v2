@@ -52,11 +52,40 @@ const FieldForm = ({ onComplete, initialData }) => {
         fetchInfraLib();
 
         if (initialData) {
+            const rawCoords = initialData.boundary?.coordinates?.[0] || [];
+
             setFormData({
                 ...initialData,
-                boundary_coordinates: initialData.boundary?.coordinates?.[0]?.map(c => ({ lat: c[1], lng: c[0] })) || []
+                boundary_coordinates: rawCoords
             });
+
             setCalculatedArea(initialData.area || 0);
+
+            // Populate Metrics & Text Area
+            if (rawCoords.length > 0) {
+                // Leaflet/Form expects [lat, lng] for text area
+                const text = rawCoords.map(c => `${c[1].toFixed(6)},${c[0].toFixed(6)}`).join('\n');
+                setCoordsText(text);
+
+                // Use the same logic as handleBoundaryUpdate for perimeter/region
+                let closedCoords = [...rawCoords];
+                if (closedCoords.length >= 3 &&
+                    (closedCoords[0][0] !== closedCoords[closedCoords.length - 1][0] ||
+                        closedCoords[0][1] !== closedCoords[closedCoords.length - 1][1])) {
+                    closedCoords.push(closedCoords[0]);
+                }
+
+                try {
+                    const poly = turf.polygon([closedCoords]);
+                    const perimeter = turf.length(poly, { units: 'meters' });
+                    setCalculatedPerimeter((perimeter / 1000).toFixed(2));
+                } catch (e) {
+                    console.warn("Invalid polygon for perimeter calculation:", e);
+                }
+
+                const region = getCameroonRegion(rawCoords[0][1], rawCoords[0][0]);
+                setDetectedRegion(region);
+            }
         }
     }, [fetchCropLib, fetchInfraLib, initialData]);
 
@@ -261,7 +290,7 @@ const FieldForm = ({ onComplete, initialData }) => {
     return (
         <div className="card animate-fade-in" style={{ maxWidth: '1100px', margin: '0 auto' }}>
             <div className="card-header">
-                <h3 style={{ margin: 0, fontSize: '18px' }}>Register Strategic Parcel</h3>
+                <h3 style={{ margin: 0, fontSize: '18px' }}>{initialData ? 'Update' : 'Register'} Strategic Parcel</h3>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '400px 1fr', gap: '30px' }}>
@@ -445,7 +474,7 @@ const FieldForm = ({ onComplete, initialData }) => {
                     </div>
 
                     <div style={{ display: 'flex', gap: '12px' }}>
-                        <button type="submit" className="primary" style={{ flex: 1 }} disabled={loading}>{loading ? 'Saving...' : 'Register Parcel'}</button>
+                        <button type="submit" className="primary" style={{ flex: 1 }} disabled={loading}>{loading ? 'Saving...' : (initialData ? 'Update Parcel' : 'Register Parcel')}</button>
                         <button type="button" onClick={onComplete} className="outline" style={{ flex: 1 }}>Discard</button>
                     </div>
                 </form>
