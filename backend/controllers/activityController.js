@@ -335,13 +335,15 @@ exports.deleteActivity = async (req, res) => {
 };
 
 exports.bulkUploadActivities = async (req, res) => {
+    const filePath = req.file?.path;
+    console.log(`[ActivityController] BULK UPLOAD INITIATED FOR FARM: ${req.params.farmId}`);
+
     try {
         if (!req.file) {
             return res.status(400).json({ message: 'No file uploaded' });
         }
 
         const farmId = req.params.farmId;
-        const filePath = req.file.path;
         const fileExt = path.extname(req.file.originalname).toLowerCase();
         let rawData = [];
 
@@ -354,16 +356,12 @@ exports.bulkUploadActivities = async (req, res) => {
             const xmlContent = fs.readFileSync(filePath, 'utf8');
             const parser = new xml2js.Parser({ explicitArray: false });
             const result = await parser.parseStringPromise(xmlContent);
-            // Assuming <activities><activity>...</activity></activities>
             rawData = result.activities?.activity || [];
             if (!Array.isArray(rawData)) rawData = [rawData];
         } else if (fileExt === '.pdf') {
             const dataBuffer = fs.readFileSync(filePath);
             const data = await pdf(dataBuffer);
-            // Note: PDF parsing is heuristic. Assuming one line per activity or similar.
-            // For a production app, we'd need more specific layout logic.
             const lines = data.text.split('\n').filter(l => l.trim());
-            // Attempt to treat each line as a comma-separated activity if possible, or just raw text
             rawData = lines.map(line => ({ description: line }));
         } else if (fileExt === '.docx') {
             const result = await mammoth.extractRawText({ path: filePath });
@@ -375,8 +373,6 @@ exports.bulkUploadActivities = async (req, res) => {
             return res.status(400).json({ message: 'No activities found in file' });
         }
 
-        // Processing bulk upload
-
         // 2. Map Names to IDs
         const [fields, crops, infrastructures] = await Promise.all([
             Field.findAll({ where: { farm_id: farmId } }),
@@ -384,43 +380,42 @@ exports.bulkUploadActivities = async (req, res) => {
             Infrastructure.findAll({ where: { farm_id: farmId } })
         ]);
 
-        const findFieldId = (name) => name ? fields.find(f => f.name?.toLowerCase().includes(String(name).toLowerCase()))?.id : null;
-        const findCropId = (name) => name ? crops.find(c => c.crop_type?.toLowerCase().includes(String(name).toLowerCase()))?.id : null;
-        const findInfraId = (name) => name ? infrastructures.find(i => i.name?.toLowerCase().includes(String(name).toLowerCase()))?.id : null;
+        const findFieldId = (name) => name ? fields.find(f => String(f.name || '').toLowerCase().includes(String(name).toLowerCase()))?.id : null;
+        const findCropId = (name) => name ? crops.find(c => String(c.crop_type || '').toLowerCase().includes(String(name).toLowerCase()))?.id : null;
+        const findInfraId = (name) => name ? infrastructures.find(i => String(i.name || '').toLowerCase().includes(String(name).toLowerCase()))?.id : null;
 
         const activitiesToCreate = rawData
-            .filter(row => Object.values(row).some(v => v !== null && v !== '')) // Filter out empty rows
+            .filter(row => Object.values(row).some(v => v !== null && v !== ''))
             .map((row, index) => {
                 try {
-                    // Robust column mapping
+                    // Robust column mapping - Ensure values are treated as strings before calling string methods
                     const activity_date = getVal(row, 'date', 'activity_date') || new Date().toISOString().split('T')[0];
-                    const rawType = getVal(row, 'activity type', 'type', 'operation type') || 'General';
+                    const rawType = String(getVal(row, 'activity type', 'type', 'operation type', 'category') || 'General');
                     const activity_type = rawType.toLowerCase().replace(/ /g, '_');
-                    const description = getVal(row, 'description', 'notes') || `Bulk import: ${activity_type}`;
+                    const description = String(getVal(row, 'description', 'notes', 'detail') || `Bulk import: ${activity_type}`);
 
                     // Financials
-                    const rawAmount = getVal(row, 'amount', 'cost', 'total_cost', 'financial');
+                    const rawAmount = getVal(row, 'amount', 'cost', 'total_cost', 'financial', 'value', 'price');
                     let total_cost = 0;
                     if (rawAmount) {
-                        // Extract numeric value from string (handling "XAF 1,000" etc)
                         const numericPart = String(rawAmount).replace(/[^\d.-]/g, '');
                         total_cost = parseFloat(numericPart) || 0;
                     }
 
-                    // Transaction Type (Income/Expense)
-                    const transStr = String(getVal(row, 'transaction', 'type') || '').toLowerCase();
-                    const transaction_type = (transStr.includes('income') || activity_type.includes('harvest') || transStr.includes('revenue')) ? 'income' : 'expense';
+                    // Transaction Type
+                    const transStr = String(getVal(row, 'transaction', 'type', 'nature') || '').toLowerCase();
+                    const transaction_type = (transStr.includes('income') || activity_type.includes('harvest') || transStr.includes('revenue') || transStr.includes('sale')) ? 'income' : 'expense';
 
                     // Link to assets
-                    const opName = String(getVal(row, 'operation', 'asset', 'crop', 'infrastructure') || '');
-                    let field_id = findFieldId(getVal(row, 'field', 'location'));
+                    const opName = String(getVal(row, 'operation', 'asset', 'crop', 'infrastructure', 'structure') || '');
+                    let field_id = findFieldId(getVal(row, 'field', 'location', 'parcel'));
                     let crop_id = findCropId(opName);
                     let infrastructure_id = findInfraId(opName);
 
                     return {
                         activity_date,
-                        activity_type,
-                        description,
+                        activity_type: activity_type.substring(0, 50), // Cap length
+                        description: description.substring(0, 500), // Cap length
                         total_cost,
                         field_id,
                         crop_id,
@@ -443,18 +438,33 @@ exports.bulkUploadActivities = async (req, res) => {
 
         const createdActivities = await Activity.bulkCreate(activitiesToCreate);
 
-        // 4. Cleanup
-        if (req.file?.path && fs.existsSync(req.file.path)) {
-            fs.unlinkSync(req.file.path);
-        }
-
         res.status(201).json({
             message: `Successfully imported ${createdActivities.length} activities`,
-            count: createdActivities.length
+            count: createdActivities.length,
+            notification: {
+                message: `SYSTEM SYNC: ${createdActivities.length} RECORDS ARCHIVED`,
+                type: 'success'
+            }
         });
 
     } catch (error) {
-        console.error('Bulk Upload Error:', error);
-        res.status(500).json({ message: 'Error processing bulk upload' });
+        console.error('[BulkUpload] Critical Error:', error);
+        res.status(500).json({
+            message: 'Error processing bulk upload',
+            error: error.message,
+            notification: {
+                message: `IMPORT FAILURE: ${error.message.toUpperCase()}`,
+                type: 'error'
+            }
+        });
+    } finally {
+        // Safe cleanup
+        if (filePath && fs.existsSync(filePath)) {
+            try {
+                fs.unlinkSync(filePath);
+            } catch (unlinkError) {
+                console.error('[BulkUpload] Cleanup Failed:', unlinkError);
+            }
+        }
     }
 };
