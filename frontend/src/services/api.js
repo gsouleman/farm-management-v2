@@ -5,6 +5,7 @@ const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
 
 const api = axios.create({
     baseURL,
+    timeout: 60000, // 60 seconds (allows for Render cold starts)
     headers: {
         'Content-Type': 'application/json'
     }
@@ -74,6 +75,13 @@ api.interceptors.response.use(
         // Log other network errors more clearly
         if (!error.response) {
             console.error('[API] Network Error or Server Unreachable:', error.message);
+
+            // Customize error message for cold starts/timeouts
+            if (error.code === 'ECONNABORTED' || error.message.includes('Network Error')) {
+                const customError = new Error('The backend is waking up or unreachable. Please wait 30 seconds and try again.');
+                customError.isColdStart = true;
+                return Promise.reject(customError);
+            }
         }
 
         return Promise.reject(error);

@@ -13,7 +13,7 @@ const useAuthStore = create((set) => ({
             const { user } = await authService.login(credentials);
             set({ user, isAuthenticated: true, loading: false });
         } catch (error) {
-            set({ error: error.response?.data?.message || 'Login failed', loading: false });
+            set({ error: error.response?.data?.message || error.message || 'Login failed', loading: false });
         }
     },
 
@@ -23,7 +23,7 @@ const useAuthStore = create((set) => ({
             const { user } = await authService.register(userData);
             set({ user, isAuthenticated: true, loading: false });
         } catch (error) {
-            set({ error: error.response?.data?.message || 'Registration failed', loading: false });
+            set({ error: error.response?.data?.message || error.message || 'Registration failed', loading: false });
         }
     },
 

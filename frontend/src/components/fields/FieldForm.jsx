@@ -112,7 +112,7 @@ const FieldForm = ({ onComplete }) => {
     return (
         <div className="card animate-fade-in" style={{ maxWidth: '1100px', margin: '0 auto' }}>
             <div className="card-header">
-                <h3 style={{ margin: 0, fontSize: '18px' }}>Define Land Boundary & Profile</h3>
+                <h3 style={{ margin: 0, fontSize: '18px' }}>Define Land Boundary & Profile - {currentFarm?.name || 'New Parcel'}</h3>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '400px 1fr', gap: '30px' }}>
@@ -259,7 +259,7 @@ const FieldForm = ({ onComplete }) => {
 
                     <div style={{ display: 'flex', gap: '12px' }}>
                         <button type="submit" className="primary" style={{ flex: 1 }} disabled={loading}>
-                            {loading ? 'Saving...' : 'Create Farm'}
+                            {loading ? 'Saving...' : 'Register Parcel'}
                         </button>
                         <button type="button" onClick={onComplete} className="outline" style={{ flex: 1 }}>Discard</button>
                     </div>
