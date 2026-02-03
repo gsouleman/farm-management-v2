@@ -60,6 +60,7 @@ const FieldForm = ({ onComplete, initialData }) => {
         }
     }, [fetchCropLib, fetchInfraLib, initialData]);
 
+    const [calculatedArea, setCalculatedArea] = useState(0);
     const [calculatedPerimeter, setCalculatedPerimeter] = useState(0);
     const [coordsText, setCoordsText] = useState('');
     const [loading, setLoading] = useState(false);
