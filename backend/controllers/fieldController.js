@@ -24,7 +24,7 @@ exports.getFieldById = async (req, res) => {
 
 exports.createField = async (req, res) => {
     try {
-        const { name, farm_id, boundary_coordinates, soil_type, field_number, notes, irrigation, drainage, slope, area, area_unit, status, crop_id, carbon_sequestration, water_efficiency } = req.body;
+        const { name, farm_id, boundary_coordinates, soil_type, field_number, notes, irrigation, drainage, slope, area, perimeter, area_unit, status, crop_id, carbon_sequestration, water_efficiency } = req.body;
 
         // Validate farm ownership
         const farm = await Farm.findOne({ where: { id: farm_id, owner_id: req.user.id } });
@@ -64,6 +64,7 @@ exports.createField = async (req, res) => {
             drainage,
             slope,
             area: area || 0,
+            perimeter: perimeter || 0,
             area_unit: area_unit || 'hectares',
             status: status || 'active',
             crop_id: crop_id || null,
@@ -74,15 +75,20 @@ exports.createField = async (req, res) => {
         // Calculate area using PostGIS
         try {
             const [result] = await sequelize.query(
-                `SELECT ST_Area(ST_GeogFromGeoJSON(:boundary)) / 10000 AS area_hectares`,
+                `SELECT 
+                    ST_Area(ST_GeogFromGeoJSON(:boundary)) / 10000 AS area_hectares,
+                    ST_Perimeter(ST_GeogFromGeoJSON(:boundary)) AS perimeter_meters`,
                 {
                     replacements: { boundary: JSON.stringify(boundary) },
                     type: sequelize.QueryTypes.SELECT
                 }
             );
 
-            if (result && result.area_hectares !== undefined) {
-                await field.update({ area: result.area_hectares });
+            if (result) {
+                const updates = {};
+                if (result.area_hectares !== undefined) updates.area = result.area_hectares;
+                if (result.perimeter_meters !== undefined) updates.perimeter = result.perimeter_meters;
+                await field.update(updates);
             }
         } catch (areaError) {
             console.error('Area calculation failed for new field:', areaError);
@@ -112,7 +118,7 @@ exports.updateField = async (req, res) => {
         const field = await Field.findByPk(req.params.id);
         if (!field) return res.status(404).json({ message: 'Field not found' });
 
-        const { name, boundary_coordinates, soil_type, field_number, notes, irrigation, drainage, slope, status, crop_id, carbon_sequestration, water_efficiency } = req.body;
+        const { name, boundary_coordinates, soil_type, field_number, notes, irrigation, drainage, slope, area, perimeter, status, crop_id, carbon_sequestration, water_efficiency } = req.body;
 
         const updateData = {
             name,
@@ -122,6 +128,8 @@ exports.updateField = async (req, res) => {
             irrigation,
             drainage,
             slope,
+            area,
+            perimeter,
             status,
             crop_id,
             carbon_sequestration,
@@ -151,14 +159,17 @@ exports.updateField = async (req, res) => {
 
             try {
                 const [result] = await sequelize.query(
-                    `SELECT ST_Area(ST_GeogFromGeoJSON(:boundary)) / 10000 AS area_hectares`,
+                    `SELECT 
+                        ST_Area(ST_GeogFromGeoJSON(:boundary)) / 10000 AS area_hectares,
+                        ST_Perimeter(ST_GeogFromGeoJSON(:boundary)) AS perimeter_meters`,
                     {
                         replacements: { boundary: JSON.stringify(boundary) },
                         type: sequelize.QueryTypes.SELECT
                     }
                 );
-                if (result && result.area_hectares !== undefined) {
-                    updateData.area = result.area_hectares;
+                if (result) {
+                    if (result.area_hectares !== undefined) updateData.area = result.area_hectares;
+                    if (result.perimeter_meters !== undefined) updateData.perimeter = result.perimeter_meters;
                 }
             } catch (areaError) {
                 console.error('Area calculation failed during boundary update:', areaError);

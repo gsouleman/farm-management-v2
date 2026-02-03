@@ -242,12 +242,14 @@ const FieldForm = ({ onComplete, initialData }) => {
             if (initialData?.id) {
                 field = await updateField(initialData.id, {
                     ...formData,
-                    area: calculatedArea
+                    area: calculatedArea,
+                    perimeter: calculatedPerimeter
                 });
             } else {
                 field = await createField(selectedFarmId, {
                     ...formData,
-                    area: calculatedArea
+                    area: calculatedArea,
+                    perimeter: calculatedPerimeter
                 });
             }
 
@@ -489,6 +491,9 @@ const FieldForm = ({ onComplete, initialData }) => {
                             isMapEditable={isMapEditable}
                             manualCoordinates={formData.boundary_coordinates}
                             parcelName={formData.name}
+                            parcelArea={calculatedArea}
+                            parcelPerimeter={calculatedPerimeter}
+                            editingId={initialData?.id}
                             subAllocations={pendingAllocations}
                             currentLabel={activeAllocation.sub_type || activeAllocation.name}
                         />

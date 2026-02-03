@@ -73,7 +73,7 @@ const getCropStyle = (cropType) => {
     return CROP_STYLES[type] || Object.entries(CROP_STYLES).find(([key]) => type.includes(key))?.[1] || CROP_STYLES.default;
 };
 
-const PolygonLabel = ({ coordinates, label, cropType }) => {
+const PolygonLabel = ({ coordinates, label, area, perimeter, cropType }) => {
     if (!coordinates || coordinates.length < 3) return null;
     try {
         const style = getCropStyle(cropType);
@@ -83,6 +83,13 @@ const PolygonLabel = ({ coordinates, label, cropType }) => {
         const polygon = turf.polygon([coordinates]);
         const centroid = turf.centroid(polygon);
         const [lng, lat] = centroid.geometry.coordinates;
+
+        const labelContent = area && perimeter
+            ? `<div style="text-align: center;">
+                <div>${label}</div>
+                <div style="font-size: 10px; opacity: 0.9; margin-top: 2px;">${area} HA | ${perimeter} KM</div>
+               </div>`
+            : label;
 
         const icon = L.divIcon({
             className: 'polygon-label',
@@ -102,7 +109,7 @@ const PolygonLabel = ({ coordinates, label, cropType }) => {
                 transform: translate(-50%, -50%); 
                 text-transform: uppercase; 
                 letter-spacing: 1.5px;
-            ">${label}</div>`,
+            ">${labelContent}</div>`,
             iconSize: [0, 0],
             iconAnchor: [0, 0]
         });
@@ -126,6 +133,9 @@ const FieldMap = ({
     isMapEditable = false, // New: toggle for interactive editing
     currentLabel,
     parcelName, // New prop for current parcel being registered
+    parcelArea, // New: from parent state
+    parcelPerimeter, // New: from parent state
+    editingId, // New: ID of field being edited to filter it out
     subAllocations = [] // Polygons already sketched in this session
 }) => {
     const mapRef = useRef();
@@ -171,13 +181,13 @@ const FieldMap = ({
             onBoundaryCreate({
                 coordinates,
                 area: area.toFixed(2),
-                perimeter: perimeter.toFixed(2)
+                perimeter: (perimeter / 1000).toFixed(2)
             });
         }
     };
 
     // Convert fields boundary format
-    const fieldPolygons = fields?.map(field => ({
+    const fieldPolygons = fields?.filter(f => f.id !== editingId).map(field => ({
         id: field.id,
         name: field.name,
         positions: field.boundary?.coordinates?.[0]?.map(coord => [coord[1], coord[0]]) || []
@@ -517,6 +527,8 @@ const FieldMap = ({
                                     <PolygonLabel
                                         coordinates={manualCoordinates}
                                         label={parcelName || currentLabel}
+                                        area={parcelArea}
+                                        perimeter={parcelPerimeter}
                                         cropType={currentLabel}
                                     />
                                 )}

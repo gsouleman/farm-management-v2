@@ -29,6 +29,10 @@ module.exports = (sequelize) => {
             allowNull: false
         },
         area: DataTypes.DECIMAL(10, 2),
+        perimeter: {
+            type: DataTypes.DECIMAL(10, 2),
+            comment: 'Total perimeter in meters'
+        },
         area_unit: {
             type: DataTypes.STRING,
             defaultValue: 'hectares'
