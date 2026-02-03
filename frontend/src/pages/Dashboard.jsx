@@ -16,11 +16,11 @@ import WeatherWidget from '../components/weather/WeatherWidget';
 import QuickLinks from '../components/dashboard/QuickLinks';
 import api from '../services/api';
 
-// TEST VERSION 3A: ONLY useEffect 1 (initial fetch) - NO useEffect 2
+// TEST VERSION 3B: ONLY fetchFarms() call
 const Dashboard = () => {
-    console.log('[TEST 3A] Dashboard rendering...');
+    console.log('[TEST 3B] Dashboard rendering...');
 
-    // Store hooks
+    // Store hooks - Keep ALL of them to match original
     const { fetchFarms, farms, currentFarm, fields, fetchFields, loading, loadFarm } = useFarmStore();
     const { fetchAllCrops, crops } = useCropStore();
     const { infrastructure, fetchInfrastructure } = useInfrastructureStore();
@@ -34,23 +34,18 @@ const Dashboard = () => {
     const [selectedField, setSelectedField] = useState(null);
     const navigate = useNavigate();
 
-    // ONLY useEffect 1: Initial fetch
+    // ONLY fetchFarms
     useEffect(() => {
-        console.log('[TEST 3A] useEffect - fetching data...');
+        console.log('[TEST 3B] useEffect - calling ONLY fetchFarms...');
         fetchFarms();
-        fetchAllCrops();
-        fetchAllActivities();
-        fetchAllHarvests();
     }, []);
 
-    // useEffect 2 is REMOVED for this test
-
-    console.log('[TEST 3A] About to render, farms:', farms?.length, 'loading:', loading);
+    console.log('[TEST 3B] About to render, farms:', farms?.length, 'loading:', loading);
 
     return (
         <div style={{ padding: '40px', textAlign: 'center' }}>
-            <h1>🧪 TEST 3A: Only useEffect 1</h1>
-            <p>If you see this, useEffect 1 is fine.</p>
+            <h1>🧪 TEST 3B: Only fetchFarms</h1>
+            <p>If you see this, fetchFarms is fine.</p>
             <p>farms.length: {farms?.length || 0}, loading: {String(loading)}</p>
         </div>
     );
