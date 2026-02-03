@@ -130,6 +130,7 @@ const Dashboard = () => {
     ], [totalRevenue, totalExpenses, netCashFlow, totalFarmArea, totalPlantedArea, activeFarms.length]);
 
     console.log('[RENDER CHECK] farms:', farms, 'fields:', fields, 'crops:', crops, 'activities:', activities, 'infrastructure:', infrastructure, 'harvests:', harvests);
+    console.log('[LOADING GUARD CHECK] loading:', loading, 'farms:', farms, 'farms?.length:', farms?.length, 'guard result:', loading || (!farms || farms.length === 0));
 
     // LOADING GUARD: After all hooks, before JSX rendering
     if (loading || (!farms || farms.length === 0)) {
