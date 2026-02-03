@@ -4,6 +4,7 @@ import useFarmStore from '../store/farmStore';
 import useUIStore from '../store/uiStore';
 import FieldForm from '../components/fields/FieldForm';
 import FarmForm from '../components/farms/FarmForm';
+import ParcelAllocationFlow from '../components/fields/ParcelAllocationFlow';
 import { getCameroonRegion } from '../utils/locationUtils';
 
 const Fields = () => {
@@ -19,9 +20,10 @@ const Fields = () => {
     } = useFarmStore();
     const { showAlert, showNotification } = useUIStore();
 
-    const [view, setView] = useState('list'); // list, add-parcel, add-enterprise, edit-enterprise
+    const [view, setView] = useState('list'); // list, add-parcel, add-enterprise, edit-enterprise, allocate-parcel
     const [activeTab, setActiveTab] = useState('parcels'); // parcels, enterprise
     const [editingFarm, setEditingFarm] = useState(null);
+    const [newlyCreatedField, setNewlyCreatedField] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -56,9 +58,19 @@ const Fields = () => {
         }
     };
 
-    if (view === 'add-parcel') return <FieldForm onComplete={() => setView('list')} />;
+    if (view === 'add-parcel') return <FieldForm onComplete={(field) => {
+        if (field) {
+            setNewlyCreatedField(field);
+            setView('allocate-parcel');
+        } else {
+            setView('list');
+        }
+    }} />;
     if (view === 'add-enterprise') return <FarmForm onComplete={() => setView('list')} />;
     if (view === 'edit-enterprise') return <FarmForm initialData={editingFarm} onComplete={() => { setView('list'); setEditingFarm(null); }} />;
+    if (view === 'allocate-parcel' && newlyCreatedField) {
+        return <ParcelAllocationFlow field={newlyCreatedField} onComplete={() => { setView('list'); setNewlyCreatedField(null); }} />;
+    }
 
     return (
         <div className="animate-fade-in" style={{ padding: '24px' }}>

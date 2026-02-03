@@ -110,11 +110,11 @@ const FieldForm = ({ onComplete }) => {
 
         setLoading(true);
         try {
-            await createField(currentFarm.id, {
+            const response = await createField(currentFarm.id, {
                 ...formData,
                 area: calculatedArea
             });
-            if (onComplete) onComplete();
+            if (onComplete) onComplete(response);
         } catch (error) {
             console.error(error);
         } finally {

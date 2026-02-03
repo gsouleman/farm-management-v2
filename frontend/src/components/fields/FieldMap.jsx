@@ -58,6 +58,12 @@ const CROP_STYLES = {
     pepper: { color: '#FF6D00', font: "'Arial Black', sans-serif" }, // Deep Orange
     penja_pepper: { color: '#FFFFFF', font: "'Courier New', monospace" }, // Stark White
 
+    // Infrastructure
+    infrastructure: { color: '#2196F3', font: "'Impact', sans-serif" }, // Deep Blue
+    storage: { color: '#607D8B', font: "'Impact', sans-serif" }, // Grey Blue
+    farm_house: { color: '#795548', font: "'Impact', sans-serif" }, // Brown
+    poultry: { color: '#FF9800', font: "'Impact', sans-serif" }, // Orange
+
     default: { color: '#FFFFFF', font: "sans-serif" }
 };
 
