@@ -16,11 +16,11 @@ import WeatherWidget from '../components/weather/WeatherWidget';
 import QuickLinks from '../components/dashboard/QuickLinks';
 import api from '../services/api';
 
-// TEST VERSION 3B: ONLY fetchFarms() call
+// TEST VERSION 3C: fetchFarms + fetchAllCrops
 const Dashboard = () => {
-    console.log('[TEST 3B] Dashboard rendering...');
+    console.log('[TEST 3C] Dashboard rendering...');
 
-    // Store hooks - Keep ALL of them to match original
+    // Store hooks
     const { fetchFarms, farms, currentFarm, fields, fetchFields, loading, loadFarm } = useFarmStore();
     const { fetchAllCrops, crops } = useCropStore();
     const { infrastructure, fetchInfrastructure } = useInfrastructureStore();
@@ -28,25 +28,25 @@ const Dashboard = () => {
     const { fetchAllActivities, activities } = useActivityStore();
     const { budgetData, fetchCropBudgets } = useReportStore();
 
-    // State hooks
     const [view, setView] = useState('overview');
     const [isGlobalView, setIsGlobalView] = useState(true);
     const [selectedField, setSelectedField] = useState(null);
     const navigate = useNavigate();
 
-    // ONLY fetchFarms
+    // fetchFarms + fetchAllCrops
     useEffect(() => {
-        console.log('[TEST 3B] useEffect - calling ONLY fetchFarms...');
+        console.log('[TEST 3C] useEffect - fetchFarms + fetchAllCrops...');
         fetchFarms();
+        fetchAllCrops();
     }, []);
 
-    console.log('[TEST 3B] About to render, farms:', farms?.length, 'loading:', loading);
+    console.log('[TEST 3C] About to render, farms:', farms?.length, 'crops:', crops?.length, 'loading:', loading);
 
     return (
         <div style={{ padding: '40px', textAlign: 'center' }}>
-            <h1>🧪 TEST 3B: Only fetchFarms</h1>
-            <p>If you see this, fetchFarms is fine.</p>
-            <p>farms.length: {farms?.length || 0}, loading: {String(loading)}</p>
+            <h1>🧪 TEST 3C: fetchFarms + fetchAllCrops</h1>
+            <p>If you see this, fetchAllCrops is fine.</p>
+            <p>farms: {farms?.length || 0}, crops: {crops?.length || 0}</p>
         </div>
     );
 };
