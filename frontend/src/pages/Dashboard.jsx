@@ -16,15 +16,32 @@ import WeatherWidget from '../components/weather/WeatherWidget';
 import QuickLinks from '../components/dashboard/QuickLinks';
 import api from '../services/api';
 
-// TEST VERSION: All imports, NO hooks, just return a simple div
-// This tests if the crash is in the imports themselves
+// TEST VERSION 2: All imports + ALL STORE HOOKS, but no useEffect/useMemo
+// This tests if the crash is in the store hooks themselves
 const Dashboard = () => {
-    console.log('[TEST] Dashboard rendering with all imports, no hooks...');
+    console.log('[TEST 2] Dashboard with all store hooks...');
+
+    // Store hooks
+    const { fetchFarms, farms, currentFarm, fields, fetchFields, loading, loadFarm } = useFarmStore();
+    const { fetchAllCrops, crops } = useCropStore();
+    const { infrastructure, fetchInfrastructure } = useInfrastructureStore();
+    const { fetchAllHarvests, harvests } = useHarvestStore();
+    const { fetchAllActivities, activities } = useActivityStore();
+    const { budgetData, fetchCropBudgets } = useReportStore();
+
+    // State hooks
+    const [view, setView] = useState('overview');
+    const [isGlobalView, setIsGlobalView] = useState(true);
+    const [selectedField, setSelectedField] = useState(null);
+    const navigate = useNavigate();
+
+    console.log('[TEST 2] Store hooks called, farms:', farms, 'loading:', loading);
+
     return (
         <div style={{ padding: '40px', textAlign: 'center' }}>
-            <h1>🧪 TEST: All Imports, No Hooks</h1>
-            <p>If you see this, the imports are NOT the problem.</p>
-            <p>The issue is in the store hooks or useMemo.</p>
+            <h1>🧪 TEST 2: Store Hooks</h1>
+            <p>If you see this, store hooks are fine.</p>
+            <p>farms.length: {farms?.length || 0}, loading: {String(loading)}</p>
         </div>
     );
 };
