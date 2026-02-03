@@ -303,7 +303,7 @@ const Dashboard = () => {
                                             <td style={{ padding: '10px 16px', fontWeight: '600' }}>{parseFloat(f.total_area || 0).toFixed(2)} ha</td>
                                             <td style={{ padding: '10px 16px' }}>
                                                 <span style={{ fontWeight: '700', color: 'var(--secondary)' }}>
-                                                    {getCameroonRegion(f.coordinates?.coordinates?.[1], f.coordinates?.coordinates?.[0]).toUpperCase()}
+                                                    {(getCameroonRegion(f.coordinates?.coordinates?.[1], f.coordinates?.coordinates?.[0]) + " Region").toUpperCase()}
                                                 </span>
                                                 <div style={{ fontSize: '10px', color: '#888' }}>{f.city}, {f.country}</div>
                                             </td>
