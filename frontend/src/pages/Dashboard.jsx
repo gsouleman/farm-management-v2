@@ -135,7 +135,8 @@ const Dashboard = () => {
     // LOADING GUARD: After all hooks, before JSX rendering
     if (loading || (!farms || farms.length === 0)) {
         console.log('[LOADING GUARD] Returning loading state...');
-        return <div style={{ padding: '40px', textAlign: 'center' }}>Loading Dashboard...</div>;
+        // Return null to test if crash is in JSX or elsewhere
+        return null;
     }
     console.log('[LOADING GUARD] Passed! Rendering full dashboard...');
 
