@@ -64,8 +64,8 @@ const Fields = () => {
         <div className="animate-fade-in" style={{ padding: '24px' }}>
             <div className="flex j-between a-center" style={{ marginBottom: '32px' }}>
                 <div>
-                    <h1 style={{ fontSize: '24px', margin: 0 }}>Land & Operations</h1>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Manage agricultural enterprises and individual parcels.</p>
+                    <h1 style={{ fontSize: '24px', margin: 0 }}>Parcel Management</h1>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Strategic management of agricultural parcels, infrastructure, and cultivation cycles.</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
                     {activeTab === 'parcels' ? (
@@ -124,6 +124,17 @@ const Fields = () => {
                                     <span style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--primary)', backgroundColor: '#e6f4ea', padding: '4px 8px', borderRadius: '4px' }}>
                                         {field.area} {field.area_unit || 'ha'}
                                     </span>
+                                    <span style={{
+                                        fontSize: '10px',
+                                        fontWeight: 'bold',
+                                        backgroundColor: field.status === 'active' ? '#ebf8ff' : field.status === 'fallow' ? '#fff5f5' : '#fefcbf',
+                                        color: field.status === 'active' ? '#2b6cb0' : field.status === 'fallow' ? '#c53030' : '#b7791f',
+                                        padding: '4px 8px',
+                                        borderRadius: '4px',
+                                        textTransform: 'uppercase'
+                                    }}>
+                                        {field.status || 'active'}
+                                    </span>
                                     <button
                                         onClick={() => handleDeleteField(field.id)}
                                         style={{ background: '#fff5f5', color: '#e53e3e', border: '1px solid #fed7d7', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', cursor: 'pointer' }}
@@ -144,6 +155,12 @@ const Fields = () => {
                                     <div style={{ color: 'var(--text-muted)' }}>Irrigation</div>
                                     <div style={{ fontWeight: '600' }}>{field.irrigation ? 'Yes' : 'No'}</div>
                                 </div>
+                                {field.crop_id && (
+                                    <div style={{ fontSize: '11px', gridColumn: '1 / -1', marginTop: '8px', borderTop: '1px solid #eee', paddingTop: '8px' }}>
+                                        <div style={{ color: 'var(--text-muted)' }}>Current Cultivation</div>
+                                        <div style={{ fontWeight: '700', color: 'var(--primary)' }}>CROP ASSIGNED</div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     ))}

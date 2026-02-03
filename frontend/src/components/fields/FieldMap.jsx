@@ -236,7 +236,11 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farms = [],
                             position="topright"
                             onCreated={handleCreated}
                             draw={{
-                                rectangle: false,
+                                rectangle: {
+                                    shapeOptions: {
+                                        color: 'var(--primary)'
+                                    }
+                                },
                                 circle: false,
                                 circlemarker: false,
                                 marker: false,
@@ -358,8 +362,20 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farms = [],
                                     <div style={{ fontSize: '13px', minWidth: '220px', padding: '5px' }}>
                                         <div style={{ borderBottom: '2px solid #2196f3', paddingBottom: '8px', marginBottom: '8px' }}>
                                             <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1a365d' }}>{infra.name}</div>
-                                            <div style={{ fontSize: '12px', color: '#718096' }}>{infra.type}</div>
+                                            <div style={{ fontSize: '12px', color: '#718096' }}>{infra.type} {infra.sub_type ? `(${infra.sub_type})` : ''}</div>
                                         </div>
+                                        <div style={{ marginTop: '10px' }}>
+                                            <div style={{ fontSize: '11px', color: '#718096', fontWeight: 'bold' }}>CONDITION</div>
+                                            <div style={{ fontSize: '13px', fontWeight: '600', color: infra.condition === 'poor' ? '#e53e3e' : '#2f855a' }}>
+                                                {infra.condition?.toUpperCase() || 'GOOD'}
+                                            </div>
+                                        </div>
+                                        {infra.material && (
+                                            <div style={{ marginTop: '8px' }}>
+                                                <div style={{ fontSize: '11px', color: '#718096', fontWeight: 'bold' }}>MATERIAL</div>
+                                                <div style={{ fontSize: '12px' }}>{infra.material}</div>
+                                            </div>
+                                        )}
                                     </div>
                                 </Popup>
                             </Polygon>

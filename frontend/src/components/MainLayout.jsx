@@ -170,7 +170,7 @@ const MainLayout = ({ children }) => {
                         isOpen={openGroups.operations}
                         onToggle={() => toggleGroup('operations')}
                     >
-                        <SidebarLink to="/fields" icon="🗺️" label="Map & Fields" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/fields" icon="🗺️" label="Parcel Management" sub onClick={handleNavItemClick} />
                         <SidebarLink to="/infrastructure" icon="🏗️" label="Infrastructure" sub onClick={handleNavItemClick} />
                         <SidebarLink to="/weather" icon="☁️" label="Weather" sub onClick={handleNavItemClick} />
                         <SidebarLink to="/agri-calendar" icon="📅" label="Scheduler" sub onClick={handleNavItemClick} />

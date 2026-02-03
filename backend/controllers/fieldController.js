@@ -24,7 +24,7 @@ exports.getFieldById = async (req, res) => {
 
 exports.createField = async (req, res) => {
     try {
-        const { name, farm_id, boundary_coordinates, soil_type, field_number, notes, irrigation, drainage, slope, area, area_unit } = req.body;
+        const { name, farm_id, boundary_coordinates, soil_type, field_number, notes, irrigation, drainage, slope, area, area_unit, status, crop_id, carbon_sequestration, water_efficiency } = req.body;
 
         // Validate farm ownership
         const farm = await Farm.findOne({ where: { id: farm_id, owner_id: req.user.id } });
@@ -64,7 +64,11 @@ exports.createField = async (req, res) => {
             drainage,
             slope,
             area: area || 0,
-            area_unit: area_unit || 'hectares'
+            area_unit: area_unit || 'hectares',
+            status: status || 'active',
+            crop_id: crop_id || null,
+            carbon_sequestration: carbon_sequestration || 0,
+            water_efficiency: water_efficiency || 100
         });
 
         // Calculate area using PostGIS
@@ -108,7 +112,7 @@ exports.updateField = async (req, res) => {
         const field = await Field.findByPk(req.params.id);
         if (!field) return res.status(404).json({ message: 'Field not found' });
 
-        const { name, boundary_coordinates, soil_type, field_number, notes, irrigation, drainage, slope } = req.body;
+        const { name, boundary_coordinates, soil_type, field_number, notes, irrigation, drainage, slope, status, crop_id, carbon_sequestration, water_efficiency } = req.body;
 
         const updateData = {
             name,
@@ -117,7 +121,11 @@ exports.updateField = async (req, res) => {
             notes,
             irrigation,
             drainage,
-            slope
+            slope,
+            status,
+            crop_id,
+            carbon_sequestration,
+            water_efficiency
         };
 
         if (boundary_coordinates && boundary_coordinates.length > 0) {

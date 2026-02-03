@@ -16,6 +16,14 @@ module.exports = (sequelize) => {
             allowNull: false
         },
         field_number: DataTypes.STRING,
+        status: {
+            type: DataTypes.STRING,
+            defaultValue: 'active' // active, fallow, preparation
+        },
+        crop_id: {
+            type: DataTypes.UUID,
+            allowNull: true
+        },
         boundary: {
             type: DataTypes.GEOMETRY('POLYGON', 4326),
             allowNull: false
@@ -36,6 +44,14 @@ module.exports = (sequelize) => {
         is_active: {
             type: DataTypes.BOOLEAN,
             defaultValue: true
+        },
+        carbon_sequestration: {
+            type: DataTypes.DECIMAL(10, 2),
+            defaultValue: 0
+        },
+        water_efficiency: {
+            type: DataTypes.DECIMAL(5, 2),
+            defaultValue: 100
         }
     }, {
         tableName: 'fields',

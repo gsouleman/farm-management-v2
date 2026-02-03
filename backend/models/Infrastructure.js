@@ -31,6 +31,12 @@ module.exports = (sequelize) => {
             type: DataTypes.STRING,
             defaultValue: 'operational' // operational, under_construction, maintenance, retired
         },
+        condition: {
+            type: DataTypes.STRING,
+            defaultValue: 'good' // excellent, good, fair, poor
+        },
+        material: DataTypes.STRING,
+        maintenance_history: DataTypes.JSON,
         construction_date: DataTypes.DATEONLY,
         cost: DataTypes.DECIMAL(15, 2),
         area_sqm: DataTypes.DECIMAL(10, 2),

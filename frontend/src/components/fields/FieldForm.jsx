@@ -1,22 +1,35 @@
 import React, { useState } from 'react';
 import useFarmStore from '../../store/farmStore';
 import useUIStore from '../../store/uiStore';
+import useCropStore from '../../store/cropStore';
 import FieldMap from './FieldMap';
 
 const FieldForm = ({ onComplete }) => {
     const { currentFarm, createField } = useFarmStore();
     const { showNotification, showAlert } = useUIStore();
+    const { crops, fetchCropsByFarm } = useCropStore();
     const [formData, setFormData] = useState({
         name: '',
         field_number: '',
+        status: 'active', // active, fallow, preparation
+        crop_id: '',
         soil_type: '',
         drainage: '',
         slope: '',
         irrigation: false,
         area_unit: 'hectares',
         notes: '',
-        boundary_coordinates: []
+        boundary_coordinates: [],
+        carbon_sequestration: 0,
+        water_efficiency: 100
     });
+
+    React.useEffect(() => {
+        if (currentFarm?.id) {
+            fetchCropsByFarm(currentFarm.id);
+        }
+    }, [currentFarm?.id, fetchCropsByFarm]);
+
     const [calculatedArea, setCalculatedArea] = useState(0);
     const [calculatedPerimeter, setCalculatedPerimeter] = useState(0);
     const [coordsText, setCoordsText] = useState('');
@@ -112,7 +125,7 @@ const FieldForm = ({ onComplete }) => {
     return (
         <div className="card animate-fade-in" style={{ maxWidth: '1100px', margin: '0 auto' }}>
             <div className="card-header">
-                <h3 style={{ margin: 0, fontSize: '18px' }}>Define Land Boundary & Profile - {currentFarm?.name || 'New Parcel'}</h3>
+                <h3 style={{ margin: 0, fontSize: '18px' }}>Register Strategic Parcel - {currentFarm?.name || 'New Parcel'}</h3>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '400px 1fr', gap: '30px' }}>
@@ -120,11 +133,12 @@ const FieldForm = ({ onComplete }) => {
                     <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px', marginBottom: '16px' }}>
                             <div>
-                                <label htmlFor="name">Field Name</label>
+                                <label htmlFor="name">Parcel Name</label>
                                 <input
                                     id="name"
                                     name="name"
                                     type="text"
+                                    placeholder="e.g. North Plot A"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     required
@@ -139,6 +153,34 @@ const FieldForm = ({ onComplete }) => {
                                     value={formData.field_number}
                                     onChange={(e) => setFormData({ ...formData, field_number: e.target.value })}
                                 />
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+                            <div>
+                                <label htmlFor="status">Parcel Status</label>
+                                <select
+                                    id="status"
+                                    value={formData.status}
+                                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                                >
+                                    <option value="active">Active Production</option>
+                                    <option value="fallow">Fallow / Rest</option>
+                                    <option value="preparation">Preparation</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label htmlFor="crop_id">Assigned Crop</label>
+                                <select
+                                    id="crop_id"
+                                    value={formData.crop_id}
+                                    onChange={(e) => setFormData({ ...formData, crop_id: e.target.value })}
+                                >
+                                    <option value="">-- No Crop Assigned --</option>
+                                    {crops.map(crop => (
+                                        <option key={crop.id} value={crop.id}>{crop.crop_type} - {crop.variety}</option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 
@@ -255,6 +297,31 @@ const FieldForm = ({ onComplete }) => {
                             rows="3"
                             style={{ resize: 'none' }}
                         />
+                    </div>
+
+                    <div className="card" style={{ padding: '16px', backgroundColor: '#f0fff4', border: '1px solid #c6f6d5', marginBottom: '20px' }}>
+                        <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#2f855a' }}>Sustainability & ESG Tracking</h4>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                            <div>
+                                <label htmlFor="carbon">Carbon Sequestration (tonnes/ha)</label>
+                                <input
+                                    id="carbon"
+                                    type="number"
+                                    step="0.01"
+                                    value={formData.carbon_sequestration}
+                                    onChange={(e) => setFormData({ ...formData, carbon_sequestration: parseFloat(e.target.value) })}
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="water">Water Efficiency (%)</label>
+                                <input
+                                    id="water"
+                                    type="number"
+                                    value={formData.water_efficiency}
+                                    onChange={(e) => setFormData({ ...formData, water_efficiency: parseInt(e.target.value) })}
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: '12px' }}>
