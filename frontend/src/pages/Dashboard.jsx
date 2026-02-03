@@ -57,6 +57,15 @@ const Dashboard = () => {
         }
     }, [currentFarm, isGlobalView, farms?.length]);
 
+    // Listen for 'open-new-farm' event from sidebar
+    useEffect(() => {
+        const handleOpenNewFarm = () => {
+            setView('add-farm');
+        };
+        window.addEventListener('open-new-farm', handleOpenNewFarm);
+        return () => window.removeEventListener('open-new-farm', handleOpenNewFarm);
+    }, []);
+
     // FILTER DATA BASED ON VIEW MODE
     const activeFarms = isGlobalView ? (farms || []) : (currentFarm ? [currentFarm] : []);
 

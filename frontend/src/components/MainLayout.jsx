@@ -115,7 +115,10 @@ const MainLayout = ({ children }) => {
                         <button
                             onClick={() => {
                                 navigate('/');
-                                window.dispatchEvent(new CustomEvent('open-new-farm'));
+                                // Dispatch event after navigation settles
+                                setTimeout(() => {
+                                    window.dispatchEvent(new CustomEvent('open-new-farm'));
+                                }, 100);
                                 handleNavItemClick();
                             }}
                             style={{
