@@ -8,13 +8,14 @@ import useInfrastructureDefinitionStore from '../../store/infrastructureDefiniti
 import FieldMap from './FieldMap';
 
 const FieldForm = ({ onComplete, initialData }) => {
-    const { currentFarm, createField, updateField, fetchFields } = useFarmStore();
+    const { farms, currentFarm, setCurrentFarm, createField, updateField, fetchFields } = useFarmStore();
     const { showNotification, showAlert } = useUIStore();
     const { createCrop } = useCropStore();
     const { createInfrastructure } = useInfrastructureStore();
     const { definitions: cropLibrary, fetchDefinitions: fetchCropLib } = useCropDefinitionStore();
     const { definitions: infraLibrary, fetchDefinitions: fetchInfraLib } = useInfrastructureDefinitionStore();
 
+    const [selectedFarmId, setSelectedFarmId] = useState(currentFarm?.id || (farms.length === 1 ? farms[0].id : ''));
     const [drawingMode, setDrawingMode] = useState('main'); // main, crop, infra
     const [pendingAllocations, setPendingAllocations] = useState([]);
     const [activeAllocation, setActiveAllocation] = useState({
@@ -23,6 +24,12 @@ const FieldForm = ({ onComplete, initialData }) => {
         sub_type: '',
         category: ''
     });
+
+    React.useEffect(() => {
+        if (!selectedFarmId && farms.length === 1) {
+            setSelectedFarmId(farms[0].id);
+        }
+    }, [farms, selectedFarmId]);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -106,9 +113,12 @@ const FieldForm = ({ onComplete, initialData }) => {
 
         setCalculatedArea(formData.area_unit === 'hectares' ? areaHa : areaAc);
         setCalculatedPerimeter((totalPerimeter / 1000).toFixed(2));
+
+        // Leaflet/GeoJSON uses [lng, lat]
+        const mapCoords = points.map(p => [p.lng, p.lat]);
         setFormData(prev => ({
             ...prev,
-            boundary_coordinates: points.map(p => ({ lat: p.lat, lng: p.lng }))
+            boundary_coordinates: mapCoords
         }));
     };
 
@@ -161,7 +171,7 @@ const FieldForm = ({ onComplete, initialData }) => {
                     area: calculatedArea
                 });
             } else {
-                field = await createField(currentFarm.id, {
+                field = await createField(selectedFarmId, {
                     ...formData,
                     area: calculatedArea
                 });
@@ -180,7 +190,7 @@ const FieldForm = ({ onComplete, initialData }) => {
                         status: 'planted'
                     });
                 } else {
-                    await createInfrastructure(currentFarm.id, {
+                    await createInfrastructure(selectedFarmId, {
                         name: `${alloc.name} - ${formData.name}`,
                         type: alloc.name,
                         sub_type: alloc.sub_type,
@@ -194,7 +204,7 @@ const FieldForm = ({ onComplete, initialData }) => {
             }
 
             // Sync data
-            await fetchFields(currentFarm.id);
+            await fetchFields(selectedFarmId);
             showNotification('Strategic Parcel and all internal allocations created!', 'success');
 
             if (onComplete) onComplete(field);
@@ -269,6 +279,23 @@ const FieldForm = ({ onComplete, initialData }) => {
                             </div>
                         </div>
 
+                        {farms.length > 1 && (
+                            <div style={{ marginBottom: '16px', padding: '16px', backgroundColor: '#fffaf0', border: '1px solid #feebc8', borderRadius: '8px' }}>
+                                <label htmlFor="farm_select" style={{ color: '#9c4221', fontWeight: 'bold' }}>Select Farm for this Parcel</label>
+                                <select
+                                    id="farm_select"
+                                    value={selectedFarmId}
+                                    onChange={(e) => setSelectedFarmId(e.target.value)}
+                                    required
+                                    style={{ borderColor: '#fbd38d' }}
+                                >
+                                    <option value="">-- Choose Farm --</option>
+                                    {farms.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                                </select>
+                                <p style={{ fontSize: '10px', color: '#c05621', margin: '4px 0 0 0' }}>💡 Registration will be associated with this specific enterprise.</p>
+                            </div>
+                        )}
+
                         {drawingMode !== 'main' && (
                             <div className="card animate-scale-in" style={{ padding: '16px', backgroundColor: '#f0f9ff', border: '1px solid #bae6fd', marginBottom: '16px' }}>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
@@ -276,7 +303,17 @@ const FieldForm = ({ onComplete, initialData }) => {
                                         <label>{drawingMode === 'crop' ? 'Select Crop' : 'Select Infra'}</label>
                                         <select
                                             value={activeAllocation.name}
-                                            onChange={(e) => setActiveAllocation({ ...activeAllocation, name: e.target.value })}
+                                            onChange={(e) => {
+                                                const name = e.target.value;
+                                                let sub_type = '';
+                                                if (drawingMode === 'crop') {
+                                                    const crop = cropLibrary.find(c => c.name === name);
+                                                    if (crop && crop.varieties?.length > 0) {
+                                                        sub_type = crop.varieties[0];
+                                                    }
+                                                }
+                                                setActiveAllocation({ ...activeAllocation, name, sub_type });
+                                            }}
                                         >
                                             <option value="">-- Select from Library --</option>
                                             {drawingMode === 'crop'
@@ -286,10 +323,10 @@ const FieldForm = ({ onComplete, initialData }) => {
                                         </select>
                                     </div>
                                     <div>
-                                        <label>Label / Variety</label>
+                                        <label>{drawingMode === 'crop' ? 'Variety' : 'Label'}</label>
                                         <input
                                             type="text"
-                                            placeholder="e.g. Area A"
+                                            placeholder={drawingMode === 'crop' ? "e.g. Local V1" : "e.g. Area A"}
                                             value={activeAllocation.sub_type}
                                             onChange={(e) => setActiveAllocation({ ...activeAllocation, sub_type: e.target.value })}
                                         />
