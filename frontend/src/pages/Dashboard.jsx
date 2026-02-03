@@ -16,9 +16,9 @@ import WeatherWidget from '../components/weather/WeatherWidget';
 import QuickLinks from '../components/dashboard/QuickLinks';
 import api from '../services/api';
 
-// TEST VERSION 3C: fetchFarms + fetchAllCrops
+// TEST VERSION 3D: fetchFarms + fetchAllCrops + fetchAllActivities
 const Dashboard = () => {
-    console.log('[TEST 3C] Dashboard rendering...');
+    console.log('[TEST 3D] Dashboard rendering...');
 
     // Store hooks
     const { fetchFarms, farms, currentFarm, fields, fetchFields, loading, loadFarm } = useFarmStore();
@@ -33,20 +33,21 @@ const Dashboard = () => {
     const [selectedField, setSelectedField] = useState(null);
     const navigate = useNavigate();
 
-    // fetchFarms + fetchAllCrops
+    // fetchFarms + fetchAllCrops + fetchAllActivities
     useEffect(() => {
-        console.log('[TEST 3C] useEffect - fetchFarms + fetchAllCrops...');
+        console.log('[TEST 3D] useEffect - fetchFarms + fetchAllCrops + fetchAllActivities...');
         fetchFarms();
         fetchAllCrops();
+        fetchAllActivities();
     }, []);
 
-    console.log('[TEST 3C] About to render, farms:', farms?.length, 'crops:', crops?.length, 'loading:', loading);
+    console.log('[TEST 3D] About to render, farms:', farms?.length, 'crops:', crops?.length, 'activities:', activities?.length);
 
     return (
         <div style={{ padding: '40px', textAlign: 'center' }}>
-            <h1>🧪 TEST 3C: fetchFarms + fetchAllCrops</h1>
-            <p>If you see this, fetchAllCrops is fine.</p>
-            <p>farms: {farms?.length || 0}, crops: {crops?.length || 0}</p>
+            <h1>🧪 TEST 3D: +fetchAllActivities</h1>
+            <p>If you see this, fetchAllActivities is fine.</p>
+            <p>farms: {farms?.length || 0}, crops: {crops?.length || 0}, activities: {activities?.length || 0}</p>
         </div>
     );
 };
