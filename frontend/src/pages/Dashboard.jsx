@@ -37,6 +37,25 @@ const Dashboard = () => {
         fetchAllHarvests();
     }, []);
 
+    // LOADING GUARD: Prevent rendering before data is loaded
+    if (loading || (!farms || farms.length === 0)) {
+        return (
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '60vh',
+                flexDirection: 'column',
+                gap: '16px'
+            }}>
+                <div style={{ fontSize: '32px' }}>🌾</div>
+                <div style={{ fontSize: '14px', fontWeight: '600', color: '#666' }}>
+                    Loading Dashboard...
+                </div>
+            </div>
+        );
+    }
+
     // When switching farms or views, update local contexts if needed
     useEffect(() => {
         if (!isGlobalView && currentFarm?.id) {
