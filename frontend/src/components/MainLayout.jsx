@@ -16,12 +16,12 @@ const MainLayout = ({ children }) => {
         fetchFarms();
     }, [fetchFarms]);
 
-    // Pull data from network on farm change/focus
-    useEffect(() => {
-        if (currentFarm?.id && navigator.onLine) {
-            syncService.pullFromNetwork(currentFarm.id);
-        }
-    }, [currentFarm?.id]);
+    // Pull data from network on farm change/focus - TEMPORARILY DISABLED FOR DEBUGGING
+    // useEffect(() => {
+    //     if (currentFarm?.id && navigator.onLine) {
+    //         syncService.pullFromNetwork(currentFarm.id);
+    //     }
+    // }, [currentFarm?.id]);
 
     // State for collapsible sections (Restored fix)
     const [openGroups, setOpenGroups] = useState({
