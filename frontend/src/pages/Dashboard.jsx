@@ -16,9 +16,9 @@ import WeatherWidget from '../components/weather/WeatherWidget';
 import QuickLinks from '../components/dashboard/QuickLinks';
 import api from '../services/api';
 
-// TEST VERSION 3D: fetchFarms + fetchAllCrops + fetchAllActivities
+// TEST VERSION 3E: ALL 4 fetch calls (complete useEffect 1)
 const Dashboard = () => {
-    console.log('[TEST 3D] Dashboard rendering...');
+    console.log('[TEST 3E] Dashboard rendering...');
 
     // Store hooks
     const { fetchFarms, farms, currentFarm, fields, fetchFields, loading, loadFarm } = useFarmStore();
@@ -33,21 +33,22 @@ const Dashboard = () => {
     const [selectedField, setSelectedField] = useState(null);
     const navigate = useNavigate();
 
-    // fetchFarms + fetchAllCrops + fetchAllActivities
+    // ALL 4 fetch calls - complete useEffect 1
     useEffect(() => {
-        console.log('[TEST 3D] useEffect - fetchFarms + fetchAllCrops + fetchAllActivities...');
+        console.log('[TEST 3E] useEffect - ALL 4 fetches...');
         fetchFarms();
         fetchAllCrops();
         fetchAllActivities();
+        fetchAllHarvests();  // ← ADDED
     }, []);
 
-    console.log('[TEST 3D] About to render, farms:', farms?.length, 'crops:', crops?.length, 'activities:', activities?.length);
+    console.log('[TEST 3E] About to render, farms:', farms?.length, 'crops:', crops?.length, 'activities:', activities?.length, 'harvests:', harvests?.length);
 
     return (
         <div style={{ padding: '40px', textAlign: 'center' }}>
-            <h1>🧪 TEST 3D: +fetchAllActivities</h1>
-            <p>If you see this, fetchAllActivities is fine.</p>
-            <p>farms: {farms?.length || 0}, crops: {crops?.length || 0}, activities: {activities?.length || 0}</p>
+            <h1>🧪 TEST 3E: All 4 Fetches</h1>
+            <p>If you see this, ALL fetch calls are fine.</p>
+            <p>farms: {farms?.length || 0}, crops: {crops?.length || 0}, activities: {activities?.length || 0}, harvests: {harvests?.length || 0}</p>
         </div>
     );
 };
