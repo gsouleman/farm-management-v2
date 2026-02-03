@@ -166,6 +166,7 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farms = [],
     const farmPolygons = farms?.filter(f => f.boundary && f.boundary.coordinates).map(f => ({
         id: f.id,
         name: f.name,
+        area: f.total_area,
         positions: f.boundary.coordinates[0].map(coord => [coord[1], coord[0]]),
         rawCoords: f.boundary.coordinates[0]
     })) || [];
@@ -269,7 +270,7 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farms = [],
                             {/* Farm Name Label */}
                             <PolygonLabel
                                 coordinates={farm.rawCoords}
-                                label={farm.name}
+                                label={`${farm.name} (${parseFloat(farm.area || 0).toFixed(2)} HA)`}
                                 cropType="infrastructure" // Use strong font
                             />
                         </React.Fragment>
