@@ -151,7 +151,7 @@ const useActivityStore = create((set, get) => ({
 
     bulkUploadActivities: async (farmId, file) => {
         set({ loading: true });
-        console.log(`[ActivityStore] Starting bulk upload for farm: ${farmId}`);
+        // Starting bulk upload
         try {
             if (!farmId) throw new Error('Farm ID is required for bulk upload');
 
@@ -161,8 +161,6 @@ const useActivityStore = create((set, get) => ({
             const response = await api.post(`/activities/bulk-upload/${farmId}`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-
-            console.log('[ActivityStore] Bulk upload success:', response.data);
 
             // Update local state by fetching fresh data to ensure synchronization
             try {

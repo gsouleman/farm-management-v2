@@ -78,7 +78,6 @@ exports.createField = async (req, res) => {
             );
 
             if (result && result.area_hectares !== undefined) {
-                console.log(`Calculated area for new field ${field.name}: ${result.area_hectares} ha`);
                 await field.update({ area: result.area_hectares });
             }
         } catch (areaError) {

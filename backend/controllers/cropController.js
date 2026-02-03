@@ -20,7 +20,6 @@ exports.getCropById = async (req, res) => {
 exports.getAllCrops = async (req, res) => {
     try {
         if (!req.user || !req.user.id) {
-            console.log('[GetAllCrops] No user ID found');
             return res.status(401).json({ message: 'Unauthorized' });
         }
 

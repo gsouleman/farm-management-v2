@@ -26,7 +26,6 @@ const path = require('path');
 const sanitizeUUID = (val) => {
     if (val === '' || val === undefined || val === null || val === 'null' || val === 'undefined') return null;
     if (typeof val !== 'string' || !isValidUUID(val)) {
-        console.warn(`[SanitizeUUID] Invalid UUID format skipped: ${val}`);
         return null;
     }
     return val;
@@ -46,11 +45,9 @@ const sanitizeDate = (val) => {
 const recalculateInfraCost = async (infrastructure_id) => {
     if (!infrastructure_id) return;
     try {
-        console.log(`[RecalculateInfra] Infrastructure ID: ${infrastructure_id}`);
         const total = await Activity.sum('total_cost', {
             where: { infrastructure_id }
         });
-        console.log(`[RecalculateInfra] Total calculated: ${total}`);
         await Infrastructure.update(
             { cost: total || 0 },
             { where: { id: infrastructure_id } }
@@ -130,7 +127,6 @@ exports.getAllActivities = async (req, res) => {
 
 exports.createActivity = async (req, res) => {
     try {
-        console.log('[CreateActivity] Initial req.body:', JSON.stringify(req.body, null, 2));
         const activityData = {
             activity_type: req.body.activity_type || 'planting',
             activity_date: sanitizeDate(req.body.activity_date) || new Date().toISOString().split('T')[0],
@@ -172,14 +168,9 @@ exports.createActivity = async (req, res) => {
             warranty: req.body.warranty,
             payment_method: req.body.payment_method
         };
-        console.log('[CreateActivity] Cleansed payload:', JSON.stringify(activityData, null, 2));
-
-        console.log('[CreateActivity] Attempting Activity.create...');
         const activity = await Activity.create(activityData);
-        console.log('[CreateActivity] Activity created successfully. ID:', activity.id);
 
         if (req.body.inputs && Array.isArray(req.body.inputs) && req.body.inputs.length > 0) {
-            console.log(`[CreateActivity] Processing ${req.body.inputs.length} inputs...`);
             for (const item of req.body.inputs) {
                 if (!item.input_id) continue;
 
@@ -188,7 +179,6 @@ exports.createActivity = async (req, res) => {
                     const quantityUsed = sanitizeNum(item.quantity_used, 0);
                     const itemCost = input ? (parseFloat(input.unit_cost || 0) * quantityUsed) : 0;
 
-                    console.log(`[CreateActivity] Adding ActivityInput: ${item.input_id}, Qty: ${quantityUsed}`);
                     await ActivityInput.create({
                         activity_id: activity.id,
                         input_id: item.input_id,
@@ -272,7 +262,6 @@ exports.updateActivity = async (req, res) => {
                         harvest_date: activity.activity_date,
                         total_revenue: activity.total_cost
                     });
-                    console.log(`[ActivitySync] Successfully updated linked Harvest record: ${harvest.id}`);
                 }
             } catch (syncError) {
                 console.error('[ActivitySync] Failed to sync update back to Harvest:', syncError);
@@ -318,7 +307,6 @@ exports.deleteActivity = async (req, res) => {
             try {
                 const { Harvest } = require('../models');
                 await Harvest.destroy({ where: { id: harvestId } });
-                console.log(`[ActivitySync] Successfully deleted linked Harvest record: ${harvestId}`);
             } catch (syncError) {
                 console.error('[ActivitySync] Failed to sync deletion back to Harvest:', syncError);
             }
@@ -384,11 +372,10 @@ exports.bulkUploadActivities = async (req, res) => {
         }
 
         if (rawData.length === 0) {
-            console.warn('[BulkUpload] No data parsed from file.');
             return res.status(400).json({ message: 'No activities found in file' });
         }
 
-        console.log(`[BulkUpload] Processing ${rawData.length} rows for farm ${farmId}`);
+        // Processing bulk upload
 
         // 2. Map Names to IDs
         const [fields, crops, infrastructures] = await Promise.all([
@@ -451,15 +438,10 @@ exports.bulkUploadActivities = async (req, res) => {
             .filter(Boolean);
 
         if (activitiesToCreate.length === 0) {
-            console.warn('[BulkUpload] No valid activity records could be mapped.');
             return res.status(400).json({ message: 'No valid data found in file mapping' });
         }
 
-        console.log(`[BulkUpload] Inserting ${activitiesToCreate.length} records...`);
-
-        // 3. Batch Create
         const createdActivities = await Activity.bulkCreate(activitiesToCreate);
-        console.log(`[BulkUpload] Successfully inserted ${createdActivities.length} records.`);
 
         // 4. Cleanup
         if (req.file?.path && fs.existsSync(req.file.path)) {

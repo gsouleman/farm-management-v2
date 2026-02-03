@@ -12,7 +12,6 @@ const syncService = {
         if (pendingChanges.length === 0) return;
 
         this.isSyncing = true;
-        console.log(`[Sync] Starting synchronization of ${pendingChanges.length} items...`);
 
         for (const change of pendingChanges) {
             try {
@@ -23,7 +22,6 @@ const syncService = {
                     skipQueue: true
                 });
                 await db.sync_outbox.delete(change.id);
-                console.log(`[Sync] Successfully synced: ${change.method} ${change.url}`);
             } catch (error) {
                 console.error(`[Sync] Failed to sync item ${change.id}:`, error);
                 // If it's a permanent error (e.g. 400), we might want to mark it as failed instead of retrying
@@ -35,14 +33,12 @@ const syncService = {
         }
 
         this.isSyncing = false;
-        console.log('[Sync] Synchronization cycle complete.');
     },
 
     async pullFromNetwork(farmId) {
         if (!navigator.onLine || !farmId) return;
 
         try {
-            console.log(`[Sync] Hub refreshing data for Farm ID: ${farmId}`);
 
             // Parallel fetch for speed
             const [activities, crops, fields, infrastructure] = await Promise.all([
@@ -60,7 +56,6 @@ const syncService = {
                 saveToLocal('infrastructure', infrastructure.data)
             ]);
 
-            console.log('[Sync] Local database updated with remote state.');
             return true;
         } catch (error) {
             console.error('[Sync] Pull failed:', error);
@@ -71,7 +66,6 @@ const syncService = {
 
 // Auto-sync when coming back online
 window.addEventListener('online', () => {
-    console.log('[Network] System back online. Triggering sync...');
     syncService.syncOutbox();
 });
 

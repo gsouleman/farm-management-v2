@@ -88,7 +88,6 @@ exports.getCropHarvests = async (req, res) => {
 
 exports.createHarvest = async (req, res) => {
     try {
-        console.log('[HarvestController] Creating harvest:', JSON.stringify(req.body, null, 2));
 
         // Robust sanitization to handle empty strings from frontend becoming numeric errors in DB
         const cleanedData = {
@@ -107,7 +106,6 @@ exports.createHarvest = async (req, res) => {
         const isValidCropId = cleanedData.crop_id && uuidRegex.test(cleanedData.crop_id);
 
         if (!isValidCropId) {
-            console.warn(`[HarvestController] Blocked invalid crop_id: ${cleanedData.crop_id}`);
             return res.status(400).json({
                 message: 'Internal Error: Invalid Crop UUID format',
                 notification: {

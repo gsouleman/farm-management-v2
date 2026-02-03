@@ -136,13 +136,10 @@ const CropForm = ({ fieldId, onComplete, initialData }) => {
     useEffect(() => {
         if (!formData.crop_type || !formData.planting_date) return;
 
-        console.log('[Automation] Finding data for:', formData.crop_type);
         const regionalData = findRegionalData(formData.crop_type);
-        console.log('[Automation] Found Data:', regionalData);
         if (regionalData) {
             // 1. Auto-Calculate Harvest Date
             const autoHarvest = parseDuration(regionalData.duration, formData.planting_date);
-            console.log('[Automation] Calculated Harvest:', autoHarvest);
             if (autoHarvest && (!initialData || formData.expected_harvest_date === initialData?.expected_harvest_date)) {
                 // Only update if user hasn't manually edited it significantly or it matches initial (smart update)
                 // We'll simplisticly verify if expected_harvest_date is empty or we are just changing stuff
@@ -158,7 +155,6 @@ const CropForm = ({ fieldId, onComplete, initialData }) => {
                 setComplianceStatus({ inWindow: false, campaign: 'Off-Season', requiredIrrigation: true });
             }
         } else {
-            console.log('[Automation] No regional data found.');
             setComplianceStatus({ inWindow: true, campaign: '', requiredIrrigation: false });
         }
     }, [formData.crop_type, formData.planting_date]);
@@ -177,11 +173,6 @@ const CropForm = ({ fieldId, onComplete, initialData }) => {
         }
 
         const targetFieldId = selectedFieldId === 'undefined' ? null : selectedFieldId;
-
-        console.log('Submitting Crop Record:', {
-            targetFieldId,
-            formData
-        });
 
         if (!targetFieldId) {
             showAlert('NO_FIELD_SELECTION');
@@ -208,8 +199,6 @@ const CropForm = ({ fieldId, onComplete, initialData }) => {
                 // Append compliance note
                 notes: `${formData.notes || ''}\n[System Automated]: Campaign=${complianceStatus.campaign}, Irrigation Override=${hasIrrigation}`.trim()
             };
-
-            console.log('Normalized Data for Submission:', normalizedData);
 
             if (initialData?.id) {
                 await updateCrop(initialData.id, { ...normalizedData, field_id: targetFieldId });

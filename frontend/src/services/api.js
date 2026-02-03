@@ -3,11 +3,6 @@ import { queueForSync } from './db';
 
 const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
-// Log the API Base URL for debugging purposes
-if (import.meta.env.MODE === 'development') {
-    console.log(`[API] Base URL configured to: ${baseURL}`);
-}
-
 const api = axios.create({
     baseURL,
     headers: {

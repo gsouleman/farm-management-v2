@@ -58,7 +58,6 @@ exports.getAllDefinitions = async (req, res) => {
 
         // Auto-seed if empty
         if (definitions.length === 0) {
-            console.log('Seeding Crop Definitions...');
             const seedData = [];
             Object.entries(INITIAL_CROPS).forEach(([category, crops]) => {
                 crops.forEach(crop => {

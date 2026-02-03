@@ -55,6 +55,13 @@ const useFarmStore = create(
                 }
             },
 
+            loadFarm: (id) => {
+                const farm = get().farms.find(f => f.id === id);
+                if (farm) {
+                    get().setCurrentFarm(farm);
+                }
+            },
+
             fetchFields: async (farmId) => {
                 set({ loading: true });
 
