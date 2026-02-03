@@ -78,9 +78,21 @@ const Login = () => {
                             required
                         />
                     </div>
-                    <button type="submit" className="primary" style={{ width: '100%', padding: '12px' }} disabled={loading}>
-                        {loading ? 'Authenticating...' : 'Sign In'}
-                    </button>
+                    {loading ? (
+                        <div style={{ textAlign: 'center', marginTop: '20px' }} className="animate-fade-in">
+                            <div className="progress-container">
+                                <div className="progress-bar-loading"></div>
+                            </div>
+                            <p style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: '600', marginTop: '10px', lineHeight: '1.4' }}>
+                                PRO FARMER is preparing your fields.<br />
+                                Please wait while the backend initializes...
+                            </p>
+                        </div>
+                    ) : (
+                        <button type="submit" className="primary" style={{ width: '100%', padding: '12px' }} disabled={loading}>
+                            Sign In
+                        </button>
+                    )}
                 </form>
 
                 <p style={{ marginTop: '32px', textAlign: 'center', fontSize: '14px', color: 'var(--text-muted)' }}>
