@@ -31,7 +31,7 @@ const Navbar = () => {
                 <select
                     value={currentFarm?.id || ''}
                     onChange={(e) => {
-                        const farm = farms.find(f => f.id === e.target.value);
+                        const farm = (farms || []).find(f => f.id === e.target.value);
                         if (farm) setCurrentFarm(farm);
                     }}
                     style={{
@@ -42,8 +42,8 @@ const Navbar = () => {
                         fontWeight: '500'
                     }}
                 >
-                    {farms.length === 0 && <option>No Farms Found</option>}
-                    {farms.map(farm => (
+                    {(!farms || farms.length === 0) && <option>No Farms Found</option>}
+                    {(farms || []).map(farm => (
                         <option key={farm.id} value={farm.id}>{farm.name}</option>
                     ))}
                 </select>
