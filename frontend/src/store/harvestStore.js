@@ -28,6 +28,18 @@ const useHarvestStore = create((set, get) => ({
         }
     },
 
+    // ADDED: Global fetch all harvests function (was missing and causing crash!)
+    fetchAllHarvests: async () => {
+        set({ loading: true, error: null });
+        try {
+            const response = await api.get('/harvests/all');
+            set({ harvests: response.data || [], loading: false });
+        } catch (error) {
+            console.error('[HarvestStore] Fetch all harvests error:', error);
+            set({ error: error.response?.data?.message || 'Failed to fetch all harvests', loading: false, harvests: [] });
+        }
+    },
+
 
     createHarvest: async (cropId, harvestData) => {
         set({ loading: true, error: null });
