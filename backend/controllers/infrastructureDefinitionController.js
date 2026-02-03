@@ -2,15 +2,27 @@ const { InfrastructureDefinition } = require('../models');
 
 // Initial seed data from agriculturalData.js
 const INITIAL_INFRASTRUCTURE = [
-    { name: 'Farm House', category: 'Residential', icon: '🏠', color: '#795548', sub_types: ['Management Quarters', 'Staff Housing'] },
-    { name: 'General Warehouse', category: 'Storage', icon: '🏭', color: '#607D8B', sub_types: ['Tool Shed', 'Equipment Garage', 'Input Store'] },
-    { name: 'Silo / Grain Store', category: 'Storage', icon: '🌾', color: '#FFD700', sub_types: ['Drying Silo', 'Cold Storage'] },
+    { name: 'Farm House', category: 'Residential', icon: '🏠', color: '#795548', sub_types: ['Management Quarters', 'Staff Housing', 'Guest House'] },
+    { name: 'General Warehouse', category: 'Storage', icon: '🏭', color: '#607D8B', sub_types: ['Large Scale Store', 'Equipment Garage', 'Input Store'] },
+    { name: 'Silo / Grain Store', category: 'Storage', icon: '🌾', color: '#FFD700', sub_types: ['Drying Silo', 'Cold Storage Silo', 'Bulk Loader'] },
+    { name: 'Cold Storage / Fridge', category: 'Storage', icon: '🧊', color: '#00BCD4', sub_types: ['Fruit Cold Room', 'Vegetable Chiller', 'Meat Locker'] },
+    { name: 'Fertilizer/Chemical Store', category: 'Security', icon: '🧪', color: '#9C27B0', sub_types: ['Pesticide Bunker', 'Bio-Fertilizer Pit'] },
     { name: 'Poultry Pen', category: 'Livestock', icon: '🐔', color: '#FF9800', sub_types: ['Broiler House', 'Layer House', 'Hatchery'] },
-    { name: 'Cocoa/Coffee Dryer', category: 'Processing', icon: '♨️', color: '#A0522D', sub_types: ['Solar Dryer', 'Oven Dryer'] },
-    { name: 'Oil Press / Mill', category: 'Processing', icon: '⚙️', color: '#E91E63', sub_types: ['Palm Oil Mill', 'Seed Crusher'] },
-    { name: 'Irrigation System', category: 'Water', icon: '💧', color: '#2196F3', sub_types: ['Pivot', 'Drip', 'Pump Station'] },
-    { name: 'Borehole / Well', category: 'Water', icon: '🚰', color: '#03A9F4', sub_types: ['Electric Pump', 'Manual Pump'] },
-    { name: 'Fencing / Gate', category: 'Security', icon: '🚧', color: '#F44336', sub_types: ['Electric Fence', 'Barbed Wire', 'Perimeter Wall'] }
+    { name: 'Piggery / Swine Shed', category: 'Livestock', icon: '🐖', color: '#F06292', sub_types: ['Farrowing Pen', 'Gestation Stall'] },
+    { name: 'Livestock Paddock', category: 'Livestock', icon: '🐄', color: '#8D6E63', sub_types: ['Cattle Yard', 'Goat Shed', 'Sheep Fold'] },
+    { name: 'Fish Pond / Aquaculture', category: 'Livestock', icon: '🐟', color: '#2196F3', sub_types: ['Concrete Tank', 'Earthen Pond', 'Nursery Tank'] },
+    { name: 'Bee Apiary', category: 'Livestock', icon: '🐝', color: '#FFEB3B', sub_types: ['Modern Hive', 'Traditional Log'] },
+    { name: 'Cocoa/Coffee Dryer', category: 'Processing', icon: '♨️', color: '#A0522D', sub_types: ['Solar Dryer', 'Oven Dryer', 'Fermentation Box'] },
+    { name: 'Oil Press / Mill', category: 'Processing', icon: '⚙️', color: '#E91E63', sub_types: ['Palm Oil Mill', 'Seed Crusher', 'Soap Facility'] },
+    { name: 'Sorting & Grading Hall', category: 'Processing', icon: '🏗️', color: '#9E9E9E', sub_types: ['Packing Line', 'Quality Lab'] },
+    { name: 'Nursery / Greenhouse', category: 'Production', icon: '🪴', color: '#4CAF50', sub_types: ['Plug Tray Rack', 'Hydroponic Unit', 'Shade House'] },
+    { name: 'Composting Area', category: 'Production', icon: '♻️', color: '#33691E', sub_types: ['Bokashi Pit', 'Vermicompost Bin'] },
+    { name: 'Irrigation System', category: 'Water', icon: '💧', color: '#2196F3', sub_types: ['Center Pivot', 'Drip Station', 'Hydrant Network'] },
+    { name: 'Borehole / Well', category: 'Water', icon: '🚰', color: '#03A9F4', sub_types: ['Deep Well', 'Shallow Well', 'Water Tower'] },
+    { name: 'Solar Power Plant', category: 'Energy', icon: '🔋', color: '#FF5722', sub_types: ['PV Array', 'Battery Room', 'Inverter Shed'] },
+    { name: 'Security Post', category: 'Security', icon: '🛡️', color: '#37474F', sub_types: ['Gate House', 'Watchtower', 'CCTV Hub'] },
+    { name: 'Staff Canteen/Clinic', category: 'Residential', icon: '🍱', color: '#FFCDD2', sub_types: ['Workers Kitchen', 'First Aid Station'] },
+    { name: 'Fencing / Gate', category: 'Security', icon: '🚧', color: '#F44336', sub_types: ['Electric Fence', 'Perimeter Wall'] }
 ];
 
 exports.getAllDefinitions = async (req, res) => {
