@@ -48,7 +48,7 @@ const SYSTEM_MESSAGES = {
             type: 'error'
         },
         NO_BOUNDARY: {
-            title: 'MAPPING PROTOCOL ALERT: BOUNDARY REQUIRED',
+            title: 'SYSTEM NOTIFICATION\nMAPPING PROTOCOL ALERT: BOUNDARY REQUIRED',
             body: 'Operational boundaries must be established on the spatial map before registration can proceed.',
             type: 'error'
         },

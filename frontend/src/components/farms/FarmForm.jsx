@@ -113,11 +113,7 @@ const FarmForm = ({ onComplete, initialData }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Allow update without boundary change if it's already set
-        if ((!formData.boundary_coordinates || formData.boundary_coordinates.length === 0) && !initialData) {
-            showAlert('NO_BOUNDARY');
-            return;
-        }
+        // No longer enforcing boundary check for new farms as they are minimalist containers
 
         setLoading(true);
         try {
