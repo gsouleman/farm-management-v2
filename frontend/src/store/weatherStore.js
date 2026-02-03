@@ -13,7 +13,11 @@ const useWeatherStore = create((set, get) => ({
             const response = await api.get(`/farms/${farmId}/weather`);
             set({ weatherData: response.data, loading: false });
         } catch (error) {
-            set({ loading: false });
+            if (error.response?.status === 404) {
+                set({ weatherData: null, loading: false });
+            } else {
+                set({ loading: false });
+            }
         }
     },
 
@@ -23,7 +27,11 @@ const useWeatherStore = create((set, get) => ({
             const response = await api.get(`/farms/${farmId}/weather/forecast`);
             set({ forecast: response.data, loading: false });
         } catch (error) {
-            set({ loading: false });
+            if (error.response?.status === 404) {
+                set({ forecast: [], loading: false });
+            } else {
+                set({ loading: false });
+            }
         }
     },
 
@@ -33,7 +41,11 @@ const useWeatherStore = create((set, get) => ({
             const response = await api.get(`/farms/${farmId}/weather/history`);
             set({ history: response.data, loading: false });
         } catch (error) {
-            set({ loading: false });
+            if (error.response?.status === 404) {
+                set({ history: [], loading: false });
+            } else {
+                set({ loading: false });
+            }
         }
     }
 }));

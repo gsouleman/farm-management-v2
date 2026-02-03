@@ -62,8 +62,8 @@ const useFarmStore = create(
                 }
             },
 
-            fetchFields: async (farmId) => {
-                set({ loading: true });
+            fetchFields: async (farmId, quiet = false) => {
+                if (!quiet) set({ loading: true });
 
                 // Merge with existing fields to support global view
                 const localData = await getFromLocal('fields', { farm_id: farmId });

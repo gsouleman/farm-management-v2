@@ -54,7 +54,7 @@ const Dashboard = () => {
             // User requirement: "All details for a selected farm".
             // Global view map: "All farms".
             // Let's iterate fetchFields for all farms if global?
-            farms.forEach(f => fetchFields(f.id)); // This might be heavy but ensures map has all fields.
+            farms.forEach(f => fetchFields(f.id, true)); // This might be heavy but ensures map has all fields. Use quiet mode to prevent flickering.
         }
     }, [currentFarm, isGlobalView, farms?.length]);
 
@@ -149,7 +149,7 @@ const Dashboard = () => {
 
 
     // LOADING GUARD: After all hooks, before JSX rendering
-    if (loading || (!farms || farms.length === 0)) {
+    if (loading && farms.length === 0) {
         return (
             <div style={{
                 display: 'flex',
@@ -161,8 +161,50 @@ const Dashboard = () => {
             }}>
                 <div style={{ fontSize: '32px' }}>🌾</div>
                 <div style={{ fontSize: '14px', fontWeight: '600', color: '#666' }}>
-                    Loading Dashboard...
+                    Establishing Uplink...
                 </div>
+            </div>
+        );
+    }
+
+    // EMPTY STATE: If not loading and no farms exist
+    if (!loading && farms.length === 0) {
+        return (
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '80vh',
+                flexDirection: 'column',
+                padding: '40px',
+                textAlign: 'center'
+            }}>
+                <div style={{ fontSize: '64px', marginBottom: '24px' }}>🚜</div>
+                <h1 style={{ fontSize: '32px', fontWeight: '900', color: 'var(--secondary)', marginBottom: '16px' }}>
+                    WELCOME TO <span style={{ color: 'var(--primary)' }}>PROFARMER</span>
+                </h1>
+                <p style={{ maxWidth: '500px', color: '#666', marginBottom: '32px', lineHeight: '1.6' }}>
+                    Your enterprise registry is currently empty. Initialize your first production station to begin tracking operations, weather, and financial performance.
+                </p>
+                <button
+                    onClick={() => setView('add-farm')}
+                    style={{
+                        padding: '16px 40px',
+                        backgroundColor: 'var(--primary)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '12px',
+                        fontSize: '16px',
+                        fontWeight: '800',
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 15px rgba(204, 0, 0, 0.3)',
+                        transition: 'transform 0.2s'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
+                    onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                >
+                    + INITIALIZE FIRST STATION
+                </button>
             </div>
         );
     }
