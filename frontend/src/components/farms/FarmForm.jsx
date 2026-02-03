@@ -25,10 +25,11 @@ const FarmForm = ({ onComplete, initialData }) => {
         farm_type: initialData?.farm_type || 'crop_production',
         total_area: initialData?.total_area || '',
         area_unit: initialData?.area_unit || 'hectares',
-        latitude: initialData?.latitude || '',
-        longitude: initialData?.longitude || '',
+        latitude: initialData?.latitude || initialData?.coordinates?.coordinates?.[1] || '',
+        longitude: initialData?.longitude || initialData?.coordinates?.coordinates?.[0] || '',
         perimeter: initialData?.perimeter || '',
-        boundary_coordinates: initialData?.boundary_coordinates || []
+        boundary_coordinates: initialData?.boundary_coordinates ||
+            (initialData?.boundary?.coordinates?.[0]?.map(coord => ({ lat: coord[1], lng: coord[0] })) || [])
     });
 
     const [coordsText, setCoordsText] = useState(getInitialCoordsText());

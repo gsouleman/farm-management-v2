@@ -120,7 +120,7 @@ const FieldForm = ({ onComplete }) => {
                     <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px', marginBottom: '16px' }}>
                             <div>
-                                <label htmlFor="name">Farm Name</label>
+                                <label htmlFor="name">Field Name</label>
                                 <input
                                     id="name"
                                     name="name"

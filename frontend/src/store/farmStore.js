@@ -156,6 +156,24 @@ const useFarmStore = create(
                 } catch (error) {
                     throw error;
                 }
+            },
+
+            deleteFarm: async (id) => {
+                try {
+                    const response = await api.delete(`/farms/${id}`);
+                    const updatedFarms = get().farms.filter(f => f.id !== id);
+
+                    // Update Local Cache
+                    await saveToLocal('farms', updatedFarms);
+
+                    set((state) => ({
+                        farms: updatedFarms,
+                        currentFarm: state.currentFarm?.id === id ? updatedFarms[0] || null : state.currentFarm
+                    }));
+                    return response.data;
+                } catch (error) {
+                    throw error;
+                }
             }
         }),
         {
