@@ -115,9 +115,11 @@ const useFarmStore = create(
             createField: async (farmId, fieldData) => {
                 try {
                     const response = await api.post(`/farms/${farmId}/fields`, fieldData);
-                    set((state) => ({ fields: [...state.fields, response.data] }));
-                    await saveToLocal('fields', response.data);
-                    return response.data;
+                    const newField = response.data.data || response.data;
+
+                    set((state) => ({ fields: [...state.fields, newField] }));
+                    await saveToLocal('fields', newField);
+                    return newField;
                 } catch (error) {
                     if (error.isOfflineQueue) {
                         const tempField = {
@@ -137,10 +139,12 @@ const useFarmStore = create(
             updateField: async (id, fieldData) => {
                 try {
                     const response = await api.put(`/fields/${id}`, fieldData);
+                    const updatedField = response.data.data || response.data;
+
                     set((state) => ({
-                        fields: state.fields.map(f => f.id === id ? response.data : f)
+                        fields: state.fields.map(f => f.id === id ? updatedField : f)
                     }));
-                    return response.data;
+                    return updatedField;
                 } catch (error) {
                     throw error;
                 }

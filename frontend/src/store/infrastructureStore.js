@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import api from '../services/api';
 
-const useInfrastructureStore = create((set) => ({
+const useInfrastructureStore = create((set, get) => ({
     infrastructure: [],
     loading: false,
     error: null,
@@ -23,11 +23,12 @@ const useInfrastructureStore = create((set) => ({
         set({ loading: true, error: null });
         try {
             const response = await api.post(`/infrastructure/farm/${farmId}`, data);
+            const newInfra = response.data.data || response.data;
 
             // Force re-fetch
             await get().fetchInfrastructure(farmId);
 
-            return response.data;
+            return newInfra;
         } catch (error) {
             console.error('[InfrastructureStore] Create error:', error);
             set({ error: error.response?.data?.message || 'Failed to create infrastructure' });
@@ -63,6 +64,7 @@ const useInfrastructureStore = create((set) => ({
         set({ loading: true, error: null });
         try {
             const response = await api.put(`/infrastructure/${id}`, data);
+            const updatedInfra = response.data.data || response.data;
 
             // Force re-fetch
             const farmId = (await import('./farmStore')).default.getState().currentFarm?.id;
@@ -70,7 +72,7 @@ const useInfrastructureStore = create((set) => ({
                 await get().fetchInfrastructure(farmId);
             }
 
-            return response.data;
+            return updatedInfra;
         } catch (error) {
             console.error('[InfrastructureStore] Update error:', error);
             set({ error: error.response?.data?.message || 'Failed to update infrastructure' });

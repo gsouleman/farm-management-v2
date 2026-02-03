@@ -79,6 +79,7 @@ const useCropStore = create((set, get) => ({
         set({ loading: true, error: null });
         try {
             const response = await api.post(`/fields/${fieldId}/crops`, cropData);
+            const newCrop = response.data.data || response.data;
 
             // Force re-fetch
             const farmId = (await import('./farmStore')).default.getState().currentFarm?.id;
@@ -86,7 +87,7 @@ const useCropStore = create((set, get) => ({
                 await get().fetchCropsByFarm(farmId);
             }
 
-            return response.data;
+            return newCrop;
         } catch (error) {
             console.error('[CropStore] Create error:', error);
             set({ error: error.response?.data?.message || 'Failed to create crop' });
@@ -100,6 +101,7 @@ const useCropStore = create((set, get) => ({
         set({ loading: true, error: null });
         try {
             const response = await api.put(`/crops/${id}`, cropData);
+            const updatedCrop = response.data.data || response.data;
 
             // Force re-fetch
             const farmId = (await import('./farmStore')).default.getState().currentFarm?.id;
@@ -107,7 +109,7 @@ const useCropStore = create((set, get) => ({
                 await get().fetchCropsByFarm(farmId);
             }
 
-            return response.data;
+            return updatedCrop;
         } catch (error) {
             console.error('[CropStore] Update error:', error);
             set({ error: error.response?.data?.message || 'Failed to update crop' });
