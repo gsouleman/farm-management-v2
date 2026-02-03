@@ -113,7 +113,19 @@ const PolygonLabel = ({ coordinates, label, cropType }) => {
     }
 };
 
-const FieldMap = ({ center, fields, crops = [], infrastructure = [], farms = [], manualCoordinates, onBoundaryCreate, editable = true, currentLabel }) => {
+const FieldMap = ({
+    center,
+    fields,
+    crops = [],
+    infrastructure = [],
+    farms = [],
+    manualCoordinates,
+    onBoundaryCreate,
+    editable = true,
+    currentLabel,
+    parcelName, // New prop for current parcel being registered
+    subAllocations = [] // Polygons already sketched in this session
+}) => {
     const mapRef = useRef();
     const containerRef = useRef();
     const navigate = useNavigate();
@@ -295,6 +307,39 @@ const FieldMap = ({ center, fields, crops = [], infrastructure = [], farms = [],
                         >
                         </Polygon>
                     ))}
+
+                    {/* Current Parcel Label (for registration) */}
+                    {parcelName && manualCoordinates?.length > 0 && (
+                        <PolygonLabel
+                            coordinates={manualCoordinates}
+                            label={parcelName}
+                            cropType="infrastructure"
+                        />
+                    )}
+
+                    {/* Pending Sub-Allocations (Sketched in current session) */}
+                    {subAllocations.map((alloc, idx) => {
+                        const style = getCropStyle(alloc.type);
+                        const positions = alloc.coordinates.map(c => [c[1], c[0]]);
+                        return (
+                            <React.Fragment key={`sub-alloc-${idx}`}>
+                                <Polygon
+                                    positions={positions}
+                                    pathOptions={{
+                                        color: style.color,
+                                        fillColor: style.color,
+                                        fillOpacity: 0.4,
+                                        weight: 2
+                                    }}
+                                />
+                                <PolygonLabel
+                                    coordinates={alloc.coordinates}
+                                    label={alloc.name}
+                                    cropType={alloc.type}
+                                />
+                            </React.Fragment>
+                        );
+                    })}
 
                     {/* Crop Allocations Highlight */}
                     {crops?.filter(c => c?.boundary?.coordinates?.[0]).map(crop => {

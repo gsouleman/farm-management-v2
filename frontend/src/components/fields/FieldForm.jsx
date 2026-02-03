@@ -2,17 +2,32 @@ import React, { useState } from 'react';
 import useFarmStore from '../../store/farmStore';
 import useUIStore from '../../store/uiStore';
 import useCropStore from '../../store/cropStore';
+import useInfrastructureStore from '../../store/infrastructureStore';
+import useCropDefinitionStore from '../../store/cropDefinitionStore';
+import useInfrastructureDefinitionStore from '../../store/infrastructureDefinitionStore';
 import FieldMap from './FieldMap';
 
-const FieldForm = ({ onComplete }) => {
-    const { currentFarm, createField } = useFarmStore();
+const FieldForm = ({ onComplete, initialData }) => {
+    const { currentFarm, createField, updateField, fetchFields } = useFarmStore();
     const { showNotification, showAlert } = useUIStore();
-    const { crops, fetchCropsByFarm } = useCropStore();
+    const { createCrop } = useCropStore();
+    const { createInfrastructure } = useInfrastructureStore();
+    const { definitions: cropLibrary, fetchDefinitions: fetchCropLib } = useCropDefinitionStore();
+    const { definitions: infraLibrary, fetchDefinitions: fetchInfraLib } = useInfrastructureDefinitionStore();
+
+    const [drawingMode, setDrawingMode] = useState('main'); // main, crop, infra
+    const [pendingAllocations, setPendingAllocations] = useState([]);
+    const [activeAllocation, setActiveAllocation] = useState({
+        name: '',
+        type: '', // for infra
+        sub_type: '',
+        category: ''
+    });
+
     const [formData, setFormData] = useState({
         name: '',
         field_number: '',
-        status: 'active', // active, fallow, preparation
-        crop_id: '',
+        status: 'active',
         soil_type: '',
         drainage: '',
         slope: '',
@@ -25,10 +40,17 @@ const FieldForm = ({ onComplete }) => {
     });
 
     React.useEffect(() => {
-        if (currentFarm?.id) {
-            fetchCropsByFarm(currentFarm.id);
+        fetchCropLib();
+        fetchInfraLib();
+
+        if (initialData) {
+            setFormData({
+                ...initialData,
+                boundary_coordinates: initialData.boundary?.coordinates?.[0]?.map(c => ({ lat: c[1], lng: c[0] })) || []
+            });
+            setCalculatedArea(initialData.area || 0);
         }
-    }, [currentFarm?.id, fetchCropsByFarm]);
+    }, [fetchCropLib, fetchInfraLib, initialData]);
 
     const [calculatedArea, setCalculatedArea] = useState(0);
     const [calculatedPerimeter, setCalculatedPerimeter] = useState(0);
@@ -97,8 +119,29 @@ const FieldForm = ({ onComplete }) => {
     };
 
     const handleBoundarySave = (data) => {
-        setFormData({ ...formData, boundary_coordinates: data.coordinates });
-        setCalculatedArea(data.area);
+        if (drawingMode === 'main') {
+            setFormData({ ...formData, boundary_coordinates: data.coordinates });
+            setCalculatedArea(data.area);
+            setCalculatedPerimeter(data.perimeter);
+        } else {
+            // Check if name/type selected before allowing allocation save
+            if (!activeAllocation.name) {
+                showNotification('Please select a type from the library first', 'error');
+                return;
+            }
+
+            const newAlloc = {
+                ...activeAllocation,
+                coordinates: data.coordinates,
+                area: data.area,
+                mode: drawingMode // crop or infra
+            };
+
+            setPendingAllocations([...pendingAllocations, newAlloc]);
+            setDrawingMode('main'); // Revert after drawing
+            setActiveAllocation({ name: '', type: '', sub_type: '', category: '' });
+            showNotification(`${newAlloc.name} allocated to map!`, 'success');
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -110,13 +153,54 @@ const FieldForm = ({ onComplete }) => {
 
         setLoading(true);
         try {
-            const response = await createField(currentFarm.id, {
-                ...formData,
-                area: calculatedArea
-            });
-            if (onComplete) onComplete(response);
+            // 1. Create or Update the Parcel (Field)
+            let field;
+            if (initialData?.id) {
+                field = await updateField(initialData.id, {
+                    ...formData,
+                    area: calculatedArea
+                });
+            } else {
+                field = await createField(currentFarm.id, {
+                    ...formData,
+                    area: calculatedArea
+                });
+            }
+
+            // 2. Create Internal Allocations
+            for (const alloc of pendingAllocations) {
+                if (alloc.mode === 'crop') {
+                    await createCrop(field.id, {
+                        crop_type: alloc.name,
+                        variety: alloc.sub_type || 'Standard',
+                        planted_area: parseFloat(alloc.area),
+                        boundary_coordinates: alloc.coordinates,
+                        year: new Date().getFullYear(),
+                        planting_date: new Date().toISOString().split('T')[0],
+                        status: 'planted'
+                    });
+                } else {
+                    await createInfrastructure(currentFarm.id, {
+                        name: `${alloc.name} - ${formData.name}`,
+                        type: alloc.name,
+                        sub_type: alloc.sub_type,
+                        field_id: field.id,
+                        area_sqm: parseFloat(alloc.area) * 10000,
+                        boundary_coordinates: alloc.coordinates,
+                        status: 'operational',
+                        construction_date: new Date().toISOString().split('T')[0]
+                    });
+                }
+            }
+
+            // Sync data
+            await fetchFields(currentFarm.id);
+            showNotification('Strategic Parcel and all internal allocations created!', 'success');
+
+            if (onComplete) onComplete(field);
         } catch (error) {
             console.error(error);
+            showNotification('Failed to register strategic parcel', 'error');
         } finally {
             setLoading(false);
         }
@@ -156,33 +240,66 @@ const FieldForm = ({ onComplete }) => {
                             </div>
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
-                            <div>
-                                <label htmlFor="status">Parcel Status</label>
-                                <select
-                                    id="status"
-                                    value={formData.status}
-                                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                                >
-                                    <option value="active">Active Production</option>
-                                    <option value="fallow">Fallow / Rest</option>
-                                    <option value="preparation">Preparation</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label htmlFor="crop_id">Assigned Crop</label>
-                                <select
-                                    id="crop_id"
-                                    value={formData.crop_id}
-                                    onChange={(e) => setFormData({ ...formData, crop_id: e.target.value })}
-                                >
-                                    <option value="">-- No Crop Assigned --</option>
-                                    {crops.map(crop => (
-                                        <option key={crop.id} value={crop.id}>{crop.crop_type} - {crop.variety}</option>
-                                    ))}
-                                </select>
+                        <div style={{ marginBottom: '20px' }}>
+                            <label style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--primary)', textTransform: 'uppercase', marginBottom: '12px', display: 'block' }}>
+                                Registration Mode: {drawingMode === 'main' ? '🏗️ Parcel Boundary' : drawingMode === 'crop' ? '🥗 Crop Allocation' : '🏢 Infra Allocation'}
+                            </label>
+                            <div style={{ display: 'flex', backgroundColor: '#edf2f7', padding: '4px', borderRadius: '10px', gap: '4px' }}>
+                                {['main', 'crop', 'infra'].map(mode => (
+                                    <button
+                                        key={mode}
+                                        type="button"
+                                        onClick={() => setDrawingMode(mode)}
+                                        style={{
+                                            flex: 1,
+                                            padding: '10px',
+                                            borderRadius: '8px',
+                                            border: 'none',
+                                            fontSize: '11px',
+                                            fontWeight: 'bold',
+                                            cursor: 'pointer',
+                                            backgroundColor: drawingMode === mode ? 'var(--primary)' : 'transparent',
+                                            color: drawingMode === mode ? 'white' : '#4a5568',
+                                            transition: 'all 0.2s'
+                                        }}
+                                    >
+                                        {mode.toUpperCase()}
+                                    </button>
+                                ))}
                             </div>
                         </div>
+
+                        {drawingMode !== 'main' && (
+                            <div className="card animate-scale-in" style={{ padding: '16px', backgroundColor: '#f0f9ff', border: '1px solid #bae6fd', marginBottom: '16px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                    <div>
+                                        <label>{drawingMode === 'crop' ? 'Select Crop' : 'Select Infra'}</label>
+                                        <select
+                                            value={activeAllocation.name}
+                                            onChange={(e) => setActiveAllocation({ ...activeAllocation, name: e.target.value })}
+                                        >
+                                            <option value="">-- Select from Library --</option>
+                                            {drawingMode === 'crop'
+                                                ? cropLibrary.map(c => <option key={c.id} value={c.name}>{c.icon} {c.name}</option>)
+                                                : infraLibrary.map(i => <option key={i.id} value={i.name}>{i.icon} {i.name}</option>)
+                                            }
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label>Label / Variety</label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. Area A"
+                                            value={activeAllocation.sub_type}
+                                            onChange={(e) => setActiveAllocation({ ...activeAllocation, sub_type: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                                <p style={{ fontSize: '10px', color: '#0369a1', margin: '8px 0 0 0' }}>
+                                    ✨ Mode active: Draw the sub-area on the map to save this allocation.
+                                </p>
+                            </div>
+                        )}
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
                             <div>
@@ -338,6 +455,10 @@ const FieldForm = ({ onComplete }) => {
                             center={currentFarm?.coordinates?.coordinates ? [currentFarm.coordinates.coordinates[1], currentFarm.coordinates.coordinates[0]] : [37.7749, -122.4194]}
                             onBoundaryCreate={handleBoundarySave}
                             editable={true}
+                            manualCoordinates={formData.boundary_coordinates}
+                            parcelName={formData.name}
+                            subAllocations={pendingAllocations}
+                            currentLabel={activeAllocation.sub_type || activeAllocation.name}
                         />
                     </div>
                 </div>

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useFarmStore from '../store/farmStore';
 import useUIStore from '../store/uiStore';
+import useCropStore from '../store/cropStore';
+import useInfrastructureStore from '../store/infrastructureStore';
 import FieldForm from '../components/fields/FieldForm';
 import FarmForm from '../components/farms/FarmForm';
 import ParcelAllocationFlow from '../components/fields/ParcelAllocationFlow';
@@ -14,16 +16,19 @@ const Fields = () => {
         fields,
         fetchFields,
         fetchFarms,
+        updateField,
         deleteField,
         deleteFarm,
         setCurrentFarm
     } = useFarmStore();
+    const { crops, fetchCropsByFarm } = useCropStore();
+    const { infrastructure, fetchInfrastructure } = useInfrastructureStore();
     const { showAlert, showNotification } = useUIStore();
 
-    const [view, setView] = useState('list'); // list, add-parcel, add-enterprise, edit-enterprise, allocate-parcel
+    const [view, setView] = useState('list'); // list, add-parcel, add-enterprise, edit-enterprise, edit-parcel
     const [activeTab, setActiveTab] = useState('parcels'); // parcels, enterprise
     const [editingFarm, setEditingFarm] = useState(null);
-    const [newlyCreatedField, setNewlyCreatedField] = useState(null);
+    const [editingField, setEditingField] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -33,8 +38,10 @@ const Fields = () => {
     useEffect(() => {
         if (currentFarm) {
             fetchFields(currentFarm.id);
+            fetchCropsByFarm(currentFarm.id);
+            fetchInfrastructure(currentFarm.id);
         }
-    }, [currentFarm, fetchFields]);
+    }, [currentFarm, fetchFields, fetchCropsByFarm, fetchInfrastructure]);
 
     const handleDeleteField = async (id) => {
         if (window.confirm('Are you sure you want to delete this parcel?')) {
@@ -58,19 +65,10 @@ const Fields = () => {
         }
     };
 
-    if (view === 'add-parcel') return <FieldForm onComplete={(field) => {
-        if (field) {
-            setNewlyCreatedField(field);
-            setView('allocate-parcel');
-        } else {
-            setView('list');
-        }
-    }} />;
+    if (view === 'add-parcel') return <FieldForm onComplete={() => setView('list')} />;
+    if (view === 'edit-parcel' && editingField) return <FieldForm initialData={editingField} onComplete={() => { setView('list'); setEditingField(null); }} />;
     if (view === 'add-enterprise') return <FarmForm onComplete={() => setView('list')} />;
     if (view === 'edit-enterprise') return <FarmForm initialData={editingFarm} onComplete={() => { setView('list'); setEditingFarm(null); }} />;
-    if (view === 'allocate-parcel' && newlyCreatedField) {
-        return <ParcelAllocationFlow field={newlyCreatedField} onComplete={() => { setView('list'); setNewlyCreatedField(null); }} />;
-    }
 
     return (
         <div className="animate-fade-in" style={{ padding: '24px' }}>
@@ -127,55 +125,76 @@ const Fields = () => {
             </div>
 
             {activeTab === 'parcels' ? (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
-                    {fields.map(field => (
-                        <div key={field.id} className="card animate-scale-in" style={{ padding: '20px', position: 'relative' }}>
-                            <div className="flex j-between a-start" style={{ marginBottom: '16px' }}>
-                                <div style={{ fontSize: '24px' }}>🗺️</div>
-                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--primary)', backgroundColor: '#e6f4ea', padding: '4px 8px', borderRadius: '4px' }}>
-                                        {field.area} {field.area_unit || 'ha'}
-                                    </span>
-                                    <span style={{
-                                        fontSize: '10px',
-                                        fontWeight: 'bold',
-                                        backgroundColor: field.status === 'active' ? '#ebf8ff' : field.status === 'fallow' ? '#fff5f5' : '#fefcbf',
-                                        color: field.status === 'active' ? '#2b6cb0' : field.status === 'fallow' ? '#c53030' : '#b7791f',
-                                        padding: '4px 8px',
-                                        borderRadius: '4px',
-                                        textTransform: 'uppercase'
-                                    }}>
-                                        {field.status || 'active'}
-                                    </span>
-                                    <button
-                                        onClick={() => handleDeleteField(field.id)}
-                                        style={{ background: '#fff5f5', color: '#e53e3e', border: '1px solid #fed7d7', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', cursor: 'pointer' }}
-                                    >
-                                        🗑️
-                                    </button>
-                                </div>
-                            </div>
-                            <h3 style={{ margin: '0 0 8px 0', fontSize: '18px' }}>{field.name}</h3>
-                            <p style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '16px' }}>Lot #: {field.field_number || 'N/A'}</p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
+                    {fields.map(field => {
+                        const fieldCrops = crops.filter(c => c.field_id === field.id);
+                        const fieldInfra = infrastructure.filter(i => i.field_id === field.id);
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                                <div style={{ fontSize: '11px' }}>
-                                    <div style={{ color: 'var(--text-muted)' }}>Soil Type</div>
-                                    <div style={{ fontWeight: '600' }}>{field.soil_type || 'Unknown'}</div>
-                                </div>
-                                <div style={{ fontSize: '11px' }}>
-                                    <div style={{ color: 'var(--text-muted)' }}>Irrigation</div>
-                                    <div style={{ fontWeight: '600' }}>{field.irrigation ? 'Yes' : 'No'}</div>
-                                </div>
-                                {field.crop_id && (
-                                    <div style={{ fontSize: '11px', gridColumn: '1 / -1', marginTop: '8px', borderTop: '1px solid #eee', paddingTop: '8px' }}>
-                                        <div style={{ color: 'var(--text-muted)' }}>Current Cultivation</div>
-                                        <div style={{ fontWeight: '700', color: 'var(--primary)' }}>CROP ASSIGNED</div>
+                        return (
+                            <div key={field.id} className="card animate-scale-in" style={{ padding: '0', position: 'relative', overflow: 'hidden', border: '1px solid var(--border)', borderRadius: '12px' }}>
+                                {/* Header with Area */}
+                                <div style={{ backgroundColor: '#f8fafc', padding: '16px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <div style={{ fontSize: '20px' }}>🗺️</div>
+                                        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800', color: 'var(--text-primary)' }}>{field.name.toUpperCase()}</h3>
                                     </div>
-                                )}
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div style={{ fontSize: '14px', fontWeight: '900', color: 'var(--primary)' }}>{field.area} {field.area_unit || 'ha'}</div>
+                                        <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 'bold' }}>{field.status?.toUpperCase() || 'ACTIVE'}</div>
+                                    </div>
+                                </div>
+
+                                <div style={{ padding: '16px' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+                                        <div style={{ fontSize: '11px', backgroundColor: '#fdf2f2', padding: '8px', borderRadius: '6px' }}>
+                                            <div style={{ color: '#9b2c2c', fontWeight: 'bold', fontSize: '9px' }}>SOIL COMPOSITION</div>
+                                            <div style={{ fontWeight: '800', color: '#742a2a' }}>{field.soil_type?.toUpperCase() || 'NOT TESTED'}</div>
+                                        </div>
+                                        <div style={{ fontSize: '11px', backgroundColor: '#f0fdf4', padding: '8px', borderRadius: '6px' }}>
+                                            <div style={{ color: '#166534', fontWeight: 'bold', fontSize: '9px' }}>ESG SCORE</div>
+                                            <div style={{ fontWeight: '800', color: '#14532d' }}>{field.water_efficiency || 100}% WATER EFF.</div>
+                                        </div>
+                                    </div>
+
+                                    {/* Sub-allocations Summary */}
+                                    <div style={{ marginBottom: '16px' }}>
+                                        <div style={{ fontSize: '10px', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase' }}>Current Allocations</div>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                                            {fieldCrops.map(c => (
+                                                <span key={c.id} style={{ fontSize: '10px', backgroundColor: '#fffbe6', color: '#856404', padding: '4px 8px', borderRadius: '4px', border: '1px solid #ffe58f', fontWeight: '600' }}>
+                                                    🥗 {c.crop_type} ({c.variety})
+                                                </span>
+                                            ))}
+                                            {fieldInfra.map(i => (
+                                                <span key={i.id} style={{ fontSize: '10px', backgroundColor: '#f0f9ff', color: '#0369a1', padding: '4px 8px', borderRadius: '4px', border: '1px solid #bae6fd', fontWeight: '600' }}>
+                                                    🏢 {i.type}
+                                                </span>
+                                            ))}
+                                            {fieldCrops.length === 0 && fieldInfra.length === 0 && (
+                                                <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontStyle: 'italic' }}>No sub-allocations</span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div style={{ display: 'flex', gap: '8px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
+                                        <button
+                                            onClick={() => { setEditingField(field); setView('edit-parcel'); }}
+                                            style={{ flex: 1, padding: '8px', backgroundColor: '#edf2f7', border: 'none', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', color: '#4a5568' }}
+                                        >
+                                            UPDATE DETAILS
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteField(field.id)}
+                                            style={{ padding: '8px 12px', backgroundColor: '#fff5f5', color: '#e53e3e', border: '1px solid #fed7d7', borderRadius: '6px', fontSize: '12px', cursor: 'pointer' }}
+                                        >
+                                            🗑️
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                     {fields.length === 0 && (
                         <div className="card" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '60px', borderStyle: 'dashed' }}>
                             <div style={{ fontSize: '48px', marginBottom: '20px' }}>🚜</div>
