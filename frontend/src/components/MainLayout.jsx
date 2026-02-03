@@ -151,8 +151,8 @@ const MainLayout = ({ children }) => {
                             outline: 'none'
                         }}
                     >
-                        {farms.length === 0 && <option value="">Select a Station</option>}
-                        {farms.map(farm => (
+                        {(!farms || farms.length === 0) && <option value="">Select a Station</option>}
+                        {(farms || []).map(farm => (
                             <option key={farm.id} value={farm.id}>{farm.name}</option>
                         ))}
                     </select>
