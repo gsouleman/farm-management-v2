@@ -6,6 +6,7 @@ import useInfrastructureStore from '../../store/infrastructureStore';
 import useCropDefinitionStore from '../../store/cropDefinitionStore';
 import useInfrastructureDefinitionStore from '../../store/infrastructureDefinitionStore';
 import FieldMap from './FieldMap';
+import { getCameroonRegion, getRecommendedVarieties, calculateCentroid } from '../../utils/locationUtils';
 
 const FieldForm = ({ onComplete, initialData }) => {
     const { farms, currentFarm, setCurrentFarm, createField, updateField, fetchFields } = useFarmStore();
@@ -63,6 +64,23 @@ const FieldForm = ({ onComplete, initialData }) => {
     const [calculatedPerimeter, setCalculatedPerimeter] = useState(0);
     const [coordsText, setCoordsText] = useState('');
     const [loading, setLoading] = useState(false);
+    const [detectedRegion, setDetectedRegion] = useState('Center');
+
+    const updateFarmLocation = async (coords) => {
+        if (!selectedFarmId) return;
+        const farm = farms.find(f => f.id === selectedFarmId);
+        // Only update if current coordinates are missing or default
+        const currentCoords = farm?.coordinates?.coordinates;
+        if (!currentCoords || (currentCoords[0] === 0 && currentCoords[1] === 0)) {
+            const centroid = calculateCentroid(coords);
+            if (centroid) {
+                await useFarmStore.getState().updateFarm(selectedFarmId, {
+                    coordinates: { type: 'Point', coordinates: [centroid[1], centroid[0]] } // [lng, lat]
+                });
+                showNotification(`Farm location updated to Parcel ${formData.name || ''} centroid`, 'info');
+            }
+        }
+    };
 
     const calculateMetrics = (text) => {
         const lines = text.trim().split('\n');
@@ -120,6 +138,11 @@ const FieldForm = ({ onComplete, initialData }) => {
             ...prev,
             boundary_coordinates: mapCoords
         }));
+
+        // Detect region and update farm
+        const region = getCameroonRegion(points[0].lat, points[0].lng);
+        setDetectedRegion(region);
+        updateFarmLocation(mapCoords);
     };
 
     const handleCoordsChange = (e) => {
@@ -133,8 +156,14 @@ const FieldForm = ({ onComplete, initialData }) => {
             setFormData({ ...formData, boundary_coordinates: data.coordinates });
             setCalculatedArea(data.area);
             setCalculatedPerimeter(data.perimeter);
+
+            // Trigger region detection and farm update on map draw too
+            if (data.coordinates.length > 0) {
+                const region = getCameroonRegion(data.coordinates[0][1], data.coordinates[0][0]);
+                setDetectedRegion(region);
+                updateFarmLocation(data.coordinates);
+            }
         } else {
-            // Check if name/type selected before allowing allocation save
             if (!activeAllocation.name) {
                 showNotification('Please select a type from the library first', 'error');
                 return;
@@ -144,11 +173,11 @@ const FieldForm = ({ onComplete, initialData }) => {
                 ...activeAllocation,
                 coordinates: data.coordinates,
                 area: data.area,
-                mode: drawingMode // crop or infra
+                mode: drawingMode
             };
 
             setPendingAllocations([...pendingAllocations, newAlloc]);
-            setDrawingMode('main'); // Revert after drawing
+            setDrawingMode('main');
             setActiveAllocation({ name: '', type: '', sub_type: '', category: '' });
             showNotification(`${newAlloc.name} allocated to map!`, 'success');
         }
@@ -163,7 +192,6 @@ const FieldForm = ({ onComplete, initialData }) => {
 
         setLoading(true);
         try {
-            // 1. Create or Update the Parcel (Field)
             let field;
             if (initialData?.id) {
                 field = await updateField(initialData.id, {
@@ -177,7 +205,6 @@ const FieldForm = ({ onComplete, initialData }) => {
                 });
             }
 
-            // 2. Create Internal Allocations
             for (const alloc of pendingAllocations) {
                 if (alloc.mode === 'crop') {
                     await createCrop(field.id, {
@@ -203,10 +230,8 @@ const FieldForm = ({ onComplete, initialData }) => {
                 }
             }
 
-            // Sync data
             await fetchFields(selectedFarmId);
-            showNotification('Strategic Parcel and all internal allocations created!', 'success');
-
+            showNotification('Strategic Parcel and internal allocations created!', 'success');
             if (onComplete) onComplete(field);
         } catch (error) {
             console.error(error);
@@ -219,269 +244,145 @@ const FieldForm = ({ onComplete, initialData }) => {
     return (
         <div className="card animate-fade-in" style={{ maxWidth: '1100px', margin: '0 auto' }}>
             <div className="card-header">
-                <h3 style={{ margin: 0, fontSize: '18px' }}>Register Strategic Parcel - {currentFarm?.name || 'New Parcel'}</h3>
+                <h3 style={{ margin: 0, fontSize: '18px' }}>Register Strategic Parcel</h3>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '400px 1fr', gap: '30px' }}>
                 <form onSubmit={handleSubmit}>
+                    {/* Enterprise Selection */}
+                    {farms.length > 1 && (
+                        <div style={{ marginBottom: '16px', padding: '16px', backgroundColor: '#fffaf0', border: '1px solid #feebc8', borderRadius: '8px' }}>
+                            <label htmlFor="farm_select" style={{ color: '#9c4221', fontWeight: 'bold' }}>Assign to Enterprise</label>
+                            <select id="farm_select" value={selectedFarmId} onChange={(e) => setSelectedFarmId(e.target.value)} required style={{ borderColor: '#fbd38d' }}>
+                                <option value="">-- Choose Farm --</option>
+                                {farms.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                            </select>
+                        </div>
+                    )}
+
+                    {/* Basic Info & Coordinates Card */}
                     <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px', marginBottom: '16px' }}>
-                            <div>
-                                <label htmlFor="name">Parcel Name</label>
-                                <input
-                                    id="name"
-                                    name="name"
-                                    type="text"
-                                    placeholder="e.g. North Plot A"
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="field_number">Lot #</label>
-                                <input
-                                    id="field_number"
-                                    name="field_number"
-                                    type="text"
-                                    value={formData.field_number}
-                                    onChange={(e) => setFormData({ ...formData, field_number: e.target.value })}
-                                />
-                            </div>
+                        <div style={{ marginBottom: '16px' }}>
+                            <label htmlFor="name">Parcel Name</label>
+                            <input id="name" type="text" placeholder="e.g. North Plot A" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
                         </div>
 
-                        <div style={{ marginBottom: '20px' }}>
-                            <label style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--primary)', textTransform: 'uppercase', marginBottom: '12px', display: 'block' }}>
-                                Registration Mode: {drawingMode === 'main' ? '🏗️ Parcel Boundary' : drawingMode === 'crop' ? '🥗 Crop Allocation' : '🏢 Infra Allocation'}
-                            </label>
-                            <div style={{ display: 'flex', backgroundColor: '#edf2f7', padding: '4px', borderRadius: '10px', gap: '4px' }}>
-                                {['main', 'crop', 'infra'].map(mode => (
-                                    <button
-                                        key={mode}
-                                        type="button"
-                                        onClick={() => setDrawingMode(mode)}
-                                        style={{
-                                            flex: 1,
-                                            padding: '10px',
-                                            borderRadius: '8px',
-                                            border: 'none',
-                                            fontSize: '11px',
-                                            fontWeight: 'bold',
-                                            cursor: 'pointer',
-                                            backgroundColor: drawingMode === mode ? 'var(--primary)' : 'transparent',
-                                            color: drawingMode === mode ? 'white' : '#4a5568',
-                                            transition: 'all 0.2s'
+                        <div style={{ background: 'var(--bg-main)', borderStyle: 'dashed', padding: '16px', borderRadius: '8px', marginBottom: '12px' }}>
+                            <label style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>PASTE BOUNDARY COORDINATES (lat,lng)</label>
+                            <textarea
+                                id="boundary_manual"
+                                rows="3"
+                                value={coordsText}
+                                onChange={handleCoordsChange}
+                                placeholder="4.123,9.456&#10;4.125,9.458..."
+                                style={{ fontSize: '12px', fontFamily: 'monospace', marginBottom: '12px' }}
+                            />
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                                <div style={{ background: 'white', padding: '8px', borderRadius: '4px', textAlign: 'center' }}>
+                                    <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>AREA</div>
+                                    <div style={{ fontSize: '16px', fontWeight: 'bold' }}>{calculatedArea} {formData.area_unit === 'hectares' ? 'ha' : 'ac'}</div>
+                                </div>
+                                <div style={{ background: 'white', padding: '8px', borderRadius: '4px', textAlign: 'center' }}>
+                                    <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>PERIMETER</div>
+                                    <div style={{ fontSize: '16px', fontWeight: 'bold' }}>{calculatedPerimeter} km</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Mode Selection Slider */}
+                    <div style={{ marginBottom: '20px' }}>
+                        <label style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--primary)', textTransform: 'uppercase', marginBottom: '12px', display: 'block' }}>
+                            Registration Mode: {drawingMode === 'main' ? '🏗️ Parcel Boundary' : drawingMode === 'crop' ? '🥗 Crop Allocation' : '🏢 Infra Allocation'}
+                        </label>
+                        <div style={{ display: 'flex', backgroundColor: '#edf2f7', padding: '4px', borderRadius: '10px', gap: '4px' }}>
+                            {['main', 'crop', 'infra'].map(mode => (
+                                <button
+                                    key={mode}
+                                    type="button"
+                                    onClick={() => setDrawingMode(mode)}
+                                    style={{
+                                        flex: 1, padding: '10px', borderRadius: '8px', border: 'none', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer',
+                                        backgroundColor: drawingMode === mode ? 'var(--primary)' : 'transparent',
+                                        color: drawingMode === mode ? 'white' : '#4a5568'
+                                    }}
+                                >
+                                    {mode.toUpperCase()}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Allocation Card (Dynamic) */}
+                    {drawingMode !== 'main' && (
+                        <div className="card animate-scale-in" style={{ padding: '16px', backgroundColor: '#f0f9ff', border: '1px solid #bae6fd', marginBottom: '16px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                <div>
+                                    <label>{drawingMode === 'crop' ? 'Select Crop' : 'Select Infra'}</label>
+                                    <select
+                                        value={activeAllocation.name}
+                                        onChange={(e) => {
+                                            const name = e.target.value;
+                                            let sub_type = '';
+                                            if (drawingMode === 'crop') {
+                                                const crop = cropLibrary.find(c => c.name === name);
+                                                if (crop) {
+                                                    const recs = getRecommendedVarieties(name, detectedRegion, crop.varieties);
+                                                    sub_type = recs[0] || '';
+                                                }
+                                            }
+                                            setActiveAllocation({ ...activeAllocation, name, sub_type });
                                         }}
                                     >
-                                        {mode.toUpperCase()}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {farms.length > 1 && (
-                            <div style={{ marginBottom: '16px', padding: '16px', backgroundColor: '#fffaf0', border: '1px solid #feebc8', borderRadius: '8px' }}>
-                                <label htmlFor="farm_select" style={{ color: '#9c4221', fontWeight: 'bold' }}>Select Farm for this Parcel</label>
-                                <select
-                                    id="farm_select"
-                                    value={selectedFarmId}
-                                    onChange={(e) => setSelectedFarmId(e.target.value)}
-                                    required
-                                    style={{ borderColor: '#fbd38d' }}
-                                >
-                                    <option value="">-- Choose Farm --</option>
-                                    {farms.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
-                                </select>
-                                <p style={{ fontSize: '10px', color: '#c05621', margin: '4px 0 0 0' }}>💡 Registration will be associated with this specific enterprise.</p>
-                            </div>
-                        )}
-
-                        {drawingMode !== 'main' && (
-                            <div className="card animate-scale-in" style={{ padding: '16px', backgroundColor: '#f0f9ff', border: '1px solid #bae6fd', marginBottom: '16px' }}>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                                    <div>
-                                        <label>{drawingMode === 'crop' ? 'Select Crop' : 'Select Infra'}</label>
-                                        <select
-                                            value={activeAllocation.name}
-                                            onChange={(e) => {
-                                                const name = e.target.value;
-                                                let sub_type = '';
-                                                if (drawingMode === 'crop') {
-                                                    const crop = cropLibrary.find(c => c.name === name);
-                                                    if (crop && crop.varieties?.length > 0) {
-                                                        sub_type = crop.varieties[0];
-                                                    }
-                                                }
-                                                setActiveAllocation({ ...activeAllocation, name, sub_type });
-                                            }}
-                                        >
-                                            <option value="">-- Select from Library --</option>
-                                            {drawingMode === 'crop'
-                                                ? cropLibrary.map(c => <option key={c.id} value={c.name}>{c.icon} {c.name}</option>)
-                                                : infraLibrary.map(i => <option key={i.id} value={i.name}>{i.icon} {i.name}</option>)
-                                            }
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label>{drawingMode === 'crop' ? 'Variety' : 'Label'}</label>
-                                        <input
-                                            type="text"
-                                            placeholder={drawingMode === 'crop' ? "e.g. Local V1" : "e.g. Area A"}
-                                            value={activeAllocation.sub_type}
-                                            onChange={(e) => setActiveAllocation({ ...activeAllocation, sub_type: e.target.value })}
-                                        />
-                                    </div>
+                                        <option value="">-- Select --</option>
+                                        {drawingMode === 'crop'
+                                            ? cropLibrary.map(c => <option key={c.id} value={c.name}>{c.icon} {c.name}</option>)
+                                            : infraLibrary.map(i => <option key={i.id} value={i.name}>{i.icon} {i.name}</option>)
+                                        }
+                                    </select>
                                 </div>
-                                <p style={{ fontSize: '10px', color: '#0369a1', margin: '8px 0 0 0' }}>
-                                    ✨ Mode active: Draw the sub-area on the map to save this allocation.
-                                </p>
+                                <div>
+                                    <label>{drawingMode === 'crop' ? 'Variety (Local)' : 'Label'}</label>
+                                    {drawingMode === 'crop' ? (
+                                        <select value={activeAllocation.sub_type} onChange={(e) => setActiveAllocation({ ...activeAllocation, sub_type: e.target.value })}>
+                                            <option value="">-- Select Variety --</option>
+                                            {getRecommendedVarieties(
+                                                activeAllocation.name,
+                                                detectedRegion,
+                                                cropLibrary.find(c => c.name === activeAllocation.name)?.varieties || []
+                                            ).map(v => <option key={v} value={v}>{v}</option>)}
+                                        </select>
+                                    ) : (
+                                        <input type="text" placeholder="e.g. Area A" value={activeAllocation.sub_type} onChange={(e) => setActiveAllocation({ ...activeAllocation, sub_type: e.target.value })} />
+                                    )}
+                                </div>
                             </div>
-                        )}
-
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
-                            <div>
-                                <label htmlFor="soil_type">Soil Type</label>
-                                <select
-                                    id="soil_type"
-                                    name="soil_type"
-                                    value={formData.soil_type}
-                                    onChange={(e) => setFormData({ ...formData, soil_type: e.target.value })}
-                                >
-                                    <option value="">-- Select Soil --</option>
-                                    <option value="sandy">Sandy</option>
-                                    <option value="loamy">Loamy</option>
-                                    <option value="clay">Clay</option>
-                                    <option value="silt">Silt</option>
-                                    <option value="peaty">Peaty</option>
-                                    <option value="chalky">Chalky</option>
-                                    <option value="saline">Saline</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label htmlFor="drainage">Drainage</label>
-                                <select
-                                    id="drainage"
-                                    name="drainage"
-                                    value={formData.drainage}
-                                    onChange={(e) => setFormData({ ...formData, drainage: e.target.value })}
-                                >
-                                    <option value="">-- Select Drainage --</option>
-                                    <option value="excellent">Excellent</option>
-                                    <option value="good">Good</option>
-                                    <option value="fair">Fair</option>
-                                    <option value="poor">Poor</option>
-                                    <option value="very_poor">Very Poor</option>
-                                </select>
-                            </div>
+                            <p style={{ fontSize: '10px', color: '#0369a1', marginTop: '8px' }}>Region: {detectedRegion} | Draw on map to allocate.</p>
                         </div>
+                    )}
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
-                            <div>
-                                <label htmlFor="slope">Slope</label>
-                                <select
-                                    id="slope"
-                                    name="slope"
-                                    value={formData.slope}
-                                    onChange={(e) => setFormData({ ...formData, slope: e.target.value })}
-                                >
-                                    <option value="">-- Select Slope --</option>
-                                    <option value="level">Level (0-2%)</option>
-                                    <option value="gentle">Gentle (2-5%)</option>
-                                    <option value="moderate">Moderate (5-10%)</option>
-                                    <option value="steep">Steep ({'>'}10%)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label htmlFor="area_unit">Area Unit</label>
-                                <select
-                                    id="area_unit"
-                                    name="area_unit"
-                                    value={formData.area_unit}
-                                    onChange={(e) => setFormData({ ...formData, area_unit: e.target.value })}
-                                >
-                                    <option value="hectares">Hectares</option>
-                                    <option value="acres">Acres</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <input
-                                id="irrigation-toggle"
-                                name="irrigation"
-                                type="checkbox"
-                                checked={formData.irrigation}
-                                onChange={(e) => setFormData({ ...formData, irrigation: e.target.checked })}
-                                style={{ width: 'auto' }}
-                            />
-                            <label htmlFor="irrigation-toggle" style={{ margin: 0 }}>Irrigation Available</label>
-                        </div>
-                    </div>
-
-                    <div className="card" style={{ background: 'var(--bg-main)', borderStyle: 'dashed', padding: '16px', marginBottom: '16px' }}>
-                        <label htmlFor="boundary_manual" style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>OR PASTE BOUNDARY COORDINATES (lat,lng)</label>
-                        <textarea
-                            id="boundary_manual"
-                            name="boundary_manual"
-                            rows="4"
-                            value={coordsText}
-                            onChange={handleCoordsChange}
-                            placeholder="45.4215,-75.6972&#10;45.4220,-75.6980..."
-                            style={{ fontSize: '12px', fontFamily: 'monospace', marginBottom: '12px' }}
-                        />
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                            <div style={{ background: 'white', padding: '8px', borderRadius: '4px', textAlign: 'center' }}>
-                                <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>PROJECTED AREA</div>
-                                <div style={{ fontSize: '16px', fontWeight: 'bold' }}>{calculatedArea} {formData.area_unit === 'hectares' ? 'ha' : 'ac'}</div>
-                            </div>
-                            <div style={{ background: 'white', padding: '8px', borderRadius: '4px', textAlign: 'center' }}>
-                                <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>PERIMETER</div>
-                                <div style={{ fontSize: '16px', fontWeight: 'bold' }}>{calculatedPerimeter} km</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style={{ marginBottom: '20px' }}>
-                        <label htmlFor="notes">Operational Notes</label>
-                        <textarea
-                            id="notes"
-                            name="notes"
-                            value={formData.notes}
-                            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                            rows="3"
-                            style={{ resize: 'none' }}
-                        />
-                    </div>
-
-                    <div className="card" style={{ padding: '16px', backgroundColor: '#f0fff4', border: '1px solid #c6f6d5', marginBottom: '20px' }}>
-                        <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#2f855a' }}>Sustainability & ESG Tracking</h4>
+                    {/* Additional Details */}
+                    <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                             <div>
-                                <label htmlFor="carbon">Carbon Sequestration (tonnes/ha)</label>
-                                <input
-                                    id="carbon"
-                                    type="number"
-                                    step="0.01"
-                                    value={formData.carbon_sequestration}
-                                    onChange={(e) => setFormData({ ...formData, carbon_sequestration: parseFloat(e.target.value) })}
-                                />
+                                <label>Soil Type</label>
+                                <select value={formData.soil_type} onChange={(e) => setFormData({ ...formData, soil_type: e.target.value })}>
+                                    <option value="">-- Select Soil --</option>
+                                    <option value="sandy">Sandy</option><option value="loamy">Loamy</option><option value="clay">Clay</option>
+                                </select>
                             </div>
                             <div>
-                                <label htmlFor="water">Water Efficiency (%)</label>
-                                <input
-                                    id="water"
-                                    type="number"
-                                    value={formData.water_efficiency}
-                                    onChange={(e) => setFormData({ ...formData, water_efficiency: parseInt(e.target.value) })}
-                                />
+                                <label>Drainage</label>
+                                <select value={formData.drainage} onChange={(e) => setFormData({ ...formData, drainage: e.target.value })}>
+                                    <option value="">-- Select Drainage --</option>
+                                    <option value="excellent">Excellent</option><option value="good">Good</option>
+                                </select>
                             </div>
                         </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: '12px' }}>
-                        <button type="submit" className="primary" style={{ flex: 1 }} disabled={loading}>
-                            {loading ? 'Saving...' : 'Register Parcel'}
-                        </button>
+                        <button type="submit" className="primary" style={{ flex: 1 }} disabled={loading}>{loading ? 'Saving...' : 'Register Parcel'}</button>
                         <button type="button" onClick={onComplete} className="outline" style={{ flex: 1 }}>Discard</button>
                     </div>
                 </form>

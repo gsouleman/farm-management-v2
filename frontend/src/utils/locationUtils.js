@@ -50,3 +50,54 @@ export const getCameroonRegion = (lat, lng) => {
 
     return nearestRegion;
 };
+
+/**
+ * Returns common varieties based on crop and region
+ */
+export const getRecommendedVarieties = (cropName, region, allVarieties = []) => {
+    // Simple mapping of regional preferences
+    const regionalPreferences = {
+        'Maize (Maïs)': {
+            'Far North': ["CMS 8501", "Local Yellow"],
+            'North': ["CMS 8501", "Local Yellow"],
+            'West': ["CMS 8704", "CMS 9015"],
+            'Northwest': ["CMS 8704", "CMS 9015"],
+            'Center': ["Composite White", "CMS 8704"]
+        },
+        'Rice (Riz)': {
+            'North': ["IRAD 342", "Local Paddy"],
+            'Center': ["NERICA 3", "NERICA 8"],
+            'South': ["Local Paddy"]
+        },
+        'Cassava (Manioc)': {
+            'Center': ["TME 419", "TMS 92/0326"],
+            'South': ["White Skin", "Red Skin"],
+            'Littoral': ["TMS 96/0023"]
+        }
+    };
+
+    const cropPrefs = regionalPreferences[cropName];
+    if (cropPrefs && cropPrefs[region]) {
+        return cropPrefs[region];
+    }
+
+    // Default: return all varieties if no regional preference, or if crop not in mapping
+    return allVarieties.length > 0 ? allVarieties : ["Local Selection"];
+};
+
+/**
+ * Calculates centroid of a set of coordinates [[lng, lat]]
+ */
+export const calculateCentroid = (coordinates) => {
+    if (!coordinates || coordinates.length === 0) return null;
+
+    let latSum = 0;
+    let lngSum = 0;
+
+    coordinates.forEach(coord => {
+        lngSum += coord[0];
+        latSum += coord[1];
+    });
+
+    return [latSum / coordinates.length, lngSum / coordinates.length];
+};
