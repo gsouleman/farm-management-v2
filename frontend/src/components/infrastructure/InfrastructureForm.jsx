@@ -111,7 +111,6 @@ const InfrastructureForm = ({ farmId, onComplete, initialData = null }) => {
             <FormHeader
                 title={initialData ? 'Edit Farm Infrastructure' : 'Create New Farm Infrastructure'}
                 subtitle="Design and register physical farm structures or layouts"
-                onClose={onComplete}
                 icon="🏗️"
             />
             <form onSubmit={handleSubmit} style={{ padding: '24px' }}>

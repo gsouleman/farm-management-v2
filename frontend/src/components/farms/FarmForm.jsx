@@ -149,7 +149,6 @@ const FarmForm = ({ onComplete, initialData }) => {
             <FormHeader
                 title={initialData ? 'Update Enterprise Profile' : 'Register New Agricultural Farm'}
                 subtitle={isNew ? 'Enter basic identity details to initialize your farm container.' : 'Refine enterprise details and high-level categorization.'}
-                onClose={onComplete}
                 icon="🏗️"
             />
             <p style={{ padding: '0 24px', fontSize: '13px', color: '#666' }}>

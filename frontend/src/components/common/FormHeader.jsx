@@ -16,7 +16,7 @@ const FormHeader = ({ title, subtitle, onBack, onClose, icon = '📄' }) => {
         if (onClose) {
             onClose();
         } else {
-            navigate('/dashboard');
+            navigate('/');
         }
     };
 

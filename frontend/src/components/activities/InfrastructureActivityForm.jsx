@@ -118,7 +118,6 @@ const InfrastructureActivityForm = ({ onComplete, initialData, initialActivityTy
             <FormHeader
                 title="Log Infrastructure Operations"
                 subtitle={`FARM: ${currentFarm?.name} | FIELD: ${fieldName || 'SOUTH'} | TYPE: INFRASTRUCTURE & CONSTRUCTION`}
-                onClose={onComplete}
                 icon="🏗️"
             />
 

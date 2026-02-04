@@ -99,7 +99,6 @@ const HarvestForm = ({ cropId, onComplete, initialData }) => {
             <FormHeader
                 title="Harvest Operation"
                 subtitle={`CROP ID: ${cropId || initialData?.crop_id} | TYPE: YIELD LOGGING`}
-                onClose={onComplete}
                 icon="🌾"
             />
 

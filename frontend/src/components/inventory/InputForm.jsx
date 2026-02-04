@@ -70,7 +70,6 @@ const InputForm = ({ farmId, onComplete }) => {
             <FormHeader
                 title="Register Input Acquisition"
                 subtitle="Log incoming agricultural supplies and materials"
-                onClose={onComplete}
                 icon="📦"
             />
             <form onSubmit={handleSubmit} style={{ padding: '24px' }}>
