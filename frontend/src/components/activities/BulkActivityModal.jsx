@@ -17,7 +17,12 @@ const BulkActivityModal = ({ isOpen, onClose }) => {
     };
 
     const handleUpload = async () => {
-        if (!file || !currentFarm?.id) return;
+        if (!file) return;
+        if (!currentFarm?.id) {
+            setStatus('error');
+            setMessage('NO ACTIVE FARM DETECTED. Please select or create a farm before importing data.');
+            return;
+        }
 
         setStatus('uploading');
         try {

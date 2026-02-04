@@ -159,7 +159,7 @@ const useActivityStore = create((set, get) => ({
             formData.append('file', file);
 
             const response = await api.post(`/activities/bulk-upload/${farmId}`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
+                skipQueue: true // Don't queue FormData in IndexedDB
             });
 
             // Update local state by fetching fresh data to ensure synchronization

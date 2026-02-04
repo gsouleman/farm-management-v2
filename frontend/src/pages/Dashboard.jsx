@@ -167,8 +167,8 @@ const Dashboard = () => {
         );
     }
 
-    // EMPTY STATE: If not loading and no farms exist
-    if (!loading && farms.length === 0) {
+    // EMPTY STATE: If not loading, no farms exist, and we're not currently adding a farm
+    if (!loading && farms.length === 0 && view === 'overview') {
         return (
             <div style={{
                 display: 'flex',
