@@ -184,13 +184,6 @@ function App() {
             </MainLayout>
           </ProtectedRoute>
         } />
-        <Route path="/input-list" element={
-          <ProtectedRoute>
-            <MainLayout>
-              <InputListPage />
-            </MainLayout>
-          </ProtectedRoute>
-        } />
         <Route path="/agri-calendar" element={
           <ProtectedRoute>
             <MainLayout>
