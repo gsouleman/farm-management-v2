@@ -105,6 +105,29 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
 
     // --- INFRASTRUCTURE FORM REDIRECT LOGIC ---
     const isInfraOperation = formData.activity_type?.startsWith('infra_');
+    const CATEGORY_LABELS = {
+        planting: "Planting",
+        harvesting: "Harvesting",
+        fertilizing: "Fertilizing / Application of Fertilizers",
+        spraying: "Spraying / Protection",
+        irrigation: "Irrigation",
+        tillage: "Tillage / Cultivation",
+        scouting: "Scouting / Inspection",
+        pruning: "Pruning",
+        thinning: "Thinning",
+        mowing: "Mowing",
+        mulching: "Mulching",
+        soil_sampling: "Soil Sampling",
+        maintenance: "General Maintenance",
+        infra_farm_house: "Farm House Construction",
+        infra_residential: "Farm Residential Construction",
+        infra_storage: "Storage Construction",
+        infra_fencing: "Fencing / Boundary Work",
+        infra_road: "Road Maintenance",
+        infra_water_system: "Water System Installation",
+        infra_solar: "Solar / Energy Work",
+        infra_general: "General Infrastructure Maintenance"
+    };
 
     if (isInfraOperation) {
         return (
@@ -112,6 +135,8 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                 onComplete={onComplete}
                 initialData={initialData}
                 initialActivityType={formData.activity_type}
+                fieldName={fields.find(f => f.id === selectedFieldId)?.name}
+                categoryLabel={CATEGORY_LABELS[formData.activity_type]}
             />
         );
     }
@@ -179,8 +204,10 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                                 name="activity_type"
                                 value={formData.activity_type}
                                 onChange={(e) => setFormData({ ...formData, activity_type: e.target.value })}
+                                onClick={() => { if (!selectedFieldId) showAlert('NO_FIELD_SELECTION'); }}
                                 required
-                                style={{ width: '100%', borderRadius: '8px', border: '1px solid var(--border)', padding: '12px', fontWeight: '500' }}
+                                disabled={!selectedFieldId}
+                                style={{ width: '100%', borderRadius: '8px', border: '1px solid var(--border)', padding: '12px', fontWeight: '500', opacity: selectedFieldId ? 1 : 0.6, cursor: selectedFieldId ? 'pointer' : 'not-allowed' }}
                             >
                                 <optgroup label="Crops / Field Operations">
                                     <option value="planting">Planting</option>
