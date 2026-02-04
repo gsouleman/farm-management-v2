@@ -25,6 +25,8 @@ import Contracts from './pages/Contracts';
 import Stores from './pages/Stores';
 import AgriCalendar from './pages/AgriCalendar';
 import AdvancedFeatures from './pages/AdvancedFeatures';
+import IoTIntegrations from './pages/IoTIntegrations';
+import MarketAccess from './pages/MarketAccess';
 
 import MainLayout from './components/MainLayout';
 import GlobalNotification from './components/common/GlobalNotification';
@@ -202,6 +204,20 @@ function App() {
           <ProtectedRoute>
             <MainLayout>
               <AdvancedFeatures />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/iot-integrations" element={
+          <ProtectedRoute>
+            <MainLayout>
+              <IoTIntegrations />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/market-access" element={
+          <ProtectedRoute>
+            <MainLayout>
+              <MarketAccess />
             </MainLayout>
           </ProtectedRoute>
         } />

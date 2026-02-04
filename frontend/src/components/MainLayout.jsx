@@ -29,7 +29,8 @@ const MainLayout = ({ children }) => {
         production: true,
         finance: false,
         inventory: false,
-        admin: false
+        admin: false,
+        advanced: true
     });
 
     const toggleGroup = (group) => {
@@ -174,7 +175,32 @@ const MainLayout = ({ children }) => {
                         <SidebarLink to="/infrastructure" icon="🏗️" label="Infrastructure" sub onClick={handleNavItemClick} />
                         <SidebarLink to="/weather" icon="☁️" label="Weather" sub onClick={handleNavItemClick} />
                         <SidebarLink to="/agri-calendar" icon="📅" label="Scheduler" sub onClick={handleNavItemClick} />
-                        <SidebarLink to="/advanced-features" icon="🚀" label="Advanced Features" sub onClick={handleNavItemClick} />
+
+                        <div style={{ marginLeft: '20px' }}>
+                            <div
+                                onClick={() => toggleGroup('advanced')}
+                                style={{
+                                    padding: '10px 16px',
+                                    color: '#888',
+                                    fontSize: '11px',
+                                    fontWeight: '700',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    userSelect: 'none'
+                                }}
+                            >
+                                ADVANCED <span style={{ fontSize: '8px' }}>{openGroups.advanced ? '▼' : '▶'}</span>
+                            </div>
+                            {openGroups.advanced && (
+                                <>
+                                    <SidebarLink to="/advanced-features" icon="🚀" label="Overview" sub onClick={handleNavItemClick} />
+                                    <SidebarLink to="/iot-integrations" icon="📡" label="IoT Network" sub onClick={handleNavItemClick} />
+                                    <SidebarLink to="/market-access" icon="🌍" label="Market Access" sub onClick={handleNavItemClick} />
+                                </>
+                            )}
+                        </div>
                     </NavGroup>
 
                     <NavGroup

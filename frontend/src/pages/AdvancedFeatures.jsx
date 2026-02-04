@@ -6,10 +6,15 @@ const AdvancedFeatures = () => {
 
     const features = [
         { title: 'Advanced Analytics', icon: '📊', desc: 'Deep dive into yield trends, financial forecasting, and soil health metrics.', status: 'Coming Soon' },
-        { title: 'IoT Integrations', icon: '📡', desc: 'Connect sensors, drones, and automated irrigation systems.', status: 'Beta' },
-        { title: 'Market Access', icon: '🌍', desc: 'Direct connection to buyers, commodity prices, and logistics partners.', status: 'Planned' },
+        { title: 'IoT Integrations', icon: '📡', desc: 'Connect sensors, drones, and automated irrigation systems.', status: 'Active', path: '/iot-integrations' },
+        { title: 'Market Access', icon: '🌍', desc: 'Direct connection to buyers, commodity prices, and logistics partners.', status: 'Active', path: '/market-access' },
         { title: 'Compliance & Audits', icon: '✅', desc: 'Automated report generation for organic certification and GAP audits.', status: 'Coming Soon' }
     ];
+
+    const navigate = React.useMemo(() => {
+        // Simple shim for navigate if not using useNavigate
+        return (path) => window.location.href = path;
+    }, []);
 
     return (
         <div className="animate-fade-in" style={{ padding: '24px', minHeight: '100vh' }}>
@@ -29,8 +34,8 @@ const AdvancedFeatures = () => {
                                 borderRadius: '20px',
                                 fontSize: '11px',
                                 fontWeight: 'bold',
-                                backgroundColor: feat.status === 'Beta' ? '#f6ad55' : '#cbd5e0',
-                                color: feat.status === 'Beta' ? 'white' : '#4a5568'
+                                backgroundColor: feat.status === 'Active' ? '#38a169' : feat.status === 'Beta' ? '#f6ad55' : '#cbd5e0',
+                                color: feat.status === 'Active' || feat.status === 'Beta' ? 'white' : '#4a5568'
                             }}>
                                 {feat.status}
                             </span>
@@ -40,8 +45,13 @@ const AdvancedFeatures = () => {
                         <p style={{ color: '#718096', lineHeight: '1.6' }}>{feat.desc}</p>
 
                         <div style={{ marginTop: '24px' }}>
-                            <button className="outline" disabled={feat.status !== 'Beta'} style={{ width: '100%', opacity: feat.status !== 'Beta' ? 0.5 : 1 }}>
-                                {feat.status === 'Beta' ? 'Manage Settings' : 'Notify Me'}
+                            <button
+                                className={feat.status === 'Active' ? 'primary' : 'outline'}
+                                disabled={feat.status === 'Coming Soon' || feat.status === 'Planned'}
+                                style={{ width: '100%', opacity: (feat.status === 'Coming Soon' || feat.status === 'Planned') ? 0.5 : 1 }}
+                                onClick={() => feat.path && navigate(feat.path)}
+                            >
+                                {feat.status === 'Active' ? 'Access Feature' : feat.status === 'Beta' ? 'Manage Settings' : 'Notify Me'}
                             </button>
                         </div>
                     </div>
