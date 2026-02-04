@@ -200,7 +200,7 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
             <FormHeader
                 title="Log Field Operations"
                 subtitle={`FARM: ${currentFarm?.name} | FIELD: ${fields.find(f => f.id === selectedFieldId)?.name || 'NOT SELECTED'} | TYPE: CROP & LAND MAINTENANCE`}
-                onBack={onComplete}
+                onClose={onComplete}
                 icon="🚜"
             />
 

@@ -295,7 +295,7 @@ const FieldForm = ({ onComplete, initialData }) => {
             <FormHeader
                 title={`${initialData ? 'Update' : 'Register'} Strategic Parcel`}
                 subtitle={`ENTERPRISE: ${farms.find(f => f.id === selectedFarmId)?.name || 'UNASSIGNED'}`}
-                onBack={onComplete}
+                onClose={onComplete}
                 icon="🗺️"
             />
 

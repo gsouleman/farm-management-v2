@@ -222,7 +222,7 @@ const CropForm = ({ fieldId, onComplete, initialData }) => {
             <FormHeader
                 title={initialData ? 'Update Cultivation Record' : 'Establish New Cultivation Record'}
                 subtitle={`FIELD: ${parentField?.name || 'GENERIC'} | CROP: ${selectedCropLabel || 'UNSPECIFIED'}`}
-                onBack={onComplete}
+                onClose={onComplete}
                 icon="🌱"
             />
             <form onSubmit={handleSubmit} style={{ padding: '24px' }}>

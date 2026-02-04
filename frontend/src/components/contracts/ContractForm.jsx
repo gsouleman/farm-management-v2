@@ -64,7 +64,7 @@ const ContractForm = ({ onComplete }) => {
             <FormHeader
                 title="Create New Contract"
                 subtitle="Record official trade agreements and delivery obligations"
-                onBack={onComplete}
+                onClose={onComplete}
                 icon="📜"
             />
             <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '20px', padding: '24px' }}>

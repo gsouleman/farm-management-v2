@@ -145,7 +145,7 @@ const StorageForm = ({ farmId, onComplete, initialData = null }) => {
             <FormHeader
                 title={initialData ? 'Edit Farm Asset' : 'Add New Farm Asset'}
                 subtitle="Classify and register physical infrastructure or machinery"
-                onBack={onComplete}
+                onClose={onComplete}
                 icon="🏗️"
             />
 
