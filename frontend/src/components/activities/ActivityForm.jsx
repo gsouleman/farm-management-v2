@@ -120,8 +120,20 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
         return infrastructure.filter(i => i.field_id === selectedFieldId || !i.field_id || (assocType === 'infrastructure' && i.id === assocId));
     }, [infrastructure, selectedFieldId, associatedValue]);
 
-    // Note: Automatic jump to InfrastructureActivityForm removed to prevent disruptive UI experience.
-    // Infrastructure linkage is handled within the general form's operational logic.
+    // --- INFRASTRUCTURE FORM REDIRECT LOGIC ---
+    const [assocType, assocId] = associatedValue ? associatedValue.split(':') : [null, null];
+    const selectedInfraAsset = assocType === 'infrastructure' ? infrastructure.find(i => i.id === assocId) : null;
+
+    if (selectedInfraAsset) {
+        return (
+            <InfrastructureActivityForm
+                infrastructure={selectedInfraAsset}
+                onComplete={onComplete}
+                initialData={initialData}
+            />
+        );
+    }
+    // ------------------------------------------
 
     return (
         <div className="animate-fade-in" style={{ maxWidth: '950px', margin: '0 auto', padding: '0 0 40px 0' }}>
