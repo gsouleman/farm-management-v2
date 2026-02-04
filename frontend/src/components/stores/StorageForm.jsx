@@ -149,86 +149,96 @@ const StorageForm = ({ farmId, onComplete, initialData = null }) => {
             {error && <div style={{ color: 'red', marginBottom: '16px', fontSize: '14px' }}>{error}</div>}
 
             <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: '16px' }}>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: 'var(--text-muted)' }}>NAME</label>
-                    <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                        placeholder="e.g. Silo #01 - North"
-                        style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid var(--border)' }}
-                    />
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                {/* PRIMARY SELECTION: NAME & FIELD */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
                     <div>
-                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: 'var(--text-muted)' }}>ASSET CATEGORY</label>
-                        <select
-                            name="sub_type"
-                            value={formData.sub_type}
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: 'var(--text-muted)' }}>ASSET NAME</label>
+                        <input
+                            type="text"
+                            name="name"
+                            value={formData.name}
                             onChange={handleChange}
+                            required
+                            placeholder="e.g. John Deere Tractor"
                             style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid var(--border)' }}
-                        >
-                            <optgroup label="Standard Categories">
-                                <option value="Machinery">Machinery / Equipment</option>
-                                <option value="Vehicle">Vehicle / Tractor</option>
-                                <option value="Silo">Silo / Storage Structure</option>
-                                <option value="Warehouse">Warehouse</option>
-                                <option value="Irrigation">Irrigation System</option>
-                                <option value="Livestock">Livestock Equipment</option>
-                                <option value="Power">Power & Generators</option>
-                                <option value="Tools">Manual Tools</option>
-                                <option value="Processing">Processing Machinery</option>
-                                <option value="ICT">ICT & Smart Farming Sensors</option>
-                                <option value="Buildings">General Farm Buildings</option>
-                                <option value="Other">Other</option>
-                            </optgroup>
-
-                            {customAssetTypes.length > 0 && (
-                                <optgroup label="Custom Asset Types">
-                                    {customAssetTypes.map(type => (
-                                        <option key={type.id} value={type.name}>{type.name}</option>
-                                    ))}
-                                </optgroup>
-                            )}
-
-                            <option value="NEW_ASSET_TYPE" style={{ fontWeight: 'bold', color: 'var(--primary)' }}>➕ ADD NEW CATEGORY...</option>
-                        </select>
+                        />
                     </div>
                     <div>
-                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: 'var(--text-muted)' }}>OPERATIONAL STATUS</label>
-                        <select
-                            name="status"
-                            value={formData.status}
-                            onChange={handleChange}
-                            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid var(--border)' }}
-                        >
-                            <option value="operational">Operational</option>
-                            <option value="under_construction">Under Construction / Installation</option>
-                            <option value="maintenance">Maintenance</option>
-                            <option value="retired">Retired / Decommissioned</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-                    <div>
-                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: 'var(--text-muted)' }}>ASSOCIATED PARCEL (FIELD)</label>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: 'var(--primary)' }}>ASSOCIATED PARCEL (FIELD) *</label>
                         <select
                             name="field_id"
                             value={formData.field_id}
                             onChange={handleChange}
-                            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid var(--border)' }}
+                            required
+                            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '2px solid var(--primary)', fontWeight: 'bold' }}
                         >
-                            <option value="">-- Generic Farm Asset --</option>
+                            <option value="">-- SELECT FIELD FIRST --</option>
                             {fields.map(field => (
                                 <option key={field.id} value={field.id}>{field.name}</option>
                             ))}
                         </select>
                     </div>
-                    <div>
+                </div>
+
+                {/* THE REST OF THE FORM: DISABLED UNTIL FIELD IS SELECTED */}
+                <div
+                    onClick={() => !formData.field_id && showNotification('PLEASE SELECT AN ASSOCIATED PARCEL (FIELD) TO UNLOCK THE FORM.', 'warning')}
+                    style={{ opacity: !formData.field_id ? 0.6 : 1, transition: 'opacity 0.3s ease' }}
+                >
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                        <div>
+                            <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: 'var(--text-muted)' }}>ASSET CATEGORY</label>
+                            <select
+                                name="sub_type"
+                                value={formData.sub_type}
+                                onChange={handleChange}
+                                disabled={!formData.field_id}
+                                style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid var(--border)', backgroundColor: !formData.field_id ? '#f5f5f5' : 'white' }}
+                            >
+                                <optgroup label="Standard Categories">
+                                    <option value="Machinery">Machinery / Equipment</option>
+                                    <option value="Vehicle">Vehicle / Tractor</option>
+                                    <option value="Silo">Silo / Storage Structure</option>
+                                    <option value="Warehouse">Warehouse</option>
+                                    <option value="Irrigation">Irrigation System</option>
+                                    <option value="Livestock">Livestock Equipment</option>
+                                    <option value="Power">Power & Generators</option>
+                                    <option value="Tools">Manual Tools</option>
+                                    <option value="Processing">Processing Machinery</option>
+                                    <option value="ICT">ICT & Smart Farming Sensors</option>
+                                    <option value="Buildings">General Farm Buildings</option>
+                                    <option value="Other">Other</option>
+                                </optgroup>
+
+                                {customAssetTypes.length > 0 && (
+                                    <optgroup label="Custom Asset Types">
+                                        {customAssetTypes.map(type => (
+                                            <option key={type.id} value={type.name}>{type.name}</option>
+                                        ))}
+                                    </optgroup>
+                                )}
+
+                                <option value="NEW_ASSET_TYPE" style={{ fontWeight: 'bold', color: 'var(--primary)' }}>➕ ADD NEW CATEGORY...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: 'var(--text-muted)' }}>OPERATIONAL STATUS</label>
+                            <select
+                                name="status"
+                                value={formData.status}
+                                onChange={handleChange}
+                                disabled={!formData.field_id}
+                                style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid var(--border)', backgroundColor: !formData.field_id ? '#f5f5f5' : 'white' }}
+                            >
+                                <option value="operational">Operational</option>
+                                <option value="under_construction">Under Construction / Installation</option>
+                                <option value="maintenance">Maintenance</option>
+                                <option value="retired">Retired / Decommissioned</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style={{ marginBottom: '16px' }}>
                         <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: 'var(--text-muted)' }}>CAPACITY / SIZE</label>
                         <div style={{ display: 'flex', gap: '8px' }}>
                             <input
@@ -236,14 +246,16 @@ const StorageForm = ({ farmId, onComplete, initialData = null }) => {
                                 name="capacity_value"
                                 value={formData.capacity_value}
                                 onChange={handleChange}
+                                disabled={!formData.field_id}
                                 placeholder="Value"
-                                style={{ flex: 1, padding: '10px', borderRadius: '4px', border: '1px solid var(--border)' }}
+                                style={{ flex: 1, padding: '10px', borderRadius: '4px', border: '1px solid var(--border)', backgroundColor: !formData.field_id ? '#f5f5f5' : 'white' }}
                             />
                             <select
                                 name="capacity_unit"
                                 value={formData.capacity_unit}
                                 onChange={handleChange}
-                                style={{ width: '100px', padding: '10px', borderRadius: '4px', border: '1px solid var(--border)' }}
+                                disabled={!formData.field_id}
+                                style={{ width: '100px', padding: '10px', borderRadius: '4px', border: '1px solid var(--border)', backgroundColor: !formData.field_id ? '#f5f5f5' : 'white' }}
                             >
                                 <option value="MT">MT</option>
                                 <option value="L">Liters (L)</option>
@@ -255,73 +267,82 @@ const StorageForm = ({ farmId, onComplete, initialData = null }) => {
                             </select>
                         </div>
                     </div>
-                </div>
 
-                <div className="card" style={{ backgroundColor: '#f9f9f9', padding: '16px', marginBottom: '16px', border: '1px solid #eee' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '16px' }}>
-                        <div>
-                            <label style={{ display: 'block', fontSize: '11px', fontWeight: '900', marginBottom: '8px', color: 'var(--primary)' }}>QUANTITY</label>
-                            <input
-                                type="number"
-                                name="quantity"
-                                value={formData.quantity}
-                                onChange={handleChange}
-                                min="1"
-                                style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
-                            />
+                    <div className="card" style={{ backgroundColor: '#f9f9f9', padding: '16px', marginBottom: '16px', border: '1px solid #eee' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '16px' }}>
+                            <div>
+                                <label style={{ display: 'block', fontSize: '11px', fontWeight: '900', marginBottom: '8px', color: 'var(--primary)' }}>QUANTITY</label>
+                                <input
+                                    type="number"
+                                    name="quantity"
+                                    value={formData.quantity}
+                                    onChange={handleChange}
+                                    disabled={!formData.field_id}
+                                    min="1"
+                                    style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd', backgroundColor: !formData.field_id ? '#f5f5f5' : 'white' }}
+                                />
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', fontSize: '11px', fontWeight: '900', marginBottom: '8px', color: 'var(--primary)' }}>UNIT PRICE (XAF)</label>
+                                <input
+                                    type="number"
+                                    name="unit_price"
+                                    value={formData.unit_price}
+                                    onChange={handleChange}
+                                    disabled={!formData.field_id}
+                                    placeholder="0.00"
+                                    style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd', backgroundColor: !formData.field_id ? '#f5f5f5' : 'white' }}
+                                />
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', fontSize: '11px', fontWeight: '900', marginBottom: '8px', color: 'var(--primary)' }}>TOTAL COST</label>
+                                <input
+                                    type="number"
+                                    name="acquisition_cost"
+                                    value={formData.acquisition_cost}
+                                    readOnly
+                                    style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #eee', backgroundColor: '#eee', fontWeight: 'bold' }}
+                                />
+                            </div>
                         </div>
-                        <div>
-                            <label style={{ display: 'block', fontSize: '11px', fontWeight: '900', marginBottom: '8px', color: 'var(--primary)' }}>UNIT PRICE (XAF)</label>
-                            <input
-                                type="number"
-                                name="unit_price"
-                                value={formData.unit_price}
-                                onChange={handleChange}
-                                placeholder="0.00"
-                                style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
-                            />
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+                            <div>
+                                <label style={{ display: 'block', fontSize: '11px', fontWeight: '900', marginBottom: '8px', color: 'var(--primary)' }}>PURCHASE DATE</label>
+                                <input
+                                    type="date"
+                                    name="purchase_date"
+                                    value={formData.purchase_date}
+                                    onChange={handleChange}
+                                    disabled={!formData.field_id}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd', backgroundColor: !formData.field_id ? '#f5f5f5' : 'white' }}
+                                />
+                            </div>
                         </div>
-                        <div>
-                            <label style={{ display: 'block', fontSize: '11px', fontWeight: '900', marginBottom: '8px', color: 'var(--primary)' }}>TOTAL COST</label>
-                            <input
-                                type="number"
-                                name="acquisition_cost"
-                                value={formData.acquisition_cost}
-                                readOnly
-                                style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #eee', backgroundColor: '#eee', fontWeight: 'bold' }}
-                            />
-                        </div>
+                        <p style={{ margin: '8px 0 0 0', fontSize: '10px', color: '#888' }}>* Costs are auto-calculated and recorded in the Field Journal.</p>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
-                        <div>
-                            <label style={{ display: 'block', fontSize: '11px', fontWeight: '900', marginBottom: '8px', color: 'var(--primary)' }}>PURCHASE DATE</label>
-                            <input
-                                type="date"
-                                name="purchase_date"
-                                value={formData.purchase_date}
-                                onChange={handleChange}
-                                style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
-                            />
-                        </div>
+
+                    <div style={{ marginBottom: '24px' }}>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: 'var(--text-muted)' }}>NOTES</label>
+                        <textarea
+                            name="notes"
+                            value={formData.notes}
+                            onChange={handleChange}
+                            disabled={!formData.field_id}
+                            rows="3"
+                            placeholder="Additional details about the storage..."
+                            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid var(--border)', resize: 'vertical', backgroundColor: !formData.field_id ? '#f5f5f5' : 'white' }}
+                        ></textarea>
                     </div>
-                    <p style={{ margin: '8px 0 0 0', fontSize: '10px', color: '#888' }}>* Costs are auto-calculated and recorded in the Field Journal.</p>
-                </div>
 
-                <div style={{ marginBottom: '24px' }}>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: 'var(--text-muted)' }}>NOTES</label>
-                    <textarea
-                        name="notes"
-                        value={formData.notes}
-                        onChange={handleChange}
-                        rows="3"
-                        placeholder="Additional details about the storage..."
-                        style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid var(--border)', resize: 'vertical' }}
-                    ></textarea>
+                    <button
+                        type="submit"
+                        className="primary"
+                        style={{ width: '100%', padding: '12px', fontWeight: 'bold', opacity: !formData.field_id ? 0.5 : 1 }}
+                        disabled={loading || !formData.field_id}
+                    >
+                        {loading ? 'Processing...' : initialData ? 'Update Asset Info' : 'Initialize Asset & Log Cost'}
+                    </button>
                 </div>
-
-                <button type="submit" className="primary" style={{ width: '100%', padding: '12px', fontWeight: 'bold' }} disabled={loading}>
-                    {loading ? 'Processing...' : initialData ? 'Update Asset Info' : 'Initialize Asset & Log Cost'}
-                </button>
             </form>
         </div>
     );

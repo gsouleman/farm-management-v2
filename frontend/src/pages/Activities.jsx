@@ -268,7 +268,7 @@ const Activities = () => {
                     <h1 style={{ margin: 0, fontSize: '28px', fontWeight: '800', color: 'var(--text-primary)' }}>Farm Journal</h1>
                     <p style={{ margin: '4px 0 0 0', color: 'var(--text-secondary)', fontSize: '14px' }}>
                         Operational logs and financial transactions registry
-                        <span style={{ marginLeft: '10px', fontSize: '10px', backgroundColor: '#e2e8f0', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>v1.5.3-BUGFIX-UUID</span>
+                        <span style={{ marginLeft: '10px', fontSize: '10px', backgroundColor: '#e2e8f0', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>v1.5.4-ENFORCED-FIELDS</span>
                     </p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
@@ -371,7 +371,16 @@ const Activities = () => {
                         <tbody>
                             {processedActivities.map((activity) => {
                                 // Determine Field/Operation Name
-                                const field = fields.find(f => f.id === activity.field_id);
+                                let field = fields.find(f => f.id === activity.field_id);
+
+                                // Fallback: If no direct field_id, check infrastructure's field association
+                                if (!field && activity.infrastructure_id) {
+                                    const infra = infrastructure.find(i => i.id === activity.infrastructure_id);
+                                    if (infra && infra.field_id) {
+                                        field = fields.find(f => f.id === infra.field_id);
+                                    }
+                                }
+
                                 let fieldDisplayName = field ? field.name : 'General Field';
 
                                 if (activity.crop_id) {
