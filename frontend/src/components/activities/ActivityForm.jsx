@@ -153,6 +153,8 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                     <div style={{ display: 'flex', gap: '20px', marginTop: '8px', fontSize: '13px', color: 'var(--text-secondary)', fontWeight: '500' }}>
                         <span>FARM: {currentFarm?.name}</span>
                         <span style={{ opacity: 0.3 }}>|</span>
+                        <span>FIELD: {fields.find(f => f.id === selectedFieldId)?.name || 'NOT SELECTED'}</span>
+                        <span style={{ opacity: 0.3 }}>|</span>
                         <span>TYPE: CROP & LAND MAINTENANCE</span>
                     </div>
                 </div>
@@ -341,7 +343,7 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                 {/* Section: 05. Financial & Technical Documentation */}
                 <div style={{ marginBottom: '40px', backgroundColor: '#fff', padding: '24px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', border: '1px solid var(--border)' }}>
                     <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--primary)', marginBottom: '24px', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
-                        Financial & Technical Documentation
+                        Financial Documentation
                     </h3>
                     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 1fr) 2fr', gap: '30px', marginBottom: '24px' }}>
                         <div className="form-group">
@@ -352,7 +354,7 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                             </div>
                         </div>
                         <div className="form-group">
-                            <label htmlFor="description" style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Technical Summary</label>
+                            <label htmlFor="description" style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Description</label>
                             <textarea
                                 id="description"
                                 name="description"
