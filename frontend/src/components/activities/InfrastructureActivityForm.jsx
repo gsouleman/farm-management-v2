@@ -148,7 +148,7 @@ const InfrastructureActivityForm = ({ onComplete, initialData, initialActivityTy
                             <label style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Field</label>
                             <input
                                 type="text"
-                                value={fieldName || 'NOT SPECIFIED'}
+                                value={fieldName || 'SOUTH'}
                                 disabled
                                 style={{ width: '100%', borderRadius: '8px', border: '1px solid var(--border)', padding: '12px', fontWeight: '700', backgroundColor: '#f9f9f9', color: '#333' }}
                             />
