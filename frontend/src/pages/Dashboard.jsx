@@ -27,7 +27,8 @@ const Dashboard = () => {
     const { budgetData, fetchCropBudgets } = useReportStore();
 
     const [view, setView] = useState('overview');
-    const [isGlobalView, setIsGlobalView] = useState(true); // Default to Global View
+    const [dashboardMode, setDashboardMode] = useState('global'); // 'global', 'farm', 'parcel'
+    const [selectedParcelId, setSelectedParcelId] = useState('');
     const [selectedField, setSelectedField] = useState(null);
     const navigate = useNavigate();
 
@@ -40,23 +41,22 @@ const Dashboard = () => {
 
     // When switching farms or views, update local contexts if needed
     useEffect(() => {
-        if (!isGlobalView && currentFarm?.id) {
+        if (dashboardMode !== 'global' && currentFarm?.id) {
             fetchFields(currentFarm.id);
-            // We have all crops/activities/harvests in memory, so no need to refetch specific farm endpoints if we filter locally.
-            // However, fetchFields is specific.
             fetchInfrastructure(currentFarm.id);
             fetchCropBudgets(currentFarm.id);
-        } else if (isGlobalView && farms && farms.length > 0) {
-            // In global, we might want to fetch ALL fields? fieldStore doesn't have fetchAllFields yet... 
-            // For now, if global, we aggregate fields from currentFarm? No.
-            // Limitations: Fields are fetched by farm. Map will only show fields of selected farm if we don't fetch all.
-            // Workaround: Loop fetch fields for all farms? Or just accept fields are per farm?
-            // User requirement: "All details for a selected farm".
-            // Global view map: "All farms".
-            // Let's iterate fetchFields for all farms if global?
-            farms.forEach(f => fetchFields(f.id, true)); // This might be heavy but ensures map has all fields. Use quiet mode to prevent flickering.
+        } else if (dashboardMode === 'global' && farms && farms.length > 0) {
+            farms.forEach(f => fetchFields(f.id, true));
         }
-    }, [currentFarm, isGlobalView, farms?.length]);
+    }, [currentFarm, dashboardMode, farms?.length]);
+
+    // Handle Parcel changes
+    useEffect(() => {
+        if (dashboardMode === 'parcel' && selectedParcelId) {
+            const field = fields.find(f => f.id === selectedParcelId);
+            setSelectedField(field);
+        }
+    }, [selectedParcelId, dashboardMode, fields]);
 
     // Listen for 'open-new-farm' event from sidebar
     useEffect(() => {
@@ -68,28 +68,34 @@ const Dashboard = () => {
     }, []);
 
     // FILTER DATA BASED ON VIEW MODE
-    const activeFarms = isGlobalView ? (farms || []) : (currentFarm ? [currentFarm] : []);
-
-    const activeCrops = useMemo(() => {
-        if (!crops || !Array.isArray(crops)) return [];
-        return isGlobalView
-            ? crops
-            : crops.filter(c => c.Field?.farm_id === currentFarm?.id);
-    }, [crops, isGlobalView, currentFarm]);
-
-    const activeActivities = useMemo(() => {
-        if (!activities || !Array.isArray(activities)) return [];
-        return isGlobalView
-            ? activities
-            : activities.filter(a => a.farm_id === currentFarm?.id);
-    }, [activities, isGlobalView, currentFarm]);
+    const activeFarms = useMemo(() => {
+        if (dashboardMode === 'global') return farms || [];
+        return currentFarm ? [currentFarm] : [];
+    }, [farms, currentFarm, dashboardMode]);
 
     const activeFields = useMemo(() => {
         if (!fields || !Array.isArray(fields)) return [];
-        return isGlobalView
-            ? fields
-            : fields.filter(f => f.farm_id === currentFarm?.id);
-    }, [fields, isGlobalView, currentFarm]);
+        if (dashboardMode === 'global') return fields;
+        if (dashboardMode === 'farm') return fields.filter(f => f.farm_id === currentFarm?.id);
+        if (dashboardMode === 'parcel') return fields.filter(f => f.id === selectedParcelId);
+        return [];
+    }, [fields, dashboardMode, currentFarm, selectedParcelId]);
+
+    const activeCrops = useMemo(() => {
+        if (!crops || !Array.isArray(crops)) return [];
+        if (dashboardMode === 'global') return crops;
+        if (dashboardMode === 'farm') return crops.filter(c => c.Field?.farm_id === currentFarm?.id);
+        if (dashboardMode === 'parcel') return crops.filter(c => c.field_id === selectedParcelId);
+        return [];
+    }, [crops, dashboardMode, currentFarm, selectedParcelId]);
+
+    const activeActivities = useMemo(() => {
+        if (!activities || !Array.isArray(activities)) return [];
+        if (dashboardMode === 'global') return activities;
+        if (dashboardMode === 'farm') return activities.filter(a => a.farm_id === currentFarm?.id);
+        if (dashboardMode === 'parcel') return activities.filter(a => a.field_id === selectedParcelId);
+        return [];
+    }, [activities, dashboardMode, currentFarm, selectedParcelId]);
 
 
     // Derived Statistics
@@ -212,7 +218,9 @@ const Dashboard = () => {
     const renderCropBreakdown = () => (
         <div className="animate-fade-in card">
             <div className="card-header">
-                <h3 style={{ margin: 0, fontSize: '18px' }}>{isGlobalView ? 'Enterprise' : (currentFarm?.name || 'Farm')} Crop Portfolio</h3>
+                <h3 style={{ margin: 0, fontSize: '18px' }}>
+                    {dashboardMode === 'global' ? 'Enterprise' : dashboardMode === 'parcel' ? (selectedField?.name || 'Parcel') : (currentFarm?.name || 'Farm')} Crop Portfolio
+                </h3>
                 <div style={{ fontSize: '14px', fontWeight: 'bold', color: 'var(--primary)' }}>
                     Total Planted: {totalPlantedArea.toFixed(2)} ha
                 </div>
@@ -232,7 +240,7 @@ const Dashboard = () => {
                             <td style={{ padding: '12px 8px', fontWeight: 'bold' }}>{c.crop_type}</td>
                             <td style={{ padding: '12px 8px' }}>{c.variety}</td>
                             <td style={{ padding: '12px 8px', fontWeight: 'bold', color: 'var(--secondary)' }}>{parseFloat(c.planted_area || 0).toFixed(2)} ha</td>
-                            <td style={{ padding: '12px 8px' }}>{c.Field?.Farm?.name || (fields || []).find(f => f.id === c.field_id)?.name || 'N/A'}</td>
+                            <td style={{ padding: '12px 8px' }}>{c.Field?.Farm?.name || f?.Farm?.name || currentFarm?.name || 'N/A'}</td>
                         </tr>
                     ))}
                     {activeCrops.length === 0 && (
@@ -308,15 +316,15 @@ const Dashboard = () => {
                         <div className="card" style={{ padding: '0', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                             <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fafafa' }}>
                                 <h3 style={{ margin: 0, fontSize: '14px', fontWeight: '800', letterSpacing: '0.5px' }}>
-                                    {isGlobalView ? 'ENTERPRISE GEO-SPATIAL VIEW' : `${currentFarm?.name?.toUpperCase()} MAP`}
+                                    {dashboardMode === 'global' ? 'ENTERPRISE GEO-SPATIAL VIEW' : dashboardMode === 'parcel' ? `${selectedField?.name?.toUpperCase()} MAP` : `${currentFarm?.name?.toUpperCase()} MAP`}
                                 </h3>
-                                {!isGlobalView && <button className="outline" style={{ padding: '4px 10px', fontSize: '10px', fontWeight: '800' }} onClick={() => setView('add-field')}>+ BOUNDARY</button>}
+                                {dashboardMode === 'farm' && <button className="outline" style={{ padding: '4px 10px', fontSize: '10px', fontWeight: '800' }} onClick={() => setView('add-field')}>+ BOUNDARY</button>}
                             </div>
                             <div style={{ height: '400px' }}>
                                 <FieldMap
-                                    center={(!isGlobalView && currentFarm?.coordinates?.coordinates)
+                                    center={(dashboardMode !== 'global' && currentFarm?.coordinates?.coordinates)
                                         ? [currentFarm.coordinates.coordinates[1], currentFarm.coordinates.coordinates[0]]
-                                        : [3.8480, 11.5021]} // Default to Cameroon Center if Global and no specific center logic
+                                        : [3.8480, 11.5021]}
                                     fields={activeFields} // Note: global view might lack fields if fieldStore isn't aggregated
                                     crops={activeCrops}
                                     infrastructure={infrastructure}
@@ -330,9 +338,8 @@ const Dashboard = () => {
 
                 </div>
 
-                {/* Section 3: Farm Portfolio Registry or Single Farm Fields */}
-
-                {isGlobalView ? (
+                {/* Section 3: Farm Portfolio Registry or View Mode Overlays */}
+                {dashboardMode === 'global' ? (
                     <div className="card" style={{ marginTop: '24px', padding: '0' }}>
                         <div style={{ padding: '16px', borderBottom: '2px solid var(--primary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff' }}>
                             <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: 'var(--secondary)' }}>Farm Portfolio & Field Analytics</h3>
@@ -364,7 +371,7 @@ const Dashboard = () => {
                                             <td style={{ padding: '10px 16px', textAlign: 'right' }}>
                                                 <button onClick={() => {
                                                     loadFarm(f.id);
-                                                    setIsGlobalView(false); // Auto-switch to single view
+                                                    setDashboardMode('farm'); // Auto-switch to single view
                                                 }} style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '10px', backgroundColor: 'white', color: 'var(--primary)', border: '1px solid var(--primary)', cursor: 'pointer', fontWeight: '700' }}>MANAGE</button>
                                             </td>
                                         </tr>
@@ -373,7 +380,7 @@ const Dashboard = () => {
                             </table>
                         </div>
                     </div>
-                ) : (
+                ) : dashboardMode === 'farm' ? (
                     <div className="card" style={{ marginTop: '24px', padding: '0' }}>
                         <div style={{ padding: '16px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fafafa' }}>
                             <h3 style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: '#666' }}>Active Field Details ({currentFarm?.name})</h3>
@@ -417,8 +424,15 @@ const Dashboard = () => {
                             </table>
                         </div>
                     </div>
+                ) : (
+                    <div className="card" style={{ marginTop: '24px', padding: '24px', textAlign: 'center' }}>
+                        <div style={{ fontSize: '32px', marginBottom: '16px' }}>📊</div>
+                        <h3 style={{ margin: 0, color: 'var(--secondary)' }}>{selectedField?.name?.toUpperCase()} OPERATIONAL METRICS</h3>
+                        <p style={{ fontSize: '14px', color: '#666' }}>
+                            Currently analyzing telemetry and financial records for {selectedField?.name}.
+                        </p>
+                    </div>
                 )}
-
             </div>
         );
     };
@@ -429,53 +443,65 @@ const Dashboard = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                 <div>
                     <h1 style={{ fontSize: '32px', fontWeight: '800', margin: 0, color: 'var(--secondary)', letterSpacing: '-1px' }}>
-                        {isGlobalView ? 'ENTERPRISE OVERVIEW' : (currentFarm?.name || 'CENTRAL STATION')}
+                        {dashboardMode === 'global' ? 'ENTERPRISE OVERVIEW' : dashboardMode === 'parcel' ? (selectedField?.name || 'PARCEL VIEW') : (currentFarm?.name || 'CENTRAL STATION')}
                     </h1>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '8px' }}>
                         {/* View Toggle */}
-                        <div style={{ display: 'flex', backgroundColor: '#e0e0e0', borderRadius: '20px', padding: '2px' }}>
-                            <button
-                                onClick={() => setIsGlobalView(true)}
-                                style={{
-                                    padding: '4px 12px',
-                                    borderRadius: '16px',
-                                    border: 'none',
-                                    fontSize: '11px',
-                                    fontWeight: '700',
-                                    cursor: 'pointer',
-                                    backgroundColor: isGlobalView ? 'var(--primary)' : 'transparent',
-                                    color: isGlobalView ? 'white' : '#666',
-                                    boxShadow: isGlobalView ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
-                                    transition: 'all 0.2s'
-                                }}
-                            >
-                                GLOBAL
-                            </button>
-                            <button
-                                onClick={() => setIsGlobalView(false)}
-                                disabled={!currentFarm}
-                                style={{
-                                    padding: '4px 12px',
-                                    borderRadius: '16px',
-                                    border: 'none',
-                                    fontSize: '11px',
-                                    fontWeight: '700',
-                                    cursor: !currentFarm ? 'not-allowed' : 'pointer',
-                                    backgroundColor: !isGlobalView ? 'var(--primary)' : 'transparent',
-                                    color: !isGlobalView ? 'white' : '#666',
-                                    boxShadow: !isGlobalView ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
-                                    transition: 'all 0.2s',
-                                    opacity: !currentFarm ? 0.5 : 1
-                                }}
-                            >
-                                SINGLE FARM
-                            </button>
+                        <div style={{ display: 'flex', backgroundColor: '#e2e8f0', borderRadius: '20px', padding: '3px', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)' }}>
+                            {['global', 'farm', 'parcel'].map((m) => (
+                                <button
+                                    key={m}
+                                    onClick={() => setDashboardMode(m)}
+                                    disabled={m !== 'global' && !currentFarm}
+                                    style={{
+                                        padding: '5px 16px',
+                                        borderRadius: '16px',
+                                        border: 'none',
+                                        fontSize: '10px',
+                                        fontWeight: '800',
+                                        cursor: (m !== 'global' && !currentFarm) ? 'not-allowed' : 'pointer',
+                                        backgroundColor: dashboardMode === m ? 'var(--primary)' : 'transparent',
+                                        color: dashboardMode === m ? 'white' : '#64748b',
+                                        boxShadow: dashboardMode === m ? '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)' : 'none',
+                                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                        opacity: (m !== 'global' && !currentFarm) ? 0.4 : 1,
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.5px'
+                                    }}
+                                >
+                                    {m === 'parcel' ? 'PARCEL' : m === 'farm' ? 'SINGLE FARM' : 'GLOBAL'}
+                                </button>
+                            ))}
                         </div>
+
+                        {/* Parcel Selector Dropdown */}
+                        {dashboardMode === 'parcel' && (
+                            <select
+                                value={selectedParcelId}
+                                onChange={(e) => setSelectedParcelId(e.target.value)}
+                                style={{
+                                    padding: '6px 12px',
+                                    borderRadius: '12px',
+                                    border: '1px solid #cbd5e1',
+                                    backgroundColor: 'white',
+                                    fontSize: '11px',
+                                    fontWeight: '700',
+                                    color: 'var(--secondary)',
+                                    outline: 'none',
+                                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                                }}
+                            >
+                                <option value="">-- SELECT PARCEL --</option>
+                                {fields.map(f => (
+                                    <option key={f.id} value={f.id}>{f.name.toUpperCase()}</option>
+                                ))}
+                            </select>
+                        )}
 
                         <span style={{ fontSize: '12px', color: 'var(--success)', fontWeight: '700', padding: '4px 10px', backgroundColor: 'rgba(46, 125, 50, 0.1)', borderRadius: '12px' }}>
                             ● {activeFarms.length} ACTIVE UNITS
                         </span>
-                        {!isGlobalView && (
+                        {dashboardMode !== 'global' && (
                             <button
                                 onClick={() => setView('edit-farm')}
                                 style={{
