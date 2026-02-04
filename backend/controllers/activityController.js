@@ -42,6 +42,40 @@ const sanitizeDate = (val) => {
     return val;
 };
 
+const parseSmartDate = (val) => {
+    if (!val) return null;
+
+    // Handle Excel Serial Date (Numeric)
+    if (typeof val === 'number') {
+        // Excel base date is Dec 30, 1899
+        // 25569 is the number of days between 1899-12-30 and 1970-01-01
+        const date = new Date(Math.round((val - 25569) * 86400 * 1000));
+        return date.toISOString().split('T')[0];
+    }
+
+    // Handle String dates
+    if (typeof val === 'string') {
+        const d = new Date(val);
+        if (!isNaN(d.getTime())) {
+            return d.toISOString().split('T')[0];
+        }
+
+        // Try DD/MM/YYYY or DD-MM-YYYY
+        const parts = val.split(/[-/]/);
+        if (parts.length === 3) {
+            if (parts[0].length <= 2 && parts[2].length === 4) {
+                const day = parseInt(parts[0]);
+                const month = parseInt(parts[1]) - 1;
+                const year = parseInt(parts[2]);
+                const d2 = new Date(year, month, day);
+                if (!isNaN(d2.getTime())) return d2.toISOString().split('T')[0];
+            }
+        }
+    }
+
+    return null;
+};
+
 const recalculateInfraCost = async (infrastructure_id) => {
     if (!infrastructure_id) return;
     try {
@@ -388,16 +422,19 @@ exports.bulkUploadActivities = async (req, res) => {
             .filter(row => Object.values(row).some(v => v !== null && v !== ''))
             .map((row, index) => {
                 try {
-                    // Robust column mapping - Ensure values are treated as strings before calling string methods
-                    const activity_date = getVal(row, 'date', 'activity_date') || new Date().toISOString().split('T')[0];
-                    const rawType = String(getVal(row, 'activity type', 'type', 'operation type', 'category') || 'General');
-                    const activity_type = rawType.toLowerCase().replace(/ /g, '_');
+                    // Smart Date Parsing - Handles Excel serials and string formats
+                    const rawDate = getVal(row, 'date', 'activity_date', 'time', 'journal date');
+                    const activity_date = parseSmartDate(rawDate) || new Date().toISOString().split('T')[0];
+
+                    const rawType = String(getVal(row, 'account', 'activity type', 'type', 'operation type', 'category') || 'General');
+                    const activity_type = rawType.toLowerCase().replace(/ /g, '_').replace(/\//g, '_'); // Handle ACCOUNT / TYPE
                     const description = String(getVal(row, 'description', 'notes', 'detail') || `Bulk import: ${activity_type}`);
 
-                    // Financials
-                    const rawAmount = getVal(row, 'amount', 'cost', 'total_cost', 'financial', 'value', 'price');
+                    // Financials - Handle DEBIT, EXPENSE, CREDIT
+                    const rawAmount = getVal(row, 'debit', 'expense', 'amount', 'cost', 'total_cost', 'financial', 'value', 'price', 'credit', 'income');
                     let total_cost = 0;
                     if (rawAmount) {
+                        // Remove commas and currency symbols
                         const numericPart = String(rawAmount).replace(/[^\d.-]/g, '');
                         total_cost = parseFloat(numericPart) || 0;
                     }
