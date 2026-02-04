@@ -110,8 +110,19 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
     };
 
     // Filter crops and infra based on selected field
-    const filteredCrops = crops.filter(c => c.field_id === selectedFieldId);
-    const filteredInfra = infrastructure.filter(i => i.field_id === selectedFieldId || !i.field_id); // Allow farm-wide infra too
+    const filteredCrops = useMemo(() => {
+        if (!crops) return [];
+        // If a field is selected, filter by it. If not, show all crops for that farm.
+        if (!selectedFieldId) return crops;
+        return crops.filter(c => c.field_id === selectedFieldId || c.id === associatedOperation.id);
+    }, [crops, selectedFieldId, associatedOperation.id]);
+
+    const filteredInfra = useMemo(() => {
+        if (!infrastructure) return [];
+        // Show farm-wide infra and field-specific infra
+        if (!selectedFieldId) return infrastructure;
+        return infrastructure.filter(i => i.field_id === selectedFieldId || !i.field_id || i.id === associatedOperation.id);
+    }, [infrastructure, selectedFieldId, associatedOperation.id]);
 
     if (associatedOperation.type === 'infrastructure') {
         const selectedInfra = infrastructure.find(i => i.id === associatedOperation.id);
@@ -187,10 +198,14 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                                 name="associated_id"
                                 value={associatedOperation.type && associatedOperation.id ? `${associatedOperation.type}:${associatedOperation.id}` : ''}
                                 onChange={(e) => {
-                                    const [type, id] = e.target.value.split(':');
+                                    const val = e.target.value;
+                                    if (!val) {
+                                        setAssociatedOperation({ type: '', id: '' });
+                                        return;
+                                    }
+                                    const [type, id] = val.split(':');
                                     setAssociatedOperation({ type, id });
                                 }}
-                                disabled={!selectedFieldId}
                                 style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px', fontWeight: '700' }}
                             >
                                 <option value="">-- No Specific Association --</option>
