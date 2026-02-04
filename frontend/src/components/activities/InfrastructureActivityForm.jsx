@@ -2,17 +2,19 @@ import React, { useState, useEffect } from 'react';
 import useActivityStore from '../../store/activityStore';
 import useFarmStore from '../../store/farmStore';
 import useUIStore from '../../store/uiStore';
+import useInfrastructureStore from '../../store/infrastructureStore';
 import { INFRASTRUCTURE_TYPES } from '../../constants/agriculturalData';
 
-const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData }) => {
+const InfrastructureActivityForm = ({ infrastructure: initialInfrastructure, onComplete, initialData, initialActivityType }) => {
     const { logActivity, updateActivity } = useActivityStore();
     const { currentFarm } = useFarmStore();
     const { showNotification } = useUIStore();
+    const { infrastructure, fetchInfrastructure } = useInfrastructureStore();
 
     const [formData, setFormData] = useState({
         activity_date: new Date().toISOString().split('T')[0],
-        infrastructure_id: infrastructure?.id || '',
-        activity_type: 'maintenance',
+        infrastructure_id: initialInfrastructure?.id || initialData?.infrastructure_id || '',
+        activity_type: initialActivityType || initialData?.activity_type || 'maintenance',
         priority: 'medium',
         work_status: 'completed',
         performed_by_type: 'farm_staff',
@@ -41,6 +43,12 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
         transaction_type: 'expense',
         notes: ''
     });
+
+    useEffect(() => {
+        if (currentFarm?.id) {
+            fetchInfrastructure(currentFarm.id);
+        }
+    }, [currentFarm?.id]);
 
     useEffect(() => {
         if (initialData) {
@@ -75,10 +83,12 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+        const selectedAsset = infrastructure.find(i => i.id === formData.infrastructure_id);
+
         try {
             const payload = {
                 ...formData,
-                field_id: infrastructure?.field_id || null, // Inherit field from infrastructure
+                field_id: selectedAsset?.field_id || null, // Inherit field from infrastructure
                 farm_id: currentFarm.id,
                 labor_cost: parseFloat(formData.labor_cost) || 0,
                 material_cost: parseFloat(formData.material_cost) || 0,
@@ -115,9 +125,9 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
                     Infrastructure Operations
                 </h1>
                 <div style={{ display: 'flex', gap: '20px', marginTop: '12px', fontSize: '13px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                    <span>ASSET: {infrastructure?.name}</span>
+                    <span>ASSET CATEGORY: {INFRASTRUCTURE_TYPES.find(t => t.id === infrastructure.find(i => i.id === formData.infrastructure_id)?.type)?.label || 'GENERAL'}</span>
                     <span style={{ opacity: 0.6 }}>|</span>
-                    <span>TYPE: {INFRASTRUCTURE_TYPES.find(t => t.id === infrastructure?.type)?.label}</span>
+                    <span>LOCATION: {currentFarm?.name}</span>
                 </div>
             </div>
 
@@ -135,14 +145,32 @@ const InfrastructureActivityForm = ({ infrastructure, onComplete, initialData })
                     <h3 style={{ fontSize: '14px', fontWeight: '900', color: '#000', textTransform: 'uppercase', letterSpacing: '2px', borderBottom: '4px solid #000', paddingBottom: '8px', marginBottom: '24px' }}>
                         01. Field Intelligence
                     </h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.5fr 1fr', gap: '20px' }}>
+                        <div className="form-group">
+                            <label htmlFor="infrastructure_id" style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Infrastructure Asset</label>
+                            <select
+                                id="infrastructure_id"
+                                name="infrastructure_id"
+                                value={formData.infrastructure_id}
+                                onChange={e => setFormData({ ...formData, infrastructure_id: e.target.value })}
+                                required
+                                style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px', fontWeight: '900', color: '#bb1919' }}
+                            >
+                                <option value="">-- Select Specific Asset --</option>
+                                {infrastructure.map(infra => (
+                                    <option key={infra.id} value={infra.id}>
+                                        {INFRASTRUCTURE_TYPES.find(t => t.id === infra.type)?.icon} {infra.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                         <div className="form-group">
                             <label htmlFor="activity_date" style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Operational Date</label>
                             <input id="activity_date" name="activity_date" type="date" value={formData.activity_date} onChange={e => setFormData({ ...formData, activity_date: e.target.value })} required style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px' }} />
                         </div>
                         <div className="form-group">
-                            <label htmlFor="component" style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Component / Segment Identifier</label>
-                            <input id="component" name="component" type="text" placeholder="e.g. CORE-PUMP-01" value={formData.component} onChange={e => setFormData({ ...formData, component: e.target.value })} style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px' }} />
+                            <label htmlFor="component" style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Component ID</label>
+                            <input id="component" name="component" type="text" placeholder="e.g. PUMP-01" value={formData.component} onChange={e => setFormData({ ...formData, component: e.target.value })} style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px' }} />
                         </div>
                     </div>
                 </div>

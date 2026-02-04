@@ -18,7 +18,6 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
     const { infrastructure, fetchInfrastructure } = useInfrastructureStore();
 
     const [selectedFieldId, setSelectedFieldId] = useState(initialFieldId || '');
-    const [associatedValue, setAssociatedValue] = useState(''); // Format: "type:id"
 
     const [formData, setFormData] = useState({
         activity_type: 'planting',
@@ -49,8 +48,6 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                 application_rate: initialData.Inputs?.[0]?.ActivityInput?.application_rate || ''
             });
             if (initialData.field_id) setSelectedFieldId(initialData.field_id);
-            if (initialData.crop_id) setAssociatedValue(`crop:${initialData.crop_id}`);
-            else if (initialData.infrastructure_id) setAssociatedValue(`infrastructure:${initialData.infrastructure_id}`);
         }
     }, [initialData]);
 
@@ -65,15 +62,11 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
         }
 
         setLoading(true);
-        const [assocType, assocId] = associatedValue ? associatedValue.split(':') : [null, null];
-
         try {
             const payload = {
                 ...formData,
                 field_id: selectedFieldId,
-                farm_id: currentFarm.id,
-                crop_id: assocType === 'crop' ? assocId : null,
-                infrastructure_id: assocType === 'infrastructure' ? assocId : null
+                farm_id: currentFarm.id
             };
 
             // Structure inputs array if an item is selected
@@ -106,30 +99,19 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
     // Filter crops and infra based on selected field
     const filteredCrops = useMemo(() => {
         if (!crops) return [];
-        // If a field is selected, filter by it. If not, show all crops for that farm.
-        const [assocType, assocId] = associatedValue ? associatedValue.split(':') : [null, null];
         if (!selectedFieldId) return crops;
-        return crops.filter(c => c.field_id === selectedFieldId || (assocType === 'crop' && c.id === assocId));
-    }, [crops, selectedFieldId, associatedValue]);
-
-    const filteredInfra = useMemo(() => {
-        if (!infrastructure) return [];
-        // Show farm-wide infra and field-specific infra
-        const [assocType, assocId] = associatedValue ? associatedValue.split(':') : [null, null];
-        if (!selectedFieldId) return infrastructure;
-        return infrastructure.filter(i => i.field_id === selectedFieldId || !i.field_id || (assocType === 'infrastructure' && i.id === assocId));
-    }, [infrastructure, selectedFieldId, associatedValue]);
+        return crops.filter(c => c.field_id === selectedFieldId);
+    }, [crops, selectedFieldId]);
 
     // --- INFRASTRUCTURE FORM REDIRECT LOGIC ---
-    const [assocType, assocId] = associatedValue ? associatedValue.split(':') : [null, null];
-    const selectedInfraAsset = assocType === 'infrastructure' ? infrastructure.find(i => i.id === assocId) : null;
+    const isInfraOperation = formData.activity_type?.startsWith('infra_');
 
-    if (selectedInfraAsset) {
+    if (isInfraOperation) {
         return (
             <InfrastructureActivityForm
-                infrastructure={selectedInfraAsset}
                 onComplete={onComplete}
                 initialData={initialData}
+                initialActivityType={formData.activity_type}
             />
         );
     }
@@ -171,10 +153,7 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                                 id="field_id"
                                 name="field_id"
                                 value={selectedFieldId}
-                                onChange={(e) => {
-                                    setSelectedFieldId(e.target.value);
-                                    setAssociatedValue('');
-                                }}
+                                onChange={(e) => setSelectedFieldId(e.target.value)}
                                 required
                                 style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px', fontWeight: '700' }}
                             >
@@ -182,37 +161,6 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                                 {fields.map(field => (
                                     <option key={field.id} value={field.id}>{field.name}</option>
                                 ))}
-                            </select>
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="associated_id" style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Associated Asset / Crop</label>
-                            <select
-                                id="associated_id"
-                                name="associated_id"
-                                value={associatedValue}
-                                onChange={(e) => {
-                                    setAssociatedValue(e.target.value);
-                                }}
-                                style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px', fontWeight: '700' }}
-                            >
-                                <option value="">-- No Specific Association --</option>
-                                <optgroup label="Crops / Cultivations">
-                                    {filteredCrops.map(crop => (
-                                        <option key={crop.id} value={`crop:${crop.id}`}>
-                                            🌱 {crop.crop_type} ({crop.variety})
-                                        </option>
-                                    ))}
-                                </optgroup>
-                                <optgroup label="Infrastructure & Storage">
-                                    {filteredInfra.map(infra => {
-                                        const typeIcon = INFRASTRUCTURE_TYPES.find(t => t.id === infra.type)?.icon || '🏢';
-                                        return (
-                                            <option key={infra.id} value={`infrastructure:${infra.id}`}>
-                                                {typeIcon} {infra.name}
-                                            </option>
-                                        );
-                                    })}
-                                </optgroup>
                             </select>
                         </div>
                     </div>
