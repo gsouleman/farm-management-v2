@@ -5,6 +5,7 @@ import useInventoryStore from '../../store/inventoryStore';
 import useFarmStore from '../../store/farmStore';
 import useCropStore from '../../store/cropStore';
 import useInfrastructureStore from '../../store/infrastructureStore';
+import useCostStore from '../../store/costStore';
 import useUIStore from '../../store/uiStore';
 import InfrastructureActivityForm from './InfrastructureActivityForm';
 import { INFRASTRUCTURE_TYPES } from '../../constants/agriculturalData';
@@ -16,6 +17,7 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
     const { crops, fetchCropsByFarm } = useCropStore();
     const { currentFarm, fields, fetchFields } = useFarmStore();
     const { infrastructure, fetchInfrastructure } = useInfrastructureStore();
+    const { costSettings, fetchSettings, createSetting } = useCostStore();
 
     const [selectedFieldId, setSelectedFieldId] = useState(initialFieldId || '');
 
@@ -37,6 +39,12 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
         application_rate: '',
         transaction_type: 'expense'
     });
+
+    useEffect(() => {
+        if (currentFarm?.id) {
+            fetchSettings(currentFarm.id);
+        }
+    }, [currentFarm?.id]);
 
     useEffect(() => {
         if (initialData) {
@@ -103,8 +111,43 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
         return crops.filter(c => c.field_id === selectedFieldId);
     }, [crops, selectedFieldId]);
 
-    // --- INFRASTRUCTURE FORM REDIRECT LOGIC ---
-    const isInfraOperation = formData.activity_type?.startsWith('infra_');
+    const handleCategoryChange = async (e) => {
+        const val = e.target.value;
+
+        if (val === 'NEW_FIELD_OP' || val === 'NEW_INFRA_OP') {
+            const label = val === 'NEW_FIELD_OP' ? 'Field Operation' : 'Infrastructure Operation';
+            const category = val === 'NEW_FIELD_OP' ? 'FIELD_OP' : 'INFRA_OP';
+            const name = prompt(`Enter new custom ${label} name:`);
+
+            if (name && name.trim()) {
+                setLoading(true);
+                try {
+                    await createSetting(currentFarm.id, {
+                        category: category,
+                        name: name.trim(),
+                        unit: 'operation',
+                        unit_cost: 0,
+                        billing_frequency: 'per_unit'
+                    });
+                    setFormData(prev => ({ ...prev, activity_type: name.trim() }));
+                    showNotification(`New ${label} "${name}" added successfully!`, 'success');
+                } catch (err) {
+                    console.error('Failed to create custom operation:', err);
+                    showNotification('Failed to create custom operation type.', 'error');
+                } finally {
+                    setLoading(false);
+                }
+            }
+            return;
+        }
+
+        setFormData(prev => ({ ...prev, activity_type: val }));
+    };
+
+    // --- DYNAMIC CATEGORY MAPPING ---
+    const customFieldOps = costSettings.filter(s => s.category === 'FIELD_OP');
+    const customInfraOps = costSettings.filter(s => s.category === 'INFRA_OP');
+
     const CATEGORY_LABELS = {
         planting: "Planting",
         harvesting: "Harvesting",
@@ -129,6 +172,13 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
         infra_general: "General Infrastructure Maintenance"
     };
 
+    // Add custom labels
+    customFieldOps.forEach(op => { CATEGORY_LABELS[op.name] = op.name; });
+    customInfraOps.forEach(op => { CATEGORY_LABELS[op.name] = op.name; });
+
+    // --- INFRASTRUCTURE FORM REDIRECT LOGIC ---
+    const isInfraOperation = formData.activity_type?.startsWith('infra_') || customInfraOps.some(op => op.name === formData.activity_type);
+
     if (isInfraOperation) {
         return (
             <InfrastructureActivityForm
@@ -140,6 +190,7 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
             />
         );
     }
+
     // ------------------------------------------
 
     return (
@@ -205,7 +256,7 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                                 id="activity_type"
                                 name="activity_type"
                                 value={formData.activity_type}
-                                onChange={(e) => setFormData({ ...formData, activity_type: e.target.value })}
+                                onChange={handleCategoryChange}
                                 onClick={() => { if (!selectedFieldId) showAlert('NO_FIELD_SELECTION'); }}
                                 required
                                 disabled={!selectedFieldId}
@@ -225,6 +276,10 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                                     <option value="mulching">Mulching</option>
                                     <option value="soil_sampling">Soil Sampling</option>
                                     <option value="maintenance">General Maintenance</option>
+                                    {customFieldOps.map(op => (
+                                        <option key={op.id} value={op.name}>{op.name}</option>
+                                    ))}
+                                    <option value="NEW_FIELD_OP" style={{ fontWeight: 'bold', color: 'var(--primary)' }}>➕ CREATE NEW FIELD OPERATION...</option>
                                 </optgroup>
                                 <optgroup label="Infrastructure / Construction">
                                     <option value="infra_farm_house">Farm House Construction</option>
@@ -235,6 +290,10 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                                     <option value="infra_water_system">Water System Installation</option>
                                     <option value="infra_solar">Solar / Energy Work</option>
                                     <option value="infra_general">General Infrastructure Maintenance</option>
+                                    {customInfraOps.map(op => (
+                                        <option key={op.id} value={op.name}>{op.name}</option>
+                                    ))}
+                                    <option value="NEW_INFRA_OP" style={{ fontWeight: 'bold', color: 'var(--primary)' }}>➕ CREATE NEW INFRASTRUCTURE OP...</option>
                                 </optgroup>
                             </select>
                         </div>
