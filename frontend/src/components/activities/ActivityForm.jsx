@@ -56,13 +56,34 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (currentFarm) {
-            fetchInputs(currentFarm.id);
-            fetchFields(currentFarm.id);
-            fetchCropsByFarm(currentFarm.id);
-            fetchInfrastructure(currentFarm.id);
-        }
-    }, [currentFarm, fetchInputs, fetchFields, fetchCropsByFarm, fetchInfrastructure]);
+        const loadRequiredData = async () => {
+            let farmToFetch = currentFarm?.id;
+
+            // If a field is selected, prioritize its parent farm
+            if (selectedFieldId) {
+                const field = fields.find(f => f.id === selectedFieldId);
+                if (field?.farm_id) {
+                    farmToFetch = field.farm_id;
+                }
+            }
+
+            if (farmToFetch) {
+                console.log(`[ActivityForm] Fetching assets for farm: ${farmToFetch}`);
+                try {
+                    await Promise.all([
+                        fetchInputs(farmToFetch),
+                        fetchFields(farmToFetch),
+                        fetchCropsByFarm(farmToFetch),
+                        fetchInfrastructure(farmToFetch)
+                    ]);
+                } catch (err) {
+                    console.error('[ActivityForm] Data fetch failed:', err);
+                }
+            }
+        };
+
+        loadRequiredData();
+    }, [currentFarm?.id, selectedFieldId, fetchInputs, fetchFields, fetchCropsByFarm, fetchInfrastructure, fields]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -126,14 +147,15 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
 
     useEffect(() => {
         console.log('[ActivityForm] State Update:', {
+            currentFarmId: currentFarm?.id,
             selectedFieldId,
             associatedOperation,
-            cropCount: crops?.length,
-            infraCount: infrastructure?.length,
-            filteredCrops: filteredCrops?.length,
-            filteredInfra: filteredInfra?.length
+            totalCrops: crops?.length || 0,
+            totalInfra: infrastructure?.length || 0,
+            filteredCrops: filteredCrops?.length || 0,
+            filteredInfra: filteredInfra?.length || 0
         });
-    }, [selectedFieldId, associatedOperation, crops, infrastructure, filteredCrops, filteredInfra]);
+    }, [currentFarm, selectedFieldId, associatedOperation, crops, infrastructure, filteredCrops, filteredInfra]);
 
     // Note: Automatic jump to InfrastructureActivityForm removed to prevent disruptive UI experience.
     // Infrastructure linkage is handled within the general form's operational logic.
