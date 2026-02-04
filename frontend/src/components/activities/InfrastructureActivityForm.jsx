@@ -116,6 +116,8 @@ const InfrastructureActivityForm = ({ onComplete, initialData, initialActivityTy
                     <div style={{ display: 'flex', gap: '20px', marginTop: '8px', fontSize: '13px', color: 'var(--text-secondary)', fontWeight: '500' }}>
                         <span>FARM: {currentFarm?.name}</span>
                         <span style={{ opacity: 0.3 }}>|</span>
+                        <span>FIELD: {fieldName || 'N/A'}</span>
+                        <span style={{ opacity: 0.3 }}>|</span>
                         <span>TYPE: INFRASTRUCTURE & CONSTRUCTION</span>
                     </div>
                 </div>
@@ -184,8 +186,8 @@ const InfrastructureActivityForm = ({ onComplete, initialData, initialActivityTy
                             </select>
                         </div>
                         <div className="form-group">
-                            <label htmlFor="component" style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Component ID</label>
-                            <input id="component" name="component" type="text" placeholder="e.g. PUMP-01" value={formData.component} onChange={e => setFormData({ ...formData, component: e.target.value })} style={{ width: '100%', borderRadius: '8px', border: '1px solid var(--border)', padding: '12px' }} />
+                            <label htmlFor="component" style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>DESCRIPTION</label>
+                            <input id="component" name="component" type="text" placeholder="e.g. CORE-PUMP-01" value={formData.component} onChange={e => setFormData({ ...formData, component: e.target.value })} style={{ width: '100%', borderRadius: '8px', border: '1px solid var(--border)', padding: '12px' }} />
                         </div>
                     </div>
                     <div className="form-group">
@@ -196,7 +198,6 @@ const InfrastructureActivityForm = ({ onComplete, initialData, initialActivityTy
                             value={formData.description}
                             onChange={e => setFormData({ ...formData, description: e.target.value })}
                             placeholder="Detailed technical description..."
-                            required
                             style={{ width: '100%', minHeight: '100px', borderRadius: '8px', border: '1px solid var(--border)', padding: '15px' }}
                         />
                     </div>
