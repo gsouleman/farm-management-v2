@@ -13,13 +13,16 @@ const StorageForm = ({ farmId, onComplete, initialData = null }) => {
     const { showNotification } = useUiStore();
     const [formData, setFormData] = useState({
         name: '',
-        type: 'Asset', // Changed from Storage to Asset
+        type: 'Asset',
         status: 'operational',
-        area_sqm: '', // Capacity
+        capacity_value: '',
+        capacity_unit: 'MT',
         notes: '',
         sub_type: 'Machinery',
         field_id: '',
-        acquisition_cost: '',
+        quantity: 1,
+        unit_price: '',
+        acquisition_cost: 0,
         purchase_date: new Date().toISOString().split('T')[0]
     });
 
@@ -35,15 +38,25 @@ const StorageForm = ({ farmId, onComplete, initialData = null }) => {
                 name: initialData.name || '',
                 type: initialData.type || 'Asset',
                 status: initialData.status || 'operational',
-                area_sqm: initialData.area_sqm || '',
+                capacity_value: initialData.area_sqm || '',
+                capacity_unit: initialData.capacity_unit || 'MT',
                 notes: initialData.notes || '',
                 sub_type: initialData.sub_type || 'Machinery',
                 field_id: initialData.field_id || '',
-                acquisition_cost: initialData.acquisition_cost || '',
+                quantity: initialData.quantity || 1,
+                unit_price: initialData.unit_price || '',
+                acquisition_cost: initialData.acquisition_cost || 0,
                 purchase_date: initialData.purchase_date || new Date().toISOString().split('T')[0]
             });
         }
     }, [initialData]);
+
+    // Automatic Cost Calculation
+    useEffect(() => {
+        const qty = parseFloat(formData.quantity) || 0;
+        const price = parseFloat(formData.unit_price) || 0;
+        setFormData(prev => ({ ...prev, acquisition_cost: qty * price }));
+    }, [formData.quantity, formData.unit_price]);
 
     const customAssetTypes = costSettings.filter(s => s.category === 'ASSET_TYPE');
 
@@ -90,7 +103,10 @@ const StorageForm = ({ farmId, onComplete, initialData = null }) => {
 
             const submissionData = {
                 ...formData,
-                area_sqm: parseNum(formData.area_sqm)
+                area_sqm: parseNum(formData.capacity_value),
+                quantity: parseNum(formData.quantity),
+                unit_price: parseNum(formData.unit_price),
+                acquisition_cost: parseNum(formData.acquisition_cost)
             };
 
             if (initialData) {
@@ -211,30 +227,69 @@ const StorageForm = ({ farmId, onComplete, initialData = null }) => {
                     </div>
                     <div>
                         <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: 'var(--text-muted)' }}>CAPACITY / SIZE</label>
-                        <input
-                            type="number"
-                            name="area_sqm"
-                            value={formData.area_sqm}
-                            onChange={handleChange}
-                            placeholder="e.g. 500 MT"
-                            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid var(--border)' }}
-                        />
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            <input
+                                type="number"
+                                name="capacity_value"
+                                value={formData.capacity_value}
+                                onChange={handleChange}
+                                placeholder="Value"
+                                style={{ flex: 1, padding: '10px', borderRadius: '4px', border: '1px solid var(--border)' }}
+                            />
+                            <select
+                                name="capacity_unit"
+                                value={formData.capacity_unit}
+                                onChange={handleChange}
+                                style={{ width: '100px', padding: '10px', borderRadius: '4px', border: '1px solid var(--border)' }}
+                            >
+                                <option value="MT">MT</option>
+                                <option value="L">Liters (L)</option>
+                                <option value="sqm">sqm</option>
+                                <option value="ha">ha</option>
+                                <option value="units">Units</option>
+                                <option value="HP">HP</option>
+                                <option value="kg">kg</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
                 <div className="card" style={{ backgroundColor: '#f9f9f9', padding: '16px', marginBottom: '16px', border: '1px solid #eee' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '16px' }}>
                         <div>
-                            <label style={{ display: 'block', fontSize: '11px', fontWeight: '900', marginBottom: '8px', color: 'var(--primary)' }}>ACQUISITION COST (XAF)</label>
+                            <label style={{ display: 'block', fontSize: '11px', fontWeight: '900', marginBottom: '8px', color: 'var(--primary)' }}>QUANTITY</label>
+                            <input
+                                type="number"
+                                name="quantity"
+                                value={formData.quantity}
+                                onChange={handleChange}
+                                min="1"
+                                style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
+                            />
+                        </div>
+                        <div>
+                            <label style={{ display: 'block', fontSize: '11px', fontWeight: '900', marginBottom: '8px', color: 'var(--primary)' }}>UNIT PRICE (XAF)</label>
+                            <input
+                                type="number"
+                                name="unit_price"
+                                value={formData.unit_price}
+                                onChange={handleChange}
+                                placeholder="0.00"
+                                style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
+                            />
+                        </div>
+                        <div>
+                            <label style={{ display: 'block', fontSize: '11px', fontWeight: '900', marginBottom: '8px', color: 'var(--primary)' }}>TOTAL COST</label>
                             <input
                                 type="number"
                                 name="acquisition_cost"
                                 value={formData.acquisition_cost}
-                                onChange={handleChange}
-                                placeholder="0.00"
-                                style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd', fontWeight: 'bold' }}
+                                readOnly
+                                style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #eee', backgroundColor: '#eee', fontWeight: 'bold' }}
                             />
                         </div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
                         <div>
                             <label style={{ display: 'block', fontSize: '11px', fontWeight: '900', marginBottom: '8px', color: 'var(--primary)' }}>PURCHASE DATE</label>
                             <input
@@ -246,7 +301,7 @@ const StorageForm = ({ farmId, onComplete, initialData = null }) => {
                             />
                         </div>
                     </div>
-                    <p style={{ margin: '8px 0 0 0', fontSize: '10px', color: '#888' }}>* Costs will be automatically recorded in the Field Journal.</p>
+                    <p style={{ margin: '8px 0 0 0', fontSize: '10px', color: '#888' }}>* Costs are auto-calculated and recorded in the Field Journal.</p>
                 </div>
 
                 <div style={{ marginBottom: '24px' }}>
