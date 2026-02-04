@@ -55,24 +55,28 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
 
     const [loading, setLoading] = useState(false);
 
+    const lastFetchedFarmRef = React.useRef(null);
+
     useEffect(() => {
         const loadRequiredData = async () => {
             let farmToFetch = currentFarm?.id;
 
             // If a field is selected, prioritize its parent farm
-            if (selectedFieldId) {
+            if (selectedFieldId && fields?.length > 0) {
                 const field = fields.find(f => f.id === selectedFieldId);
                 if (field?.farm_id) {
                     farmToFetch = field.farm_id;
                 }
             }
 
-            if (farmToFetch) {
+            // Only fetch if we have a farm ID and it's different from the last fetch
+            if (farmToFetch && farmToFetch !== lastFetchedFarmRef.current) {
                 console.log(`[ActivityForm] Fetching assets for farm: ${farmToFetch}`);
+                lastFetchedFarmRef.current = farmToFetch;
+
                 try {
                     await Promise.all([
                         fetchInputs(farmToFetch),
-                        fetchFields(farmToFetch),
                         fetchCropsByFarm(farmToFetch),
                         fetchInfrastructure(farmToFetch)
                     ]);
@@ -83,7 +87,7 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
         };
 
         loadRequiredData();
-    }, [currentFarm?.id, selectedFieldId, fetchInputs, fetchFields, fetchCropsByFarm, fetchInfrastructure, fields]);
+    }, [currentFarm?.id, selectedFieldId]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
