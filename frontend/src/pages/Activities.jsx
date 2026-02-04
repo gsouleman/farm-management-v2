@@ -26,13 +26,14 @@ const Activities = () => {
     const [sortConfig, setSortConfig] = useState({ key: 'activity_date', direction: 'desc' });
 
     useEffect(() => {
-        if (currentFarm) {
+        if (currentFarm?.id) {
             fetchActivitiesByFarm(currentFarm.id);
             fetchFields(currentFarm.id);
             fetchCropsByFarm(currentFarm.id);
             fetchInfrastructure(currentFarm.id);
         }
-    }, [currentFarm, fetchActivitiesByFarm, fetchFields, fetchCropsByFarm, fetchInfrastructure]);
+        // Store functions are stable, using currentFarm.id as trigger
+    }, [currentFarm?.id]);
 
     const handleEdit = (activity) => {
         setEditData(activity);

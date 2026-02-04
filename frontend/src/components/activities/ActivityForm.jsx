@@ -1,3 +1,4 @@
+// Version: 1.1.0 - Loop Prevention Applied
 import React, { useState, useEffect, useMemo } from 'react';
 import useActivityStore from '../../store/activityStore';
 import useInventoryStore from '../../store/inventoryStore';
