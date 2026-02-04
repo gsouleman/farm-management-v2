@@ -232,13 +232,13 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                                 required
                                 style={{ width: '100%', borderRadius: '8px', border: '1px solid var(--border)', padding: '12px', fontWeight: '500' }}
                             >
-                                <optgroup label="Field Operations">
+                                <optgroup label="Crops / Field Operations">
                                     <option value="planting">Planting</option>
-                                    <option value="fertilizing">Fertilizing</option>
+                                    <option value="harvesting">Harvesting</option>
+                                    <option value="fertilizing">Fertilizing / Application of Fertilizers</option>
                                     <option value="spraying">Spraying / Protection</option>
                                     <option value="irrigation">Irrigation</option>
                                     <option value="tillage">Tillage / Cultivation</option>
-                                    <option value="harvesting">Harvesting</option>
                                     <option value="scouting">Scouting / Inspection</option>
                                     <option value="pruning">Pruning</option>
                                     <option value="thinning">Thinning</option>
@@ -246,6 +246,16 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                                     <option value="mulching">Mulching</option>
                                     <option value="soil_sampling">Soil Sampling</option>
                                     <option value="maintenance">General Maintenance</option>
+                                </optgroup>
+                                <optgroup label="Infrastructure / Construction">
+                                    <option value="infra_farm_house">Farm House Construction</option>
+                                    <option value="infra_residential">Farm Residential Construction</option>
+                                    <option value="infra_storage">Storage Construction</option>
+                                    <option value="infra_fencing">Fencing / Boundary Work</option>
+                                    <option value="infra_road">Road Maintenance</option>
+                                    <option value="infra_water_system">Water System Installation</option>
+                                    <option value="infra_solar">Solar / Energy Work</option>
+                                    <option value="infra_general">General Infrastructure Maintenance</option>
                                 </optgroup>
                             </select>
                         </div>

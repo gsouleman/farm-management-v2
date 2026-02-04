@@ -113,7 +113,7 @@ const Activities = () => {
                 return [
                     new Date(activity.activity_date).toLocaleDateString(),
                     fieldDisplayName.toUpperCase(),
-                    activity.activity_type.replace(/_/g, ' ').toUpperCase(),
+                    activity.activity_type.replace(/infra_/g, '').replace(/_/g, ' ').toUpperCase(),
                     activity.description || 'No description',
                     !isInc ? `${amtFormatted}` : '', // Debit (Expense)
                     isInc ? `${amtFormatted}` : ''   // Credit (Income)
@@ -391,7 +391,7 @@ const Activities = () => {
                                         </td>
                                         <td style={{ padding: '16px 24px' }}>
                                             <span style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '12px', fontWeight: '500' }}>
-                                                {activity.activity_type.replace('_', ' ')}
+                                                {activity.activity_type.replace(/infra_/g, '').replace(/_/g, ' ')}
                                             </span>
                                         </td>
                                         <td style={{ padding: '16px 24px', color: 'var(--text-secondary)', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
