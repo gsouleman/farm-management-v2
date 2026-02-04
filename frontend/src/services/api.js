@@ -19,9 +19,26 @@ api.interceptors.request.use(
             config.headers.Authorization = `Bearer ${token}`;
         }
 
+        // Automatic FormData header handling: Remove default Content-Type to let browser set boundary
+        if (config.data instanceof FormData) {
+            delete config.headers['Content-Type'];
+        }
+
         // Offline Queueing Logic
         if (!navigator.onLine && config.method !== 'get' && !config.skipQueue) {
             console.warn(`[API] Offline detected. Queuing ${config.method.toUpperCase()} ${config.url}`);
+
+            // Special handling for FormData: do not queue, as it cannot be easily serialized/deserialized
+            if (config.data instanceof FormData) {
+                console.warn('[API] FormData detected while offline. This request will fail and not be queued.');
+                // Instead of queuing, we reject immediately for FormData to prevent data loss/corruption
+                return Promise.reject({
+                    isOfflineQueue: false, // Not queued
+                    message: 'Cannot process FormData while offline. Please try again when online.',
+                    config: config // Include config for potential retry logic in UI
+                });
+            }
+
             await queueForSync(config.method, config.url, config.data);
 
             // Return a "fake" successful response so the UI doesn't crash

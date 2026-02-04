@@ -340,7 +340,7 @@ exports.bulkUploadActivities = async (req, res) => {
 
     try {
         if (!req.file) {
-            return res.status(400).json({ message: 'No file uploaded' });
+            return res.status(400).json({ message: 'UPLOAD_FAILED: No file detected in request. Check multi-part form boundary configuration.' });
         }
 
         const farmId = req.params.farmId;
@@ -370,7 +370,7 @@ exports.bulkUploadActivities = async (req, res) => {
         }
 
         if (rawData.length === 0) {
-            return res.status(400).json({ message: 'No activities found in file' });
+            return res.status(400).json({ message: `PARSE_FAILED: No data extracted from ${fileExt} file. Verify file content and structure.` });
         }
 
         // 2. Map Names to IDs
@@ -433,7 +433,7 @@ exports.bulkUploadActivities = async (req, res) => {
             .filter(Boolean);
 
         if (activitiesToCreate.length === 0) {
-            return res.status(400).json({ message: 'No valid data found in file mapping' });
+            return res.status(400).json({ message: 'MAPPING_FAILED: No valid records found after processing. Verify column headers match ledger requirements.' });
         }
 
         const createdActivities = await Activity.bulkCreate(activitiesToCreate);
