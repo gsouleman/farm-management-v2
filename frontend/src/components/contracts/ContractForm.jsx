@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import useFarmStore from '../../store/farmStore';
 import useCropStore from '../../store/cropStore';
 import api from '../../services/api';
+import FormHeader from '../common/FormHeader';
 
 const ContractForm = ({ onComplete }) => {
     const { currentFarm } = useFarmStore();
@@ -59,10 +60,14 @@ const ContractForm = ({ onComplete }) => {
     };
 
     return (
-        <div className="card animate-fade-in" style={{ padding: '24px', maxWidth: '800px', margin: '0 auto' }}>
-            <h2 style={{ marginTop: 0, marginBottom: '24px' }}>Create New Contract</h2>
-
-            <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '20px' }}>
+        <div className="card animate-fade-in" style={{ maxWidth: '800px', margin: '0 auto', padding: '0' }}>
+            <FormHeader
+                title="Create New Contract"
+                subtitle="Record official trade agreements and delivery obligations"
+                onBack={onComplete}
+                icon="📜"
+            />
+            <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '20px', padding: '24px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                     <div>
                         <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px' }}>CONTRACT TYPE</label>

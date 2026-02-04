@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import useFarmStore from '../../store/farmStore';
 import useUIStore from '../../store/uiStore';
+import FormHeader from '../common/FormHeader';
 
 const FarmForm = ({ onComplete, initialData }) => {
     const { createFarm, updateFarm } = useFarmStore();
@@ -144,12 +145,13 @@ const FarmForm = ({ onComplete, initialData }) => {
     const isNew = !initialData;
 
     return (
-        <div className="card animate-fade-in" style={{ maxWidth: '600px', margin: '0 auto' }}>
-            <div className="card-header">
-                <h3 style={{ margin: 0, fontSize: '18px' }}>
-                    {initialData ? 'Update Enterprise Profile' : 'Register New Agricultural Farm'}
-                </h3>
-            </div>
+        <div className="card animate-fade-in" style={{ maxWidth: '600px', margin: '0 auto', padding: '0' }}>
+            <FormHeader
+                title={initialData ? 'Update Enterprise Profile' : 'Register New Agricultural Farm'}
+                subtitle={isNew ? 'Enter basic identity details to initialize your farm container.' : 'Refine enterprise details and high-level categorization.'}
+                onBack={onComplete}
+                icon="🏗️"
+            />
             <p style={{ padding: '0 24px', fontSize: '13px', color: '#666' }}>
                 {isNew ? 'Enter basic identity details to initialize your farm container.' : 'Refine enterprise details and high-level categorization.'}
             </p>

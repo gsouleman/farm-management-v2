@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import useInventoryStore from '../../store/inventoryStore';
 import useFarmStore from '../../store/farmStore';
 import useActivityStore from '../../store/activityStore';
+import FormHeader from '../common/FormHeader';
 
 const InputForm = ({ farmId, onComplete }) => {
     const { createInput } = useInventoryStore();
@@ -65,11 +66,14 @@ const InputForm = ({ farmId, onComplete }) => {
     };
 
     return (
-        <div className="card animate-fade-in" style={{ maxWidth: '800px', margin: '0 auto' }}>
-            <div className="card-header">
-                <h3 style={{ margin: 0, fontSize: '18px' }}>Register Input Acquisition</h3>
-            </div>
-            <form onSubmit={handleSubmit}>
+        <div className="card animate-fade-in" style={{ maxWidth: '800px', margin: '0 auto', padding: '0' }}>
+            <FormHeader
+                title="Register Input Acquisition"
+                subtitle="Log incoming agricultural supplies and materials"
+                onBack={onComplete}
+                icon="📦"
+            />
+            <form onSubmit={handleSubmit} style={{ padding: '24px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
                     <div>
                         <label>Associated Parcel (Field)</label>

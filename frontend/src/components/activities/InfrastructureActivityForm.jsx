@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import useActivityStore from '../../store/activityStore';
 import useFarmStore from '../../store/farmStore';
 import useUIStore from '../../store/uiStore';
+import FormHeader from '../common/FormHeader';
 import { INFRASTRUCTURE_TYPES } from '../../constants/agriculturalData';
 
 const InfrastructureActivityForm = ({ onComplete, initialData, initialActivityType, fieldName, categoryLabel }) => {
@@ -114,20 +115,12 @@ const InfrastructureActivityForm = ({ onComplete, initialData, initialActivityTy
     return (
         <div className="animate-fade-in" style={{ maxWidth: '950px', margin: '0 auto', padding: '0 0 40px 0' }}>
             {/* Modern AgTech Header - Matched with ActivityForm */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', padding: '0 24px', backgroundColor: '#fff' }}>
-                <div>
-                    <h1 style={{ margin: 0, fontSize: '28px', fontWeight: '800', color: 'var(--text-primary)' }}>
-                        Log Infrastructure Operations
-                    </h1>
-                    <div style={{ display: 'flex', gap: '20px', marginTop: '8px', fontSize: '13px', color: 'var(--text-secondary)', fontWeight: '500' }}>
-                        <span>FARM: {currentFarm?.name}</span>
-                        <span style={{ opacity: 0.3 }}>|</span>
-                        <span>FIELD: {fieldName || 'SOUTH'}</span>
-                        <span style={{ opacity: 0.3 }}>|</span>
-                        <span>TYPE: INFRASTRUCTURE & CONSTRUCTION</span>
-                    </div>
-                </div>
-            </div>
+            <FormHeader
+                title="Log Infrastructure Operations"
+                subtitle={`FARM: ${currentFarm?.name} | FIELD: ${fieldName || 'SOUTH'} | TYPE: INFRASTRUCTURE & CONSTRUCTION`}
+                onBack={onComplete}
+                icon="🏗️"
+            />
 
             <form onSubmit={handleSubmit} style={{ padding: '40px', backgroundColor: '#fcfcfc' }}>
 

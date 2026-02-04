@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import useInfrastructureStore from '../../store/infrastructureStore';
 import useFarmStore from '../../store/farmStore';
 import useUIStore from '../../store/uiStore';
+import FormHeader from '../common/FormHeader';
 import FieldMap from '../fields/FieldMap';
 import { INFRASTRUCTURE_TYPES } from '../../constants/agriculturalData';
 import * as turf from '@turf/turf';
@@ -106,12 +107,13 @@ const InfrastructureForm = ({ farmId, onComplete, initialData = null }) => {
     };
 
     return (
-        <div className="card animate-fade-in" style={{ maxWidth: '850px', margin: '0 auto', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
-            <div className="card-header" style={{ borderBottomColor: '#edf2f7', padding: '24px' }}>
-                <h3 style={{ margin: 0, fontSize: '20px', color: '#1a365d' }}>
-                    {initialData ? 'Edit Farm Infrastructure' : 'Create New Farm Infrastructure'}
-                </h3>
-            </div>
+        <div className="card animate-fade-in" style={{ maxWidth: '850px', margin: '0 auto', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', padding: '0' }}>
+            <FormHeader
+                title={initialData ? 'Edit Farm Infrastructure' : 'Create New Farm Infrastructure'}
+                subtitle="Design and register physical farm structures or layouts"
+                onBack={onComplete}
+                icon="🏗️"
+            />
             <form onSubmit={handleSubmit} style={{ padding: '24px' }}>
                 <div style={{ marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid #edf2f7' }}>
                     <label htmlFor="field_id" style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>TARGET FARM (OPTIONAL)</label>

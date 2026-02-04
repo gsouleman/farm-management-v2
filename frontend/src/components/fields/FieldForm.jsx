@@ -5,6 +5,7 @@ import useCropStore from '../../store/cropStore';
 import useInfrastructureStore from '../../store/infrastructureStore';
 import useCropDefinitionStore from '../../store/cropDefinitionStore';
 import useInfrastructureDefinitionStore from '../../store/infrastructureDefinitionStore';
+import FormHeader from '../common/FormHeader';
 import FieldMap from './FieldMap';
 import { getCameroonRegion, getRecommendedVarieties, calculateCentroid } from '../../utils/locationUtils';
 
@@ -290,10 +291,13 @@ const FieldForm = ({ onComplete, initialData }) => {
     };
 
     return (
-        <div className="card animate-fade-in" style={{ maxWidth: '1100px', margin: '0 auto' }}>
-            <div className="card-header">
-                <h3 style={{ margin: 0, fontSize: '18px' }}>{initialData ? 'Update' : 'Register'} Strategic Parcel</h3>
-            </div>
+        <div className="card animate-fade-in" style={{ maxWidth: '1100px', margin: '0 auto', padding: '0' }}>
+            <FormHeader
+                title={`${initialData ? 'Update' : 'Register'} Strategic Parcel`}
+                subtitle={`ENTERPRISE: ${farms.find(f => f.id === selectedFarmId)?.name || 'UNASSIGNED'}`}
+                onBack={onComplete}
+                icon="🗺️"
+            />
 
             <div style={{ display: 'grid', gridTemplateColumns: '400px 1fr', gap: '30px' }}>
                 <form onSubmit={handleSubmit}>

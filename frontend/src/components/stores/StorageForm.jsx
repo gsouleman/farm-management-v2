@@ -4,6 +4,7 @@ import useFarmStore from '../../store/farmStore';
 import useActivityStore from '../../store/activityStore';
 import useCostStore from '../../store/costStore';
 import useUiStore from '../../store/uiStore';
+import FormHeader from '../common/FormHeader';
 
 const StorageForm = ({ farmId, onComplete, initialData = null }) => {
     const { createInfrastructure, updateInfrastructure, loading, error } = useInfrastructureStore();
@@ -140,11 +141,13 @@ const StorageForm = ({ farmId, onComplete, initialData = null }) => {
     };
 
     return (
-        <div className="card animate-fade-in" style={{ maxWidth: '650px', margin: '0 auto', padding: '24px' }}>
-            <div className="flex j-between a-center" style={{ marginBottom: '24px' }}>
-                <h2 style={{ margin: 0 }}>{initialData ? 'Edit Farm Asset' : 'Add New Farm Asset'}</h2>
-                <button className="outline" onClick={onComplete}>Back</button>
-            </div>
+        <div className="card animate-fade-in" style={{ maxWidth: '650px', margin: '0 auto', padding: '0' }}>
+            <FormHeader
+                title={initialData ? 'Edit Farm Asset' : 'Add New Farm Asset'}
+                subtitle="Classify and register physical infrastructure or machinery"
+                onBack={onComplete}
+                icon="🏗️"
+            />
 
             {error && <div style={{ color: 'red', marginBottom: '16px', fontSize: '14px' }}>{error}</div>}
 

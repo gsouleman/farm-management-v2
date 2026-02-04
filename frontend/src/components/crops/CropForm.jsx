@@ -4,6 +4,7 @@ import useCropStore from '../../store/cropStore';
 import useInfrastructureStore from '../../store/infrastructureStore';
 import useCropDefinitionStore from '../../store/cropDefinitionStore';
 import useUIStore from '../../store/uiStore';
+import FormHeader from '../common/FormHeader';
 import FieldMap from '../fields/FieldMap';
 import * as turf from '@turf/turf';
 import { REGIONAL_CROP_DATA } from '../../data/regionalData';
@@ -217,12 +218,13 @@ const CropForm = ({ fieldId, onComplete, initialData }) => {
     };
 
     return (
-        <div className="card animate-fade-in" style={{ maxWidth: '850px', margin: '0 auto', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
-            <div className="card-header" style={{ borderBottomColor: '#edf2f7', padding: '24px' }}>
-                <h3 style={{ margin: 0, fontSize: '20px', color: '#1a365d' }}>
-                    {initialData ? 'Update Cultivation Record' : 'Establish New Cultivation Record'}
-                </h3>
-            </div>
+        <div className="card animate-fade-in" style={{ maxWidth: '850px', margin: '0 auto', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', padding: '0' }}>
+            <FormHeader
+                title={initialData ? 'Update Cultivation Record' : 'Establish New Cultivation Record'}
+                subtitle={`FIELD: ${parentField?.name || 'GENERIC'} | CROP: ${selectedCropLabel || 'UNSPECIFIED'}`}
+                onBack={onComplete}
+                icon="🌱"
+            />
             <form onSubmit={handleSubmit} style={{ padding: '24px' }}>
                 <div style={{ marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid #edf2f7' }}>
                     <label htmlFor="field_id" style={{ fontSize: '13px', fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', display: 'block' }}>TARGET FIELD FOR CULTIVATION</label>

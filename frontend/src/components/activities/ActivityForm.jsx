@@ -4,6 +4,7 @@ import useActivityStore from '../../store/activityStore';
 import useInventoryStore from '../../store/inventoryStore';
 import useFarmStore from '../../store/farmStore';
 import useCropStore from '../../store/cropStore';
+import FormHeader from '../common/FormHeader';
 import useInfrastructureStore from '../../store/infrastructureStore';
 import useCostStore from '../../store/costStore';
 import useUIStore from '../../store/uiStore';
@@ -196,20 +197,12 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
     return (
         <div className="animate-fade-in" style={{ maxWidth: '950px', margin: '0 auto', padding: '0 0 40px 0' }}>
             {/* Modern AgTech Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', padding: '0 24px', backgroundColor: '#fff' }}>
-                <div>
-                    <h1 style={{ margin: 0, fontSize: '28px', fontWeight: '800', color: 'var(--text-primary)' }}>
-                        Log Field Operations
-                    </h1>
-                    <div style={{ display: 'flex', gap: '20px', marginTop: '8px', fontSize: '13px', color: 'var(--text-secondary)', fontWeight: '500' }}>
-                        <span>FARM: {currentFarm?.name}</span>
-                        <span style={{ opacity: 0.3 }}>|</span>
-                        <span>FIELD: {fields.find(f => f.id === selectedFieldId)?.name || 'NOT SELECTED'}</span>
-                        <span style={{ opacity: 0.3 }}>|</span>
-                        <span>TYPE: CROP & LAND MAINTENANCE</span>
-                    </div>
-                </div>
-            </div>
+            <FormHeader
+                title="Log Field Operations"
+                subtitle={`FARM: ${currentFarm?.name} | FIELD: ${fields.find(f => f.id === selectedFieldId)?.name || 'NOT SELECTED'} | TYPE: CROP & LAND MAINTENANCE`}
+                onBack={onComplete}
+                icon="🚜"
+            />
 
             <form onSubmit={handleSubmit} style={{ padding: '40px', backgroundColor: '#fcfcfc' }}>
                 <div style={{ backgroundColor: '#000', color: '#fff', padding: '12px 20px', marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '15px' }}>

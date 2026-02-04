@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import useHarvestStore from '../../store/harvestStore';
 import useUIStore from '../../store/uiStore';
+import FormHeader from '../common/FormHeader';
 
 const HarvestForm = ({ cropId, onComplete, initialData }) => {
     const { createHarvest, updateHarvest } = useHarvestStore();
@@ -94,20 +95,13 @@ const HarvestForm = ({ cropId, onComplete, initialData }) => {
     };
 
     return (
-        <div className="animate-fade-in" style={{ maxWidth: '950px', margin: '0 auto', padding: '0', backgroundColor: '#fff', border: '1px solid #000', boxShadow: '0 20px 50px rgba(0,0,0,0.15)' }}>
-            {/* CNN Style Header Banner */}
-            <div style={{ backgroundColor: '#bb1919', padding: '24px 40px', color: 'white', position: 'relative' }}>
-                <div style={{ position: 'absolute', top: '0', left: '0', height: '100%', width: '4px', backgroundColor: '#000' }}></div>
-                <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '900', letterSpacing: '-1px', textTransform: 'uppercase' }}>
-                    <span style={{ backgroundColor: '#fff', color: '#bb1919', padding: '2px 8px', marginRight: '10px' }}>{initialData ? 'EDIT' : 'LOG'}</span>
-                    Harvest Operation
-                </h1>
-                <div style={{ display: 'flex', gap: '20px', marginTop: '12px', fontSize: '13px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                    <span>CROP ID: {cropId || initialData?.crop_id}</span>
-                    <span style={{ opacity: 0.6 }}>|</span>
-                    <span>TYPE: YIELD LOGGING</span>
-                </div>
-            </div>
+        <div className="card animate-fade-in" style={{ maxWidth: '950px', margin: '0 auto', padding: '0' }}>
+            <FormHeader
+                title="Harvest Operation"
+                subtitle={`CROP ID: ${cropId || initialData?.crop_id} | TYPE: YIELD LOGGING`}
+                onBack={onComplete}
+                icon="🌾"
+            />
 
             <form onSubmit={handleSubmit} style={{ padding: '40px', backgroundColor: '#fcfcfc' }}>
                 <div style={{ backgroundColor: '#000', color: '#fff', padding: '12px 20px', marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '15px' }}>
