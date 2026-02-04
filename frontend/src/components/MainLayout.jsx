@@ -196,8 +196,8 @@ const MainLayout = ({ children }) => {
                             {openGroups.advanced && (
                                 <>
                                     <SidebarLink to="/advanced-features" icon="🚀" label="Overview" sub onClick={handleNavItemClick} />
-                                    <SidebarLink to="/iot-integrations" icon="📡" label="IoT Network" sub onClick={handleNavItemClick} />
-                                    <SidebarLink to="/market-access" icon="🌍" label="Market Access" sub onClick={handleNavItemClick} />
+                                    {/* <SidebarLink to="/iot-integrations" icon="📡" label="IoT Network" sub onClick={handleNavItemClick} />
+                                    <SidebarLink to="/market-access" icon="🌍" label="Market Access" sub onClick={handleNavItemClick} /> */}
                                 </>
                             )}
                         </div>

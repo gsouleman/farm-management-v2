@@ -205,7 +205,7 @@ function App() {
             </MainLayout>
           </ProtectedRoute>
         } />
-        <Route path="/iot-integrations" element={
+        {/* <Route path="/iot-integrations" element={
           <ProtectedRoute>
             <MainLayout>
               <IoTIntegrations />
@@ -218,7 +218,7 @@ function App() {
               <MarketAccess />
             </MainLayout>
           </ProtectedRoute>
-        } />
+        } /> */}
 
       </Routes>
     </Router>
