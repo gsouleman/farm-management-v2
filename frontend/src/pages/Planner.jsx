@@ -4,9 +4,10 @@ import useFarmStore from '../store/farmStore';
 
 const Planner = () => {
     const { currentFarm } = useFarmStore();
-    const { scenarios, createScenario, deleteScenario } = usePlannerStore();
+    const { scenarios, createScenario, deleteScenario, updateScenario } = usePlannerStore();
     const [view, setView] = useState('scenarios');
     const [showModal, setShowModal] = useState(false);
+    const [editingScenario, setEditingScenario] = useState(null);
     const [newPlan, setNewPlan] = useState({
         name: '',
         year: new Date().getFullYear() + 1,
@@ -15,10 +16,33 @@ const Planner = () => {
         status: 'draft'
     });
 
-    const handleCreatePlan = (e) => {
+    const handleSavePlan = (e) => {
         e.preventDefault();
-        createScenario(newPlan);
+        if (editingScenario) {
+            updateScenario(editingScenario.id, newPlan);
+        } else {
+            createScenario(newPlan);
+        }
         setShowModal(false);
+        setEditingScenario(null);
+        setNewPlan({
+            name: '',
+            year: new Date().getFullYear() + 1,
+            area: '',
+            estRevenue: '',
+            status: 'draft'
+        });
+    };
+
+    const handleEdit = (scenario) => {
+        setEditingScenario(scenario);
+        setNewPlan({ ...scenario });
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setEditingScenario(null);
         setNewPlan({
             name: '',
             year: new Date().getFullYear() + 1,
@@ -37,8 +61,8 @@ const Planner = () => {
                     alignItems: 'center', zIndex: 1000
                 }}>
                     <div className="card" style={{ width: '400px', padding: '30px' }}>
-                        <h3 style={{ marginBottom: '20px' }}>Create New Plan</h3>
-                        <form onSubmit={handleCreatePlan}>
+                        <h3 style={{ marginBottom: '20px' }}>{editingScenario ? 'Edit Plan' : 'Create New Plan'}</h3>
+                        <form onSubmit={handleSavePlan}>
                             <div style={{ marginBottom: '16px' }}>
                                 <label>Plan Name</label>
                                 <input
@@ -79,8 +103,8 @@ const Planner = () => {
                                 />
                             </div>
                             <div style={{ display: 'flex', gap: '12px' }}>
-                                <button type="submit" className="primary" style={{ flex: 1 }}>Save Plan</button>
-                                <button type="button" className="outline" style={{ flex: 1 }} onClick={() => setShowModal(false)}>Cancel</button>
+                                <button type="submit" className="primary" style={{ flex: 1 }}>{editingScenario ? 'Save Changes' : 'Save Plan'}</button>
+                                <button type="button" className="outline" style={{ flex: 1 }} onClick={handleCloseModal}>Cancel</button>
                             </div>
                         </form>
                     </div>
@@ -136,7 +160,7 @@ const Planner = () => {
                         </div>
 
                         <div style={{ display: 'flex', gap: '10px' }}>
-                            <button className="outline" style={{ flex: 1, fontSize: '13px' }}>Edit Plan</button>
+                            <button className="outline" style={{ flex: 1, fontSize: '13px' }} onClick={() => handleEdit(scenario)}>Edit Plan</button>
                             <button
                                 className="outline"
                                 style={{ color: '#e53e3e', borderColor: '#fed7d7', fontSize: '13px' }}

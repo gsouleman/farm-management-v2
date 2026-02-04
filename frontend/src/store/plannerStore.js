@@ -14,6 +14,10 @@ const usePlannerStore = create((set) => ({
 
     deleteScenario: (id) => set((state) => ({
         scenarios: state.scenarios.filter(s => s.id !== id)
+    })),
+
+    updateScenario: (id, updatedScenario) => set((state) => ({
+        scenarios: state.scenarios.map(s => s.id === id ? { ...s, ...updatedScenario } : s)
     }))
 }));
 
