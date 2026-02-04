@@ -101,8 +101,11 @@ const StorageForm = ({ farmId, onComplete, initialData = null }) => {
                 return isNaN(parsed) ? null : parsed;
             };
 
+            const parseUUID = (val) => (val === '' || val === null || val === undefined) ? null : val;
+
             const submissionData = {
                 ...formData,
+                field_id: parseUUID(formData.field_id),
                 area_sqm: parseNum(formData.capacity_value),
                 quantity: parseNum(formData.quantity),
                 unit_price: parseNum(formData.unit_price),

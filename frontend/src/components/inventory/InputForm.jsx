@@ -29,7 +29,11 @@ const InputForm = ({ farmId, onComplete }) => {
         e.preventDefault();
         setLoading(true);
         try {
-            const response = await createInput(farmId, formData);
+            const submissionData = {
+                ...formData,
+                field_id: formData.field_id === '' ? null : formData.field_id
+            };
+            const response = await createInput(farmId, submissionData);
 
             // Automatic Journal Logging
             const cost = parseFloat(formData.unit_cost || 0) * parseFloat(formData.quantity_in_stock || 0);
