@@ -269,6 +269,7 @@ const Activities = () => {
                     <p style={{ margin: '4px 0 0 0', color: 'var(--text-secondary)', fontSize: '14px' }}>
                         Operational logs and financial transactions registry
                         <span style={{ marginLeft: '10px', fontSize: '10px', backgroundColor: '#e2e8f0', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>v1.2.5-STABLE</span>
+                        <span style={{ marginLeft: '10px', fontSize: '10px', color: '#94a3b8' }}>BUILD: {new Date().toLocaleTimeString()}</span>
                     </p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>

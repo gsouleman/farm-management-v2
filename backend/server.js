@@ -16,20 +16,35 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-    origin: true, // Dynamically allow any origin that makes the request
+    origin: (origin, callback) => callback(null, true), // Mirror any origin
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
     credentials: true,
-    optionsSuccessStatus: 200 // Some legacy browsers (IE11, various SmartTVs) choke on 204
+    optionsSuccessStatus: 200
 }));
-app.use(helmet()); // Enable standard security headers
+
+// Relaxed security for troubleshooting CORS blocks
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginPropertyPolicy: { policy: "none" }
+}));
+
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Health Check & Versioning
+app.get('/api/health', (req, res) => {
+    res.json({
+        status: 'online',
+        version: '1.2.5-STABLE',
+        timestamp: new Date().toISOString()
+    });
+});
+
 // Routes Placeholder
 app.get('/', (req, res) => {
-    res.json({ message: 'Farm Management API is running' });
+    res.json({ message: 'Farm Management API is running', version: '1.2.5-STABLE' });
 });
 
 // Routes
