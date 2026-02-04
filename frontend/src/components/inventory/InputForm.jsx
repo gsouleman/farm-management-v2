@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import useInventoryStore from '../../store/inventoryStore';
+import useFarmStore from '../../store/farmStore';
+import useActivityStore from '../../store/activityStore';
 
 const InputForm = ({ farmId, onComplete }) => {
     const { createInput } = useInventoryStore();
+    const { fields } = useFarmStore();
+    const { logActivity } = useActivityStore();
     const [formData, setFormData] = useState({
         input_type: 'fertilizer',
         name: '',
@@ -10,13 +14,14 @@ const InputForm = ({ farmId, onComplete }) => {
         category: '',
         active_ingredient: '',
         unit: 'kg',
-        quantity_in_stock: 0,
+        quantity_in_stock: 0, // This is our initial acquisition quantity
         unit_cost: '',
         supplier: '',
         purchase_date: new Date().toISOString().split('T')[0],
         expiry_date: '',
         storage_location: '',
-        notes: ''
+        notes: '',
+        field_id: '' // Added field association
     });
     const [loading, setLoading] = useState(false);
 
@@ -25,8 +30,26 @@ const InputForm = ({ farmId, onComplete }) => {
         setLoading(true);
         try {
             const response = await createInput(farmId, formData);
+
+            // Automatic Journal Logging
+            const cost = parseFloat(formData.unit_cost || 0) * parseFloat(formData.quantity_in_stock || 0);
+            if (cost > 0) {
+                await logActivity({
+                    farm_id: farmId,
+                    field_id: formData.field_id || null,
+                    activity_type: 'input_acquisition',
+                    activity_date: formData.purchase_date || new Date().toISOString().split('T')[0],
+                    description: `Acquisition of ${formData.name} (${formData.quantity_in_stock} ${formData.unit})`,
+                    material_cost: cost,
+                    total_cost: cost,
+                    transaction_type: 'expense',
+                    work_status: 'completed',
+                    notes: `Supplier: ${formData.supplier || 'N/A'}`
+                });
+            }
+
             const { showNotification } = (await import('../../store/uiStore')).default.getState();
-            showNotification(response?.notification?.message || 'Item added to inventory', 'success');
+            showNotification(response?.notification?.message || 'Item added to inventory & cost logged', 'success');
             if (onComplete) onComplete();
         } catch (error) {
             console.error(error);
@@ -40,10 +63,22 @@ const InputForm = ({ farmId, onComplete }) => {
     return (
         <div className="card animate-fade-in" style={{ maxWidth: '800px', margin: '0 auto' }}>
             <div className="card-header">
-                <h3 style={{ margin: 0, fontSize: '18px' }}>Add Inventory Item</h3>
+                <h3 style={{ margin: 0, fontSize: '18px' }}>Register Input Acquisition</h3>
             </div>
             <form onSubmit={handleSubmit}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                    <div>
+                        <label>Associated Parcel (Field)</label>
+                        <select
+                            value={formData.field_id}
+                            onChange={(e) => setFormData({ ...formData, field_id: e.target.value })}
+                        >
+                            <option value="">-- General Stock (No Parcel) --</option>
+                            {fields.map(field => (
+                                <option key={field.id} value={field.id}>{field.name}</option>
+                            ))}
+                        </select>
+                    </div>
                     <div>
                         <label>Input Type</label>
                         <select
@@ -57,16 +92,17 @@ const InputForm = ({ farmId, onComplete }) => {
                             <option value="other">Other Supplies</option>
                         </select>
                     </div>
-                    <div>
-                        <label>Product Name</label>
-                        <input
-                            type="text"
-                            placeholder="e.g. Urea 46%, Roundup"
-                            value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            required
-                        />
-                    </div>
+                </div>
+
+                <div style={{ marginBottom: '20px' }}>
+                    <label>Product Name</label>
+                    <input
+                        type="text"
+                        placeholder="e.g. Urea 46%, Roundup"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        required
+                    />
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '20px' }}>
@@ -135,10 +171,10 @@ const InputForm = ({ farmId, onComplete }) => {
                 )}
 
                 <div className="card" style={{ backgroundColor: '#fcfdfc', marginBottom: '20px' }}>
-                    <h4 style={{ fontSize: '12px', color: 'var(--primary)', marginBottom: '12px', borderBottom: '1px solid #eee', paddingBottom: '6px' }}>STOCK & FINANCIALS</h4>
+                    <h4 style={{ fontSize: '12px', color: 'var(--primary)', marginBottom: '12px', borderBottom: '1px solid #eee', paddingBottom: '6px' }}>ACQUISITION & FINANCIALS</h4>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
                         <div>
-                            <label style={{ fontSize: '11px' }}>Current Stock</label>
+                            <label style={{ fontSize: '11px' }}>Acquisition Quantity</label>
                             <input
                                 type="number"
                                 step="0.01"
@@ -204,8 +240,8 @@ const InputForm = ({ farmId, onComplete }) => {
                 </div>
 
                 <div style={{ display: 'flex', gap: '12px' }}>
-                    <button type="submit" className="primary" style={{ flex: 1 }} disabled={loading}>
-                        {loading ? 'Adding...' : 'Save to Inventory'}
+                    <button type="submit" className="primary" style={{ flex: 1, fontWeight: 'bold' }} disabled={loading}>
+                        {loading ? 'Processing...' : 'Initialize Input & Log Cost'}
                     </button>
                     <button type="button" onClick={onComplete} className="outline" style={{ flex: 1 }}>Discard</button>
                 </div>

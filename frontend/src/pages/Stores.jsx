@@ -72,8 +72,8 @@ const Stores = () => {
         <div className="animate-fade-in" style={{ padding: '24px' }}>
             <div className="flex j-between a-center" style={{ marginBottom: '24px' }}>
                 <div>
-                    <h1 style={{ fontSize: '24px', margin: 0 }}>Storage & Inventory</h1>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Manage physical storage structures and input stock levels.</p>
+                    <h1 style={{ fontSize: '24px', margin: 0 }}>Assets & Stock</h1>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Manage farm assets, structures, and input stock levels.</p>
                 </div>
                 <div className="flex gap-12">
                     <button
@@ -94,12 +94,12 @@ const Stores = () => {
                             color: viewParam === 'structures' ? 'var(--primary)' : '#666',
                         }}
                     >
-                        Storage Units
+                        Farm Assets
                     </button>
                     {viewParam === 'inventory' ? (
                         <button className="primary" onClick={() => setInternalAddMode(true)}>+ New Input</button>
                     ) : (
-                        <button className="primary" onClick={() => setInfrastructureAddMode(true)}>+ New Storage</button>
+                        <button className="primary" onClick={() => setInfrastructureAddMode(true)}>+ New Asset</button>
                     )}
                 </div>
 
