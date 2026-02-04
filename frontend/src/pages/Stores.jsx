@@ -123,53 +123,81 @@ const Stores = () => {
                     <InputList onAdd={() => setInternalAddMode(true)} />
                 </>
             ) : (
-                /* Storage Units View */
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
-                    {storageUnits.map(unit => (
-                        <div key={unit.id} className="card" style={{ padding: '0', overflow: 'hidden', position: 'relative' }}>
-                            <div style={{ backgroundColor: 'var(--secondary)', height: '60px', display: 'flex', alignItems: 'center', padding: '0 20px', justifyContent: 'space-between' }}>
-                                <h3 style={{ color: 'white', margin: 0, fontSize: '13px', fontWeight: '900', letterSpacing: '1px' }}>{unit.name.toUpperCase()}</h3>
-                                <div className="flex gap-8">
-                                    <button
-                                        style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
-                                        onClick={() => setEditingInfra(unit)}
-                                    >
-                                        EDIT
-                                    </button>
-                                    <button
-                                        style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
-                                        onClick={() => handleDeleteStorage(unit.id)}
-                                    >
-                                        DEL
-                                    </button>
-                                </div>
-                            </div>
-                            <div style={{ padding: '20px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                                    <div>
-                                        <div style={{ fontSize: '10px', color: '#888', fontWeight: 'bold' }}>TYPE & STATUS</div>
-                                        <div style={{ fontSize: '16px', fontWeight: '900', textTransform: 'capitalize' }}>{unit.sub_type || 'General'} | {unit.status}</div>
-                                    </div>
-                                    <div>
-                                        <div style={{ fontSize: '10px', color: '#888', fontWeight: 'bold', textAlign: 'right' }}>CAPACITY</div>
-                                        <div style={{ fontSize: '18px', fontWeight: '900' }}>{unit.area_sqm || '0'} MT</div>
-                                    </div>
-                                </div>
-                                {unit.notes && (
-                                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic', marginTop: '12px', borderTop: '1px solid var(--border)', paddingTop: '12px' }}>
-                                        {unit.notes}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    ))}
-                    {storageUnits.length === 0 && (
-                        <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '60px', color: '#888' }}>
-                            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏗️</div>
-                            <h3>No storage units found.</h3>
-                            <p>Click "+ New Storage" to create your first storage structure.</p>
-                        </div>
-                    )}
+                /* Assets View - Now as a Table */
+                <div className="card" style={{ padding: 0, border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead>
+                            <tr style={{ textAlign: 'left', fontSize: '11px', color: 'var(--text-muted)', borderBottom: '2px solid var(--border)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                <th style={{ padding: '16px 24px' }}>Asset Name</th>
+                                <th style={{ padding: '16px 24px' }}>Type</th>
+                                <th style={{ padding: '16px 24px' }}>Status</th>
+                                <th style={{ padding: '16px 24px' }}>Capacity/Area</th>
+                                <th style={{ padding: '16px 24px', textAlign: 'right' }}>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {(infrastructure || []).map(unit => (
+                                <tr key={unit.id} style={{ borderBottom: '1px solid var(--border)', fontSize: '14px' }} className="hover-row">
+                                    <td style={{ padding: '16px 24px', fontWeight: '700', color: 'var(--text-primary)' }}>
+                                        {unit.name}
+                                        {unit.notes && <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '400', marginTop: '2px' }}>{unit.notes}</div>}
+                                    </td>
+                                    <td style={{ padding: '16px 24px' }}>
+                                        <span style={{
+                                            fontSize: '10px',
+                                            fontWeight: '700',
+                                            padding: '4px 10px',
+                                            borderRadius: '4px',
+                                            backgroundColor: '#f0f2f0',
+                                            color: '#2e7d32',
+                                            textTransform: 'uppercase'
+                                        }}>
+                                            {unit.type} {unit.sub_type ? `(${unit.sub_type})` : ''}
+                                        </span>
+                                    </td>
+                                    <td style={{ padding: '16px 24px' }}>
+                                        <span style={{
+                                            fontSize: '10px',
+                                            fontWeight: '900',
+                                            color: unit.status === 'operational' ? 'var(--success)' : 'var(--warning)'
+                                        }}>
+                                            ● {unit.status.toUpperCase()}
+                                        </span>
+                                    </td>
+                                    <td style={{ padding: '16px 24px', fontWeight: '500' }}>
+                                        {unit.area_sqm || '0'} MT / sqm
+                                    </td>
+                                    <td style={{ padding: '16px 24px', textAlign: 'right' }}>
+                                        <div className="flex gap-8 j-end">
+                                            <button
+                                                className="outline"
+                                                style={{ fontSize: '11px', padding: '4px 12px' }}
+                                                onClick={() => setEditingInfra(unit)}
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                className="outline"
+                                                style={{ fontSize: '11px', padding: '4px 12px', color: 'var(--error)', borderColor: '#fed7d7' }}
+                                                onClick={() => handleDeleteStorage(unit.id)}
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                            {(infrastructure || []).length === 0 && (
+                                <tr>
+                                    <td colSpan="5" style={{ textAlign: 'center', padding: '80px', color: 'var(--text-muted)' }}>
+                                        <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏗️</div>
+                                        <h3 style={{ margin: 0 }}>No farm assets located.</h3>
+                                        <p style={{ margin: '8px 0 0 0' }}>Click "+ New Asset" to register your first infrastructure unit.</p>
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             )}
         </div>
