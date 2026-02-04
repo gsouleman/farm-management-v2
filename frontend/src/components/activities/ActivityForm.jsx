@@ -124,23 +124,19 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
         return infrastructure.filter(i => i.field_id === selectedFieldId || !i.field_id || i.id === associatedOperation.id);
     }, [infrastructure, selectedFieldId, associatedOperation.id]);
 
-    if (associatedOperation.type === 'infrastructure') {
-        const selectedInfra = infrastructure.find(i => i.id === associatedOperation.id);
-        return (
-            <div className="animate-fade-in">
-                <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'flex-start' }}>
-                    <button className="outline" onClick={() => setAssociatedOperation({ type: '', id: '' })}>
-                        ← Back to General Operation Form
-                    </button>
-                </div>
-                <InfrastructureActivityForm
-                    infrastructure={selectedInfra}
-                    onComplete={onComplete}
-                    initialData={initialData}
-                />
-            </div>
-        );
-    }
+    useEffect(() => {
+        console.log('[ActivityForm] State Update:', {
+            selectedFieldId,
+            associatedOperation,
+            cropCount: crops?.length,
+            infraCount: infrastructure?.length,
+            filteredCrops: filteredCrops?.length,
+            filteredInfra: filteredInfra?.length
+        });
+    }, [selectedFieldId, associatedOperation, crops, infrastructure, filteredCrops, filteredInfra]);
+
+    // Note: Automatic jump to InfrastructureActivityForm removed to prevent disruptive UI experience.
+    // Infrastructure linkage is handled within the general form's operational logic.
 
     return (
         <div className="animate-fade-in" style={{ maxWidth: '950px', margin: '0 auto', padding: '0 0 40px 0' }}>
