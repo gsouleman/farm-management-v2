@@ -266,7 +266,10 @@ const Activities = () => {
             <div className="flex j-between a-center" style={{ marginBottom: '32px' }}>
                 <div>
                     <h1 style={{ margin: 0, fontSize: '28px', fontWeight: '800', color: 'var(--text-primary)' }}>Farm Journal</h1>
-                    <p style={{ margin: '4px 0 0 0', color: 'var(--text-secondary)', fontSize: '14px' }}>Operational logs and financial transactions registry</p>
+                    <p style={{ margin: '4px 0 0 0', color: 'var(--text-secondary)', fontSize: '14px' }}>
+                        Operational logs and financial transactions registry
+                        <span style={{ marginLeft: '10px', fontSize: '10px', backgroundColor: '#e2e8f0', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>v1.2.5-STABLE</span>
+                    </p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
                     <button
