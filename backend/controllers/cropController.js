@@ -171,11 +171,11 @@ exports.createCrop = async (req, res) => {
                 return coord;
             });
 
-            // Ensure closed polygon ring
+            // Ensure first and last coordinates are the same for a closed polygon
             const first = normalizedCoords[0];
             const last = normalizedCoords[normalizedCoords.length - 1];
-            if (first[0] !== last[0] || first[1] !== last[1]) {
-                normalizedCoords.push(first);
+            if (first && last && (first[0] !== last[0] || first[1] !== last[1])) {
+                normalizedCoords.push([...first]);
             }
 
             boundary = {
@@ -253,7 +253,7 @@ exports.updateCrop = async (req, res) => {
 
         const { boundary_coordinates, ...otherData } = req.body;
 
-        if (boundary_coordinates) {
+        if (boundary_coordinates && boundary_coordinates.length > 0) {
             let normalizedCoords = boundary_coordinates.map(coord => {
                 if (Array.isArray(coord)) return coord;
                 if (coord && typeof coord === 'object' && coord.lat !== undefined) {
@@ -262,10 +262,11 @@ exports.updateCrop = async (req, res) => {
                 return coord;
             });
 
+            // Ensure first and last coordinates are the same for a closed polygon
             const first = normalizedCoords[0];
             const last = normalizedCoords[normalizedCoords.length - 1];
-            if (first[0] !== last[0] || first[1] !== last[1]) {
-                normalizedCoords.push(first);
+            if (first && last && (first[0] !== last[0] || first[1] !== last[1])) {
+                normalizedCoords.push([...first]);
             }
 
             otherData.boundary = {
