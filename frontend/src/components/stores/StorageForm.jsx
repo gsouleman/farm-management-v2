@@ -2,11 +2,15 @@ import React, { useState, useEffect } from 'react';
 import useInfrastructureStore from '../../store/infrastructureStore';
 import useFarmStore from '../../store/farmStore';
 import useActivityStore from '../../store/activityStore';
+import useCostStore from '../../store/costStore';
+import useUiStore from '../../store/uiStore';
 
 const StorageForm = ({ farmId, onComplete, initialData = null }) => {
     const { createInfrastructure, updateInfrastructure, loading, error } = useInfrastructureStore();
     const { fields } = useFarmStore();
     const { logActivity } = useActivityStore();
+    const { costSettings, fetchSettings, createSetting } = useCostStore();
+    const { showNotification } = useUiStore();
     const [formData, setFormData] = useState({
         name: '',
         type: 'Asset', // Changed from Storage to Asset
@@ -18,6 +22,12 @@ const StorageForm = ({ farmId, onComplete, initialData = null }) => {
         acquisition_cost: '',
         purchase_date: new Date().toISOString().split('T')[0]
     });
+
+    useEffect(() => {
+        if (farmId) {
+            fetchSettings(farmId);
+        }
+    }, [farmId, fetchSettings]);
 
     useEffect(() => {
         if (initialData) {
@@ -35,9 +45,37 @@ const StorageForm = ({ farmId, onComplete, initialData = null }) => {
         }
     }, [initialData]);
 
+    const customAssetTypes = costSettings.filter(s => s.category === 'ASSET_TYPE');
+
     const handleChange = (e) => {
         const { name, value } = e.target;
+
+        if (name === 'sub_type' && value === 'NEW_ASSET_TYPE') {
+            handleAddNewCategory();
+            return;
+        }
+
         setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleAddNewCategory = async () => {
+        const name = prompt('Enter new Asset Category name:');
+        if (name && name.trim()) {
+            try {
+                await createSetting(farmId, {
+                    category: 'ASSET_TYPE',
+                    name: name.trim(),
+                    unit: 'asset',
+                    unit_cost: 0,
+                    billing_frequency: 'per_unit'
+                });
+                setFormData(prev => ({ ...prev, sub_type: name.trim() }));
+                showNotification(`New category "${name}" added!`, 'success');
+            } catch (err) {
+                console.error('Failed to create custom asset category:', err);
+                showNotification('Failed to create custom category.', 'error');
+            }
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -114,13 +152,30 @@ const StorageForm = ({ farmId, onComplete, initialData = null }) => {
                             onChange={handleChange}
                             style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid var(--border)' }}
                         >
-                            <option value="Machinery">Machinery / Equipment</option>
-                            <option value="Vehicle">Vehicle / Tractor</option>
-                            <option value="Silo">Silo / Storage Structure</option>
-                            <option value="Warehouse">Warehouse</option>
-                            <option value="Irrigation">Irrigation System</option>
-                            <option value="Tools">Manual Tools</option>
-                            <option value="Other">Other</option>
+                            <optgroup label="Standard Categories">
+                                <option value="Machinery">Machinery / Equipment</option>
+                                <option value="Vehicle">Vehicle / Tractor</option>
+                                <option value="Silo">Silo / Storage Structure</option>
+                                <option value="Warehouse">Warehouse</option>
+                                <option value="Irrigation">Irrigation System</option>
+                                <option value="Livestock">Livestock Equipment</option>
+                                <option value="Power">Power & Generators</option>
+                                <option value="Tools">Manual Tools</option>
+                                <option value="Processing">Processing Machinery</option>
+                                <option value="ICT">ICT & Smart Farming Sensors</option>
+                                <option value="Buildings">General Farm Buildings</option>
+                                <option value="Other">Other</option>
+                            </optgroup>
+
+                            {customAssetTypes.length > 0 && (
+                                <optgroup label="Custom Asset Types">
+                                    {customAssetTypes.map(type => (
+                                        <option key={type.id} value={type.name}>{type.name}</option>
+                                    ))}
+                                </optgroup>
+                            )}
+
+                            <option value="NEW_ASSET_TYPE" style={{ fontWeight: 'bold', color: 'var(--primary)' }}>➕ ADD NEW CATEGORY...</option>
                         </select>
                     </div>
                     <div>
