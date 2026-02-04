@@ -45,7 +45,12 @@ const CostSettings = () => {
             }
             closeForm();
         } catch (error) {
-            showNotification('OPERATION FAILED: CHECK CONSOLE', 'error');
+            if (error.isOfflineQueue) {
+                showNotification('REQUEST QUEUED: WILL SYNC WHEN ONLINE', 'info');
+                closeForm();
+            } else {
+                showNotification('OPERATION FAILED: CHECK CONSOLE', 'error');
+            }
         }
     };
 

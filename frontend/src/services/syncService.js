@@ -41,11 +41,12 @@ const syncService = {
         try {
 
             // Parallel fetch for speed
-            const [activities, crops, fields, infrastructure] = await Promise.all([
+            const [activities, crops, fields, infrastructure, costs] = await Promise.all([
                 api.get(`/farms/${farmId}/activities`),
                 api.get(`/farms/${farmId}/crops`),
                 api.get(`/farms/${farmId}/fields`),
-                api.get(`/infrastructure/farm/${farmId}`)
+                api.get(`/infrastructure/farm/${farmId}`),
+                api.get(`/farms/${farmId}/cost-settings`)
             ]);
 
             // Persist to local DB (Note: saveToLocal now handles payload extraction)
@@ -53,7 +54,8 @@ const syncService = {
                 saveToLocal('activities', activities.data),
                 saveToLocal('crops', crops.data),
                 saveToLocal('fields', fields.data),
-                saveToLocal('infrastructure', infrastructure.data)
+                saveToLocal('infrastructure', infrastructure.data),
+                saveToLocal('cost_settings', costs.data)
             ]);
 
             return true;

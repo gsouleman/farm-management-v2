@@ -41,32 +41,34 @@ const SyncStatus = () => {
 
     const styles = {
         container: {
-            padding: '8px 16px',
-            fontSize: '10px',
-            fontWeight: '900',
-            letterSpacing: '1px',
-            textTransform: 'uppercase',
+            padding: '10px 24px',
+            fontSize: '11px',
+            fontWeight: '700',
+            letterSpacing: '0.5px',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
-            borderTop: '1px solid #333',
-            backgroundColor: isOnline ? '#000' : '#1a1a1a',
-            color: isOnline ? '#4caf50' : '#888'
+            gap: '10px',
+            borderTop: '1px solid #222',
+            backgroundColor: '#000',
+            color: isOnline ? '#4caf50' : '#888',
+            transition: 'all 0.3s ease'
         },
         dot: {
-            width: '6px',
-            height: '6px',
+            width: '8px',
+            height: '8px',
             borderRadius: '50%',
-            backgroundColor: isOnline ? '#4caf50' : '#ff9800',
-            boxShadow: isOnline ? '0 0 8px #4caf50' : 'none',
-            animation: isSyncing ? 'pulse 1s infinite' : 'none'
+            backgroundColor: isSyncing ? '#2196f3' : isOnline ? '#4caf50' : '#ff9800',
+            boxShadow: isSyncing ? '0 0 10px #2196f3' : isOnline ? '0 0 10px #4caf50' : 'none',
+            animation: isSyncing ? 'pulse 1.5s infinite' : 'none'
         },
         pending: {
             marginLeft: 'auto',
-            color: 'var(--error)',
-            backgroundColor: '#fff',
-            padding: '2px 6px',
-            borderRadius: '10px',
+            color: 'white',
+            backgroundColor: '#cc0000',
+            padding: '2px 8px',
+            borderRadius: '4px',
+            fontSize: '9px',
+            fontWeight: '900',
             display: pendingCount > 0 ? 'inline' : 'none'
         }
     };
