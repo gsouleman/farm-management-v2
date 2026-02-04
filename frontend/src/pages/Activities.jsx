@@ -95,13 +95,15 @@ const Activities = () => {
 
             // Prepared Data for Ledger
             const tableRows = processedActivities.map(activity => {
-                let opName = 'General Field';
+                const field = fields.find(f => f.id === activity.field_id);
+                let fieldDisplayName = field ? field.name : 'General Field';
+
                 if (activity.crop_id) {
                     const crop = crops.find(c => c.id === activity.crop_id);
-                    opName = crop ? crop.crop_type : 'Crop Op';
+                    if (crop) fieldDisplayName += ` > 🌱 ${crop.crop_type}`;
                 } else if (activity.infrastructure_id) {
                     const infra = infrastructure.find(i => i.id === activity.infrastructure_id);
-                    opName = infra ? infra.name : 'Infra Op';
+                    if (infra) fieldDisplayName += ` > 🏢 ${infra.name}`;
                 }
 
                 const isInc = activity.transaction_type === 'income' || activity.activity_type === 'harvesting';
@@ -110,8 +112,8 @@ const Activities = () => {
 
                 return [
                     new Date(activity.activity_date).toLocaleDateString(),
-                    opName.toUpperCase(),
-                    activity.activity_type.replace('_', ' ').toUpperCase(),
+                    fieldDisplayName.toUpperCase(),
+                    activity.activity_type.replace(/_/g, ' ').toUpperCase(),
                     activity.description || 'No description',
                     !isInc ? `${amtFormatted}` : '', // Debit (Expense)
                     isInc ? `${amtFormatted}` : ''   // Credit (Income)
@@ -132,7 +134,7 @@ const Activities = () => {
             // Add Table
             autoTable(doc, {
                 startY: 50,
-                head: [['DATE', 'REF / OPERATION', 'ACCOUNT / TYPE', 'DESCRIPTION', 'DEBIT (EXPENSE)', 'CREDIT (INCOME)']],
+                head: [['DATE', 'FIELD', 'OPERATION CATEGORY', 'DESCRIPTION', 'DEBIT (EXPENSE)', 'CREDIT (INCOME)']],
                 body: [...tableRows, [
                     '', '', '', 'TOTALS (XAF)', totalDebit.toLocaleString(), totalCredit.toLocaleString()
                 ]],
@@ -229,26 +231,11 @@ const Activities = () => {
         items.sort((a, b) => {
             let aVal, bVal;
 
-            if (sortConfig.key === 'operation') {
-                let aName = 'General Field';
-                if (a.crop_id) {
-                    const crop = crops.find(c => c.id === a.crop_id);
-                    aName = crop ? crop.crop_type : 'Crop Operation';
-                } else if (a.infrastructure_id) {
-                    const infra = infrastructure.find(i => i.id === a.infrastructure_id);
-                    aName = infra ? infra.name : 'Infra Operation';
-                }
-
-                let bName = 'General Field';
-                if (b.crop_id) {
-                    const crop = crops.find(c => c.id === b.crop_id);
-                    bName = crop ? crop.crop_type : 'Crop Operation';
-                } else if (b.infrastructure_id) {
-                    const infra = infrastructure.find(i => i.id === b.infrastructure_id);
-                    bName = infra ? infra.name : 'Infra Operation';
-                }
-                aVal = aName;
-                bVal = bName;
+            if (sortConfig.key === 'field') {
+                const fieldA = fields.find(f => f.id === a.field_id)?.name || 'General Field';
+                const fieldB = fields.find(f => f.id === b.field_id)?.name || 'General Field';
+                aVal = fieldA;
+                bVal = fieldB;
             } else if (sortConfig.key === 'amount') {
                 aVal = parseFloat(a.total_cost || a.labor_cost || 0);
                 bVal = parseFloat(b.total_cost || b.labor_cost || 0);
@@ -365,11 +352,11 @@ const Activities = () => {
                                 <th onClick={() => handleSort('activity_date')} style={{ padding: '16px 24px', cursor: 'pointer', userSelect: 'none' }}>
                                     DATE <SortIndicator column="activity_date" />
                                 </th>
-                                <th onClick={() => handleSort('operation')} style={{ padding: '16px 24px', cursor: 'pointer', userSelect: 'none' }}>
-                                    REF / OPERATION <SortIndicator column="operation" />
+                                <th onClick={() => handleSort('field')} style={{ padding: '16px 24px', cursor: 'pointer', userSelect: 'none' }}>
+                                    FIELD <SortIndicator column="field" />
                                 </th>
                                 <th onClick={() => handleSort('activity_type')} style={{ padding: '16px 24px', cursor: 'pointer', userSelect: 'none' }}>
-                                    ACCOUNT / TYPE <SortIndicator column="activity_type" />
+                                    OPERATION CATEGORY <SortIndicator column="activity_type" />
                                 </th>
                                 <th style={{ padding: '16px 24px' }}>DESCRIPTION</th>
                                 <th style={{ padding: '16px 24px', textAlign: 'right' }}>DEBIT</th>
@@ -379,14 +366,16 @@ const Activities = () => {
                         </thead>
                         <tbody>
                             {processedActivities.map((activity) => {
-                                // Determine Operation Name
-                                let operationName = 'General Field';
+                                // Determine Field/Operation Name
+                                const field = fields.find(f => f.id === activity.field_id);
+                                let fieldDisplayName = field ? field.name : 'General Field';
+
                                 if (activity.crop_id) {
                                     const crop = crops.find(c => c.id === activity.crop_id);
-                                    operationName = crop ? `🌱 ${crop.crop_type}` : 'Crop Operation';
+                                    if (crop) fieldDisplayName += ` > 🌱 ${crop.crop_type}`;
                                 } else if (activity.infrastructure_id) {
                                     const infra = infrastructure.find(i => i.id === activity.infrastructure_id);
-                                    operationName = infra ? `🏢 ${infra.name}` : 'Infra Operation';
+                                    if (infra) fieldDisplayName += ` > 🏢 ${infra.name}`;
                                 }
 
                                 const isIncome = activity.transaction_type === 'income' || activity.activity_type === 'harvesting';
@@ -398,7 +387,7 @@ const Activities = () => {
                                             {new Date(activity.activity_date).toLocaleDateString()}
                                         </td>
                                         <td style={{ padding: '16px 24px', fontWeight: '600', color: 'var(--primary)' }}>
-                                            {operationName.toUpperCase()}
+                                            {fieldDisplayName.toUpperCase()}
                                         </td>
                                         <td style={{ padding: '16px 24px' }}>
                                             <span style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '12px', fontWeight: '500' }}>

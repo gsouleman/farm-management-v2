@@ -162,7 +162,7 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                     </h3>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
                         <div className="form-group">
-                            <label htmlFor="field_id" style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Target Field</label>
+                            <label htmlFor="field_id" style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Field</label>
                             <select
                                 id="field_id"
                                 name="field_id"
