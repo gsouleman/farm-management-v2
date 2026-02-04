@@ -15,8 +15,22 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
+const allowedOrigins = [
+    'https://farmpro-frontend.onrender.com',
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://192.168.160.36:5173'
+];
+
 app.use(cors({
-    origin: process.env.CORS_ORIGIN || '*', // Restrict in production via env var
+    origin: function (origin, callback) {
+        // allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1 && process.env.NODE_ENV === 'production') {
+            return callback(new Error('The CORS policy for this site does not allow access from the specified Origin.'), false);
+        }
+        return callback(null, true);
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
