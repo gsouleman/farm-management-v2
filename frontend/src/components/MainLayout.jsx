@@ -221,7 +221,7 @@ const MainLayout = ({ children }) => {
                         isOpen={openGroups.inventory}
                         onToggle={() => toggleGroup('inventory')}
                     >
-                        <SidebarLink to="/input-list" icon="📦" label="Inputs" sub onClick={handleNavItemClick} />
+                        <SidebarLink to="/stores?view=inventory" icon="📦" label="Inputs" sub onClick={handleNavItemClick} />
                         <SidebarLink to="/stores?view=structures" icon="🏢" label="Assets" sub onClick={handleNavItemClick} />
                     </NavGroup>
 
