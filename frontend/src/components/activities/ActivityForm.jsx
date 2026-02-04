@@ -18,7 +18,7 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
     const { infrastructure, fetchInfrastructure } = useInfrastructureStore();
 
     const [selectedFieldId, setSelectedFieldId] = useState(initialFieldId || '');
-    const [associatedOperation, setAssociatedOperation] = useState({ type: '', id: '' });
+    const [associatedValue, setAssociatedValue] = useState(''); // Format: "type:id"
 
     const [formData, setFormData] = useState({
         activity_type: 'planting',
@@ -49,8 +49,8 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                 application_rate: initialData.Inputs?.[0]?.ActivityInput?.application_rate || ''
             });
             if (initialData.field_id) setSelectedFieldId(initialData.field_id);
-            if (initialData.crop_id) setAssociatedOperation({ type: 'crop', id: initialData.crop_id });
-            else if (initialData.infrastructure_id) setAssociatedOperation({ type: 'infrastructure', id: initialData.infrastructure_id });
+            if (initialData.crop_id) setAssociatedValue(`crop:${initialData.crop_id}`);
+            else if (initialData.infrastructure_id) setAssociatedValue(`infrastructure:${initialData.infrastructure_id}`);
         }
     }, [initialData]);
 
@@ -65,13 +65,15 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
         }
 
         setLoading(true);
+        const [assocType, assocId] = associatedValue ? associatedValue.split(':') : [null, null];
+
         try {
             const payload = {
                 ...formData,
                 field_id: selectedFieldId,
                 farm_id: currentFarm.id,
-                crop_id: associatedOperation.type === 'crop' ? associatedOperation.id : null,
-                infrastructure_id: associatedOperation.type === 'infrastructure' ? associatedOperation.id : null
+                crop_id: assocType === 'crop' ? assocId : null,
+                infrastructure_id: assocType === 'infrastructure' ? assocId : null
             };
 
             // Structure inputs array if an item is selected
@@ -105,16 +107,18 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
     const filteredCrops = useMemo(() => {
         if (!crops) return [];
         // If a field is selected, filter by it. If not, show all crops for that farm.
+        const [assocType, assocId] = associatedValue ? associatedValue.split(':') : [null, null];
         if (!selectedFieldId) return crops;
-        return crops.filter(c => c.field_id === selectedFieldId || c.id === associatedOperation.id);
-    }, [crops, selectedFieldId, associatedOperation.id]);
+        return crops.filter(c => c.field_id === selectedFieldId || (assocType === 'crop' && c.id === assocId));
+    }, [crops, selectedFieldId, associatedValue]);
 
     const filteredInfra = useMemo(() => {
         if (!infrastructure) return [];
         // Show farm-wide infra and field-specific infra
+        const [assocType, assocId] = associatedValue ? associatedValue.split(':') : [null, null];
         if (!selectedFieldId) return infrastructure;
-        return infrastructure.filter(i => i.field_id === selectedFieldId || !i.field_id || i.id === associatedOperation.id);
-    }, [infrastructure, selectedFieldId, associatedOperation.id]);
+        return infrastructure.filter(i => i.field_id === selectedFieldId || !i.field_id || (assocType === 'infrastructure' && i.id === assocId));
+    }, [infrastructure, selectedFieldId, associatedValue]);
 
     // Note: Automatic jump to InfrastructureActivityForm removed to prevent disruptive UI experience.
     // Infrastructure linkage is handled within the general form's operational logic.
@@ -157,7 +161,7 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                                 value={selectedFieldId}
                                 onChange={(e) => {
                                     setSelectedFieldId(e.target.value);
-                                    setAssociatedOperation({ type: '', id: '' });
+                                    setAssociatedValue('');
                                 }}
                                 required
                                 style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px', fontWeight: '700' }}
@@ -173,15 +177,9 @@ const ActivityForm = ({ fieldId: initialFieldId, cropId, onComplete, initialData
                             <select
                                 id="associated_id"
                                 name="associated_id"
-                                value={associatedOperation.type && associatedOperation.id ? `${associatedOperation.type}:${associatedOperation.id}` : ''}
+                                value={associatedValue}
                                 onChange={(e) => {
-                                    const val = e.target.value;
-                                    if (!val) {
-                                        setAssociatedOperation({ type: '', id: '' });
-                                        return;
-                                    }
-                                    const [type, id] = val.split(':');
-                                    setAssociatedOperation({ type, id });
+                                    setAssociatedValue(e.target.value);
                                 }}
                                 style={{ width: '100%', borderRadius: '0', border: '2px solid #ddd', padding: '12px', fontWeight: '700' }}
                             >
