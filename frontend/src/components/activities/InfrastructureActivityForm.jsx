@@ -7,7 +7,7 @@ import { INFRASTRUCTURE_TYPES } from '../../constants/agriculturalData';
 const InfrastructureActivityForm = ({ onComplete, initialData, initialActivityType, fieldName, categoryLabel }) => {
     const { logActivity, updateActivity } = useActivityStore();
     const { currentFarm } = useFarmStore();
-    const { showNotification } = useUIStore();
+    const { showNotification, showAlert } = useUIStore();
 
     const [formData, setFormData] = useState({
         activity_date: new Date().toISOString().split('T')[0],
@@ -74,6 +74,12 @@ const InfrastructureActivityForm = ({ onComplete, initialData, initialActivityTy
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!formData.description || formData.description.trim() === '') {
+            showAlert('INVALID_QUANTITY', 'Please provide a technical description of the actions performed to continue.');
+            return;
+        }
+
         setLoading(true);
         try {
             const payload = {
@@ -168,7 +174,7 @@ const InfrastructureActivityForm = ({ onComplete, initialData, initialActivityTy
                     <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--primary)', marginBottom: '24px', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
                         Detailed Activity Log
                     </h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr 1fr', gap: '30px', marginBottom: '24px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', marginBottom: '24px' }}>
                         <div className="form-group">
                             <label htmlFor="priority" style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Priority Matrix</label>
                             <select id="priority" name="priority" value={formData.priority} onChange={e => setFormData({ ...formData, priority: e.target.value })} style={{ width: '100%', borderRadius: '8px', border: '1px solid var(--border)', padding: '12px', fontWeight: '500' }}>
@@ -185,19 +191,16 @@ const InfrastructureActivityForm = ({ onComplete, initialData, initialActivityTy
                                 <option value="income">💰 Operational Income</option>
                             </select>
                         </div>
-                        <div className="form-group">
-                            <label htmlFor="component" style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>DESCRIPTION</label>
-                            <input id="component" name="component" type="text" placeholder="e.g. CORE-PUMP-01" value={formData.component} onChange={e => setFormData({ ...formData, component: e.target.value })} style={{ width: '100%', borderRadius: '8px', border: '1px solid var(--border)', padding: '12px' }} />
-                        </div>
                     </div>
                     <div className="form-group">
-                        <label htmlFor="description" style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>Summary of Actions Performed</label>
+                        <label htmlFor="description" style={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#555', marginBottom: '8px', display: 'block' }}>DESCRIPTION</label>
                         <textarea
                             id="description"
                             name="description"
                             value={formData.description}
                             onChange={e => setFormData({ ...formData, description: e.target.value })}
-                            placeholder="Detailed technical description..."
+                            placeholder="Provide a detailed technical description of the operation..."
+                            required
                             style={{ width: '100%', minHeight: '100px', borderRadius: '8px', border: '1px solid var(--border)', padding: '15px' }}
                         />
                     </div>
