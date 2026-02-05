@@ -131,6 +131,7 @@ const Stores = () => {
                                 <th style={{ padding: '16px 24px' }}>Asset Name</th>
                                 <th style={{ padding: '16px 24px' }}>Type</th>
                                 <th style={{ padding: '16px 24px' }}>Status</th>
+                                <th style={{ padding: '16px 24px' }}>Quantity</th>
                                 <th style={{ padding: '16px 24px' }}>Capacity/Area</th>
                                 <th style={{ padding: '16px 24px', textAlign: 'right' }}>Actions</th>
                             </tr>
@@ -164,8 +165,11 @@ const Stores = () => {
                                             ● {unit.status.toUpperCase()}
                                         </span>
                                     </td>
+                                    <td style={{ padding: '16px 24px', fontWeight: '700' }}>
+                                        {unit.quantity || '1'}
+                                    </td>
                                     <td style={{ padding: '16px 24px', fontWeight: '500' }}>
-                                        {unit.area_sqm || '0'} MT / sqm
+                                        {unit.area_sqm || '0'} {unit.capacity_unit || 'MT'}
                                     </td>
                                     <td style={{ padding: '16px 24px', textAlign: 'right' }}>
                                         <div className="flex gap-8 j-end">

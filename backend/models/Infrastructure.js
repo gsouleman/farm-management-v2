@@ -40,6 +40,16 @@ module.exports = (sequelize) => {
         construction_date: DataTypes.DATEONLY,
         cost: DataTypes.DECIMAL(15, 2),
         area_sqm: DataTypes.DECIMAL(10, 2),
+        capacity_unit: {
+            type: DataTypes.STRING,
+            defaultValue: 'MT'
+        },
+        quantity: {
+            type: DataTypes.INTEGER,
+            defaultValue: 1
+        },
+        unit_price: DataTypes.DECIMAL(15, 2),
+        acquisition_cost: DataTypes.DECIMAL(15, 2),
         perimeter: DataTypes.DECIMAL(10, 2),
         boundary_manual: DataTypes.TEXT,
         boundary: {
